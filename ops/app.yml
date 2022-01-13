@@ -1,0 +1,6 @@
+---
+- name: Setup ota-contribution-tool
+  hosts: all
+
+  roles:
+    - ota/github-clone
