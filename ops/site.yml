@@ -1,0 +1,6 @@
+---
+- name: Setup ota-contribution-tool infra and app
+  hosts: all
+
+- import_playbook: infra.yml
+- import_playbook: app.yml
