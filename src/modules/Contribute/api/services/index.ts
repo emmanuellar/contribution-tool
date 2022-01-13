@@ -1,16 +1,17 @@
 import { GetContributeServiceResponse, PostContributeServiceResponse } from '../../interfaces';
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import getConfig from 'next/config';
+
 import HttpStatusCode from 'http-status-codes';
 import { addService } from '../../managers/ServiceManager';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
+import getConfig from 'next/config';
 import { getLatestCommit } from 'modules/Github/api';
-import merge from 'lodash/merge';
 import path from 'path';
+
 const { serverRuntimeConfig } = getConfig();
 
 const isPdf = async (url: string) => {
@@ -153,7 +154,10 @@ const saveOnLocal =
             existingJson,
           });
         }
-        json = merge(existingJson, json);
+        json = {
+          ...existingJson,
+          documents: { ...existingJson.documents, [documentType]: json.documents[documentType] },
+        };
       }
 
       fs.writeFileSync(fullPath, JSON.stringify(json, null, 2));
