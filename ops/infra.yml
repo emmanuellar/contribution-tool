@@ -1,0 +1,6 @@
+---
+- name: Setup ota-contribution-tool infrastructure
+  hosts: all
+  become: yes
+
+  roles:
