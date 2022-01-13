@@ -1,0 +1,25 @@
+/* Reset */
+@import 'vendor/minireset.css';
+
+/* Mixins */
+@import 'mixins.css';
+
+/* Custom media queries and custom properties */
+@import 'custom-media-queries.css';
+@import 'custom-properties.css';
+
+/* Toastify */
+@import 'vendor/toastify.css';
+
+/* Base */
+@import 'base.css';
+
+/* Import elements styles */
+@import 'elements/utility.css';
+@import 'elements/fonts.css';
+@import 'elements/icons.css';
+@import 'elements/inline.css';
+@import 'elements/titles.css';
+@import 'elements/links.css';
+@import 'elements/form.css';
+@import 'elements/blockquote.css';
