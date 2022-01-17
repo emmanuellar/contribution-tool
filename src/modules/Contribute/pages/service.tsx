@@ -150,7 +150,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     toggleLoading(true);
     try {
       const {
-        data: { url },
+        data: { url, message },
       } = await api.post<PostContributeServiceResponse>('/api/services', {
         destination,
         json,
@@ -160,7 +160,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       });
 
       if (!url) {
-        notify('error', t('contribute/service:could_not_create_issue'));
         const subject = 'Here is a new service to track in Open Terms Archive';
         const body = `Hi,
 
@@ -169,10 +168,23 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   Here is the url ${window.location.href}&expertMode=true
 
   Thank you very much`;
-
-        window.open(
-          `mailto:${EMAIL_SUPPORT}?subject=${subject}&body=${encodeURIComponent(body)}`,
-          '_blank'
+        notify(
+          'error',
+          <>
+            {t('contribute/service:could_not_create_issue')} <em>({message})</em>
+            <br />
+            <Button
+              onClick={() => {
+                window.open(
+                  `mailto:${EMAIL_SUPPORT}?subject=${subject}&body=${encodeURIComponent(body)}`,
+                  '_blank'
+                );
+              }}
+            >
+              {t('contribute/service:send_email')}
+            </Button>
+          </>,
+          { autoClose: 10000 }
         );
         router.push(`/thanks?${commonUrlParams}&email=true`);
         return;
@@ -188,7 +200,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     const subject = 'I tried to add this service but it did not work';
     const body = `Hi,
 
-I need you to track "${initialDocumentType}" of "${initialName}" for me but I add a failure with.
+I need you to track "${initialDocumentType}" of "${initialName}" for me but I had a failure with.
 
 -----
 ${data?.error}

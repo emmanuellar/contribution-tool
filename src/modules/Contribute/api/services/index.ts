@@ -182,8 +182,7 @@ const saveOnLocal =
 
 const addNewService =
   (body: any) => async (_: NextApiRequest, res: NextApiResponse<PostContributeServiceResponse>) => {
-    if (['OpenTermsArchive', 'ambanum'].includes(body?.destination.split('/')[0])) {
-      res.statusCode = HttpStatusCode.METHOD_FAILURE;
+    if (!['OpenTermsArchive', 'ambanum'].includes(body?.destination.split('/')[0])) {
       res.json({
         status: 'ko',
         message: 'Destination should be OpenTermsArchive/something or ambanum/something',
