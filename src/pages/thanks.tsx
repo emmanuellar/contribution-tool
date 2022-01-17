@@ -47,9 +47,8 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
         </Container>
       )}
 
-      <Container gridCols="9" gridGutters="8" paddingTop={false}>
+      <Container gridCols="9" gridGutters="8">
         <TextContent className="text__center">
-          <hr />
           <Link href={`/?${commonUrlParams}`}>
             <Button>{t('contribute/thanks:cta')}</Button>
           </Link>
