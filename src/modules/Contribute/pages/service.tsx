@@ -186,7 +186,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
           </>,
           { autoClose: 10000 }
         );
-        router.push(`/thanks?${commonUrlParams}&email=true`);
         return;
       }
       router.push(`/thanks?${commonUrlParams}&url=${encodeURIComponent(url)}`);
@@ -214,8 +213,6 @@ Thank you very much`;
       `mailto:${EMAIL_SUPPORT}?subject=${subject}&body=${encodeURIComponent(body)}`,
       '_blank'
     );
-
-    router.push(`/thanks?${commonUrlParams}`);
   };
 
   const saveOnLocal = async () => {
