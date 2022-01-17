@@ -15,7 +15,7 @@ import useUrl from 'hooks/useUrl';
 export default function ThanksPage({ mdxContent }: WithI18nResult) {
   const { t } = useTranslation();
   const {
-    queryParams: { url, destination, email, localPath, versionsRepo },
+    queryParams: { url, destination, localPath, versionsRepo },
   } = useUrl();
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
@@ -39,17 +39,14 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
         />
       </Container>
 
-      {!email && (
-        <Container gridCols="9" gridGutters="8" paddingY={false}>
-          <TextContent>
-            <MDXRemote {...(mdxContent as any)} scope={{ url }} />
-          </TextContent>
-        </Container>
-      )}
+      <Container gridCols="9" gridGutters="8" paddingY={false}>
+        <TextContent>
+          <MDXRemote {...(mdxContent as any)} scope={{ url }} />
+        </TextContent>
+      </Container>
 
-      <Container gridCols="9" gridGutters="8" paddingTop={false}>
+      <Container gridCols="9" gridGutters="8">
         <TextContent className="text__center">
-          <hr />
           <Link href={`/?${commonUrlParams}`}>
             <Button>{t('contribute/thanks:cta')}</Button>
           </Link>

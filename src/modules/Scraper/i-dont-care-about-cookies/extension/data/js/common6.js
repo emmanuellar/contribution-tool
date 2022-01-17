@@ -20,15 +20,6 @@ function getE(h)
 		case 'hoernews.de':
 			return ['cookieconsent_status=dismiss'];
 		
-		case 'pinterest.com':
-		case 'pinterest.co.uk':
-		case 'pinterest.de':
-		case 'pinterest.fr':
-		case 'pinterest.ru':
-		case 'pinterest.es':
-		case 'pinterest.at':
-			return ['euCookieBanner=true']; // mobile
-		
 		case 'newegg.com':
 		case 'newegg.ca':
 			return ['NV%5FGDPR=001'];
@@ -85,10 +76,6 @@ function getE(h)
 		case 'prodyna.co.uk':
 			return ['prodyna-cookies=ALL'];
 		
-		case 'hotcleaner.com':
-		case 'mycinema.pro':
-			return ['CONSENT=200827NN'];
-		
 		case 'euroleague.net':
 		case 'eurocupbasketball.com':
 			return ['modalNotSeenEV=1', 'cookieBanner=true'];
@@ -141,12 +128,10 @@ function getE(h)
 		case 'fightful.com': return ['gdpr_popup_hide=checked'];
 		case 'tropicana.fr': return ['tropcookie=true'];
 		case 'foodetective.co': return ['cookiesAgreement=accepted'];
-		case 'moebel.de': return ['c_accept=1'];
 		case 'hrkgame.com': return ['gdpralert=done'];
 		case 'quandoo.at': return ['quandoo_cookie_policy=accepted'];
 		case 'grouperf.com': return ['cookie_rgpd=1']; // subdomains
 		case 'insidebruegel.net': return ['InsideBruegel=init'];
-		case 'oe24.at': return ['oe24ConsentCookie=1'];
 		case 'szukajwarchiwach.pl': return ['info_closed=1'];
 		case 'jow.fr': return ['CNIL=OK'];
 		case 'dwell.com': return ['gdpr=1'];
@@ -167,7 +152,6 @@ function getE(h)
 		case 'hetzner.com': return ['cookies_allowed=1']; // accounts
 		case 'ing.nl': return ['cookiepref=1'];
 		case 'ing.be': return ['cookiesOptin=true'];
-		case 'eneba.com': return ['cconsent=1'];
 		case 'wallpaperup.com': return ['wup_jwt=1'];
 		case 'antyweb.pl': return ['aw-privacy-approval=true']; // zeropln
 		case 'archief.amsterdam': return ['verklaring=1'];
@@ -176,17 +160,14 @@ function getE(h)
 		case 'virustotal.com': return ['euConsent=1', 'tosChangedAccepted=1'];
 		case 'cmore.se': return ['cookieBannerDismissed=true'];
 		case 'choosist.com': return ['accept_cookie=1'];
-		case 'depop.com': return ['bisc__ack=1'];
 		case 'kufar.by': return ['ck=1'];
 		case 'ezys.lt': return ['cookie-consent=3'];
 		case 'kalenderwoche.de': return ['cookiepolicy=0'];
 		case 'poolia.se': return ['cookiePolicyAccepted=1']; // jobb
 		case 'researchgate.net': return ['cc=1', 'cookieconsent_dismissed=true'];
-		case 'curiositystream.com': return ['gdpr_opt_out=0'];
 		case 'cindicator.com': return ['accepted_cookie=true'];
 		case 'kitchenplanner.ikea.com': return ['EnableGlobalLicenseAgreement=2015-04-01', 'HideCookieAgreementBanner=true'];
 		case 'atro-provita.de': return ['cookieconsent=true'];
-		case 'tv.nu': return ['gdprNotice=1'];
 		case 'unicheck.com': return ['unicheck-accepted-cookies=true'];
 		case 'meteoblue.com': return ['privacysettings=["required"]'];
 		case 'gberardi.com': return ['cookie_notify=true'];
@@ -196,7 +177,6 @@ function getE(h)
 		case 'business.google.com': return ['isCookieWarningAccepted=true']; // e
 		case 'aktion.mercedes-benz.de': return ['cookiePolicy=accepted'];
 		case 'willitclassic.com': return ['GDPR:accepted=true'];
-		case 'tommy.com': return ['PVH_COOKIES_GDPR=Accept'];
 		case 'byggshop.se': return ['showCookieWarning=false'];
 		case 'blockstack.org': return ['cookiesBanner=ACCEPTED'];
 		case 'mypolacy.de': return ['rCoo=1'];
@@ -215,10 +195,8 @@ function getE(h)
 		case 'e-horyzont.pl': return ['user_allowed_save_cookie_m2=%7B%221%22%3A1%7D'];
 		case 'lonewolfonline.net': return ['visited=yes'];
 		case 'bookchoice.com': return ['cookie-policy-accepted=true'];
-		case 'smule.com': return ['smule_cookie_banner_disabled=true'];
 		case 'codementor.io': return ['cm-general_cookie-consent=true'];
 		case 'e-syntagografisi.gr': return ['cookieconsent_status=1']; // /p-rv/p
-		case 'krone.at': return ['krn_consent_shown=1'];
 		case 'werkenbijhanos.nl': return ['cd=1'];
 		case 'mondo-tech.it': return ['accettacookie=ok'];
 		case 'decrypt.co': return ['GDPR_Settings=%7B%22doNotTrack%22%3Afalse%7D'];
@@ -244,7 +222,6 @@ function getE(h)
 		case 'vodafoneziggo.nl': return ['cookies-accepted=true'];
 		case 'frankfurt.de': return ['cookieAccepted=needed---piwik'];
 		case 'hackerrank.com': return ['show_cookie_banner=false'];
-		case 'app.wooclap.com': return ['wc__cookie-consent=true'];
 		case 'kfc.ru': return ['cookieAccess=1'];
 		case 'radiodienste.de': return ['cookieinfo=1'];
 		case 'creditkarma.co.uk': return ['cc_cookie_accept=cc_cookie_accept'];
@@ -276,13 +253,10 @@ function getE(h)
 		case 'dajar.cz': return ['cookieNoticeAccept=true'];
 		case 'jobalert.ie': return ['hasAcceptedCookies=true'];
 		case 'netztest.at': return ['RMBTTermsV6=true'];
-		case 'tuwien.at': return ['CookieConsent=mandatory'];
-		case 'arbeitsagentur.de': return ['cookie_consent=denied', 'personalization_consent=denied'];
 		case 'gaana.com': return ['gdprv1=1'];
 		case 'cleanairgm.com': return ['cleanair=%7B%22cookiesEssential%22%3Atrue%7D'];
 		case 'e-fundresearch.com': return ['cookieinfo={%22functional%22:true}'];
 		case 'systembolaget.se': return ['cookieConsent=[%22statistical%22%2C%22profiling%22%2C%22useful%22]'];
-		case 'maisons-phenix.com': return ['cookie-agreed-categories=%5B%22essentiels%22%5D', 'cookie-agreed=1'];
 		case 'elkem.com': return ['ConsentClosed=1'];
 		case 'tonershop.at': return ['cc_granted=true'];
 		case 'verce.me': return ['verceCookieApproved=true'];
@@ -312,6 +286,9 @@ function getE(h)
 		case 'turboimagehost.com': return ['cookiewarn=1'];
 		case 'mubi.com': return ['mubi-cookie-consent=allow'];
 		case 'ersatzteilshop.de': return ['cookie-preference=1'];
+		case 'svenskaspel.se': return ['cookie_consent={\"ad\":false,\"personalized\":false,\"analytics\":false,\"provision\":false,\"version\":2}'];
+		case 'restegourmet.de': return ['consent_accepted=1'];
+		case 'cire.pl': return ['APP_COOKIES_POLICY=true', 'APP_COOKIES_TERMS_AND_CONDITIONS=true'];
 	}
 	
 	

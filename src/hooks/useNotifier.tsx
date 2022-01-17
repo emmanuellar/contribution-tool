@@ -14,7 +14,7 @@ const defaultOptions: Partial<ToastOptions> = {
 const useNotifier = () => {
   const notify = (
     variant: ToastOptions['type'] = 'success',
-    message: string,
+    message: React.ReactNode,
     options: ToastOptions = {}
   ) => {
     if (variant === 'error' && !options.autoClose) {
