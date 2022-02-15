@@ -15,6 +15,7 @@
   "step2.form.documentType": "Type of document",
   "step2.form.select": "Select...",
   "step2.form.serviceName": "Name of the service",
+  "step2.form.url": "Url",
   "step2.title": "Step 2: defining this document",
   "step3.form.insignificantPart": "Insignificant part(s)",
   "step3.form.insignificantPart.cta": "Remove part",
