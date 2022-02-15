@@ -39,7 +39,7 @@ Or you can see the JSON generated here:
 ${JSON.stringify(json, null, 2)}
 \`\`\`
 
-You will need to create the following file in the root of the project: \`services/${name}.json\`
+You will need to create the following file in the root of the project: \`services/${name.trimEnd()}.json\`
 
 `;
   let existingIssue = await searchIssue({
