@@ -7,10 +7,30 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import UserAgent from 'user-agents';
 import debug from 'debug';
 import fse from 'fs-extra';
+import { Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 
 const DOWNLOAD_TIMEOUT = 30 * 1000;
 const logDebug = debug('ota.org:debug');
+
+/*
+ * Handle styled-components which hides the content of css Rules
+ * Initially done for https://www.wish.com/privacy_policy
+ * https://spectrum.chat/styled-components/help/get-css-styles-working-with-prerender-io~4483f08d-7c1f-4c51-b0c9-b3430b8b0212?m=MTU0ODYxMTE5ODM5Ng==
+ * https://github.com/styled-components/styled-components/issues/2511 but window.SC_DISABLE_SPEEDY = true; did not seem to work
+ */
+const addMissingStyledComponents = async (page: Page) => {
+  await page.evaluate(function () {
+    const el = document.createElement('style');
+    document.head.appendChild(el);
+    const styles = document.querySelectorAll('style[data-styled]');
+    for (const style of (styles as any).values()) {
+      for (const rule of style.sheet.rules) {
+        el.appendChild(document.createTextNode(rule.cssText));
+      }
+    }
+  });
+};
 
 export const downloadUrl = async (
   url: string,
@@ -81,6 +101,9 @@ export const downloadUrl = async (
       waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
       timeout: DOWNLOAD_TIMEOUT,
     });
+
+    await addMissingStyledComponents(page);
+
     if (parsedUrl.hash) {
       try {
         const hashLinkSelector = `[href="${parsedUrl.hash}"]`;
