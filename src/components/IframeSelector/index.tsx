@@ -18,10 +18,18 @@ const BASE_URL = `${typeof window !== 'undefined' ? window.location.origin : ''}
 }`;
 const CSS_PATH_FINDER_URL = `${BASE_URL}/iframe-selector/css-path-finder.js`;
 const INJECTED_SCRIPT_URL = `${BASE_URL}/iframe-selector/injected-script.js`;
+const GLOBAL_STYLE_TAG_ID = 'ota-global-style';
 const CUSTOM_STYLE_TAG_ID = 'ota-custom-style'; // same as in /public/iframe-selector/injected-script.js
 const STYLE_TAG_ID = 'ota-style'; // same as in /public/iframe-selector/injected-script.js
 const STYLE_HIGHLIGHT_ID = 'ota-highlight'; // same as in /public/iframe-selector/injected-script.js
 const EVENT_NAME = 'ota-event'; // same as in /public/iframe-selector/injected-script.js
+
+// Initially done to display even fadeIn elements on https://policy.pinterest.com/fr/privacy-policy
+const globalRules = `
+*:not(#${STYLE_HIGHLIGHT_ID}) {
+  opacity: 1!important;
+}
+`;
 
 const IframeSelector = ({
   url,
@@ -126,6 +134,11 @@ const IframeSelector = ({
     const style = document.createElement('style');
     style.id = STYLE_TAG_ID;
     iframeDocument.body.appendChild(style);
+
+    const globalStyle = document.createElement('style');
+    globalStyle.innerHTML = globalRules;
+    globalStyle.id = GLOBAL_STYLE_TAG_ID;
+    iframeDocument.body.appendChild(globalStyle);
 
     const finderScript = document.createElement('script');
     finderScript.src = CSS_PATH_FINDER_URL;
