@@ -87,8 +87,10 @@ const IframeSelector = ({
       return;
     }
     const iframeWindow = iframeRef?.current?.contentWindow;
-    if (iframeWindow && selectable) {
-      iframeWindow.postMessage(selectable, '*');
+
+    if (iframeWindow) {
+      // use a custom key because other extensions may use this postMessage too
+      iframeWindow.postMessage({ ima: selectable }, '*');
     }
   }, [selectable, initDone]);
 

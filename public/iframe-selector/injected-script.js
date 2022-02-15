@@ -97,9 +97,11 @@ function onClick(e) {
 }
 
 window.onmessage = function (e) {
-  if (e.data) {
-    enablePicker();
-  } else {
-    disablePicker();
+  if (e.data.ima) {
+    if (e.data.ima === true) {
+      enablePicker();
+    } else {
+      disablePicker();
+    }
   }
 };
