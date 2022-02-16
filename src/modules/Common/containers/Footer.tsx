@@ -10,7 +10,6 @@ type FooterProps = {
 const Footer: React.FC<FooterProps> = ({ children, className, ...props }) => {
   return (
     <footer className={classNames(s.footer, className)} {...props}>
-      <Logo />
       <div className={classNames(s.footer_menus)}>{children}</div>
     </footer>
   );
