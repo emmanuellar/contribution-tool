@@ -24,17 +24,22 @@ export const addService = async ({
     accept: 'application/vnd.github.v3+json',
   };
 
+  const { origin } = new URL(url);
+
   const issueTitle = `Add ${name} - ${documentType}`;
   const issueBodyCommon = `
 You can see the work done by the awesome contributor here:
 ${url}
+
+Or on your local:
+${url.replace(origin, 'http://localhost:3000')}
 
 Or you can see the JSON generated here:
 \`\`\`json
 ${JSON.stringify(json, null, 2)}
 \`\`\`
 
-You will need to create the following file in the root of the project: \`services/${name}.json\`
+You will need to create the following file in the root of the project: \`services/${name.trimEnd()}.json\`
 
 `;
   let existingIssue = await searchIssue({
