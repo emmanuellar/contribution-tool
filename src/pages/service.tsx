@@ -1,5 +1,8 @@
 import { FiChevronDown, FiExternalLink, FiTrash2 } from 'react-icons/fi';
-import { GetContributeServiceResponse, PostContributeServiceResponse } from '../interfaces';
+import {
+  GetContributeServiceResponse,
+  PostContributeServiceResponse,
+} from '../modules/Contribute/interfaces';
 
 import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
@@ -10,6 +13,7 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 import api from 'utils/api';
 import classNames from 'classnames';
+import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import { useEvent } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
@@ -18,6 +22,7 @@ import useSWR from 'swr';
 import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
+import { withI18n } from 'modules/I18n';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -171,7 +176,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
         notify(
           'error',
           <>
-            {t('contribute/service:could_not_create_issue')} <em>({message})</em>
+            {t('service:could_not_create_issue')} <em>({message})</em>
             <br />
             <Button
               onClick={() => {
@@ -181,7 +186,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
                 );
               }}
             >
-              {t('contribute/service:send_email')}
+              {t('service:send_email')}
             </Button>
           </>,
           { autoClose: 10000 }
@@ -248,27 +253,27 @@ Thank you very much`;
                 direction="left"
                 small={true}
               >
-                {t('contribute/service:back')}
+                {t('service:back')}
               </LinkIcon>
             </nav>
             <div>
-              <h2>{t('contribute/service:title')}</h2>
+              <h2>{t('service:title')}</h2>
               <p>
-                <Trans i18nKey="contribute/service:description1">
+                <Trans i18nKey="service:description1">
                   Most of the time, contractual documents contains a header, a footer, navigation
                   menus, possibly ads… We aim at tracking only{' '}
                   <strong>the significant parts of the document</strong>
                 </Trans>
               </p>
               <p>
-                <Trans i18nKey="contribute/service:description2">
+                <Trans i18nKey="service:description2">
                   In order to achieve that, you will have to select the part of the documents that
                   contains the relevant part and remove the insignificant parts.
                 </Trans>
               </p>
             </div>
             <nav>
-              <Button onClick={passToStep(2)}>{t('contribute/service:cta')}</Button>
+              <Button onClick={passToStep(2)}>{t('service:cta')}</Button>
             </nav>
           </>
         )}
@@ -282,31 +287,31 @@ Thank you very much`;
                 direction="left"
                 small={true}
               >
-                {t('contribute/service:back')}
+                {t('service:back')}
               </LinkIcon>
               <a className="a__small" onClick={passToStep(1)}>
-                {t('contribute/service:help')}
+                {t('service:help')}
               </a>
             </nav>
             <div>
               <form>
                 <div>
                   <div className={classNames('formfield')}>
-                    <label>{t('contribute/service:step2.form.url')}</label>
+                    <label>{t('service:step2.form.url')}</label>
                     <div className={classNames('select')}>
                       <input defaultValue={url} onChange={onInputChange('url')} />
                     </div>
                   </div>
-                  <h3>{t('contribute/service:step2.title')}</h3>
+                  <h3>{t('service:step2.title')}</h3>
 
                   <div className={classNames('formfield')}>
-                    <label>{t('contribute/service:step2.form.documentType')}</label>
+                    <label>{t('service:step2.form.documentType')}</label>
                     <div className={classNames('select')}>
                       <select
                         onChange={onInputChange('documentType')}
                         defaultValue={initialDocumentType}
                       >
-                        <option value="">{t('contribute/service:step2.form.select')}</option>
+                        <option value="">{t('service:step2.form.select')}</option>
                         {documentTypes.map((documentType) => (
                           <option key={documentType} value={documentType}>
                             {documentType}
@@ -318,15 +323,15 @@ Thank you very much`;
                   </div>
 
                   <div className={classNames('formfield')}>
-                    <label>{t('contribute/service:step2.form.serviceName')}</label>
+                    <label>{t('service:step2.form.serviceName')}</label>
                     <input defaultValue={initialName} onChange={onInputChange('name')} />
                   </div>
                   {!isPdf && (
                     <>
-                      <h3>{t('contribute/service:step3.title')}</h3>
+                      <h3>{t('service:step3.title')}</h3>
 
                       <div className={classNames('formfield')}>
-                        <label>{t('contribute/service:step3.form.significantPart')}</label>
+                        <label>{t('service:step3.form.significantPart')}</label>
                         {selectedCss.map((selected, i) => (
                           <div key={selected} className={s.selectionItem}>
                             <input
@@ -348,12 +353,12 @@ Thank you very much`;
                           disabled={!!selectable || !iframeReady}
                           type="secondary"
                         >
-                          {t('contribute/service:step3.form.significantPart.cta')}
+                          {t('service:step3.form.significantPart.cta')}
                         </Button>
                       </div>
 
                       <div className={classNames('formfield')}>
-                        <label>{t('contribute/service:step3.form.insignificantPart')}</label>
+                        <label>{t('service:step3.form.insignificantPart')}</label>
                         {removedCss.map((selected, i) => (
                           <div key={selected} className={s.selectionItem}>
                             <input
@@ -375,7 +380,7 @@ Thank you very much`;
                           disabled={!!selectable || !iframeReady}
                           type="secondary"
                         >
-                          {t('contribute/service:step3.form.insignificantPart.cta')}
+                          {t('service:step3.form.insignificantPart.cta')}
                         </Button>
                       </div>
                     </>
@@ -392,7 +397,7 @@ Thank you very much`;
                           type="secondary"
                           title={`Save on ${localPath}`}
                         >
-                          {t('contribute/service:expertMode.button.label')}
+                          {t('service:expertMode.button.label')}
                         </Button>
                       )}
                       <a href={url} target="_blank" rel="noopener" title={url}>
@@ -405,10 +410,10 @@ Thank you very much`;
             </div>
             <nav>
               <a className="a__small" onClick={toggleExpertMode}>
-                {t('contribute/service:expertMode')}
+                {t('service:expertMode')}
               </a>
               <Button disabled={submitDisabled} onClick={onValidate}>
-                {loading ? '...' : t('contribute/service:submit')}
+                {loading ? '...' : t('service:submit')}
               </Button>
             </nav>
           </>
@@ -416,9 +421,9 @@ Thank you very much`;
       </Drawer>
       {data?.error && (
         <div className={s.fullPage}>
-          <h1>{t('contribute/service:error.title')}</h1>
+          <h1>{t('service:error.title')}</h1>
           <p>{data?.error}</p>
-          <Button onClick={onErrorClick}>{t('contribute/service:error.cta')}</Button>
+          <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
         </div>
       )}
       {!data?.error && (
@@ -438,8 +443,8 @@ Thank you very much`;
             )
           ) : (
             <div className={s.fullPage}>
-              <h1>{t('contribute/service:loading.title')}</h1>
-              <p>{t('contribute/service:loading.subtitle')}</p>
+              <h1>{t('service:loading.title')}</h1>
+              <p>{t('service:loading.subtitle')}</p>
               <Loading />
             </div>
           )}
@@ -448,5 +453,13 @@ Thank you very much`;
     </div>
   );
 };
+
+export const getStaticProps = withI18n()(async (props: any) =>
+  JSON.parse(
+    JSON.stringify({
+      props: { ...props, documentTypes: await getDocumentTypes() },
+    })
+  )
+);
 
 export default ServicePage;

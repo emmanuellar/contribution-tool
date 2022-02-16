@@ -1,7 +1,7 @@
 {
   "close": "Fermer",
-  "title": "Outil de contribution",
   "link.github.title": "Voir le code source",
   "link.twitter.title": "Suivez-nous sur Twitter",
-  "open": "Menu"
+  "open": "Menu",
+  "title": "Outil de contribution"
 }
