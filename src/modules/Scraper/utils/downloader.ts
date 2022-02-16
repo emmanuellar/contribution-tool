@@ -7,10 +7,29 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import UserAgent from 'user-agents';
 import debug from 'debug';
 import fse from 'fs-extra';
+import { Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
-
 const DOWNLOAD_TIMEOUT = 30 * 1000;
 const logDebug = debug('ota.org:debug');
+
+/*
+ * Handle styled-components which hides the content of css Rules
+ * Initially done for https://www.wish.com/privacy_policy
+ * https://spectrum.chat/styled-components/help/get-css-styles-working-with-prerender-io~4483f08d-7c1f-4c51-b0c9-b3430b8b0212?m=MTU0ODYxMTE5ODM5Ng==
+ * https://github.com/styled-components/styled-components/issues/2511 but window.SC_DISABLE_SPEEDY = true; did not seem to work
+ */
+const addMissingStyledComponents = async (page: Page) => {
+  await page.evaluate(function () {
+    const el = document.createElement('style');
+    document.head.appendChild(el);
+    const styles = document.querySelectorAll('style[data-styled]');
+    for (const style of (styles as any).values()) {
+      for (const rule of style.sheet.rules) {
+        el.appendChild(document.createTextNode(rule.cssText));
+      }
+    }
+  });
+};
 
 export const downloadUrl = async (
   url: string,
@@ -47,7 +66,7 @@ export const downloadUrl = async (
     const resourceType = response.request().resourceType();
     const status = response.status();
 
-    const { hostname, pathname } = new URL(response.url());
+    const { hostname, pathname, search } = new URL(response.url());
 
     if (
       (status >= 300 && status <= 399) ||
@@ -56,23 +75,28 @@ export const downloadUrl = async (
     ) {
       return;
     }
+
     const buffer = await response.buffer();
-    const { pathname: newUrlPathname, search: newUrlSearch } = new URL(response.url());
-    const newUrl = `${newUrlPathname}${newUrlSearch}`;
-    const relativeUrl = newUrl.replace(parsedUrl.pathname, '');
+    let targetPathname = pathname;
+    if (resourceType === 'stylesheet' && !pathname.endsWith('.css')) {
+      targetPathname = `${pathname}.css`;
+    }
+    const existingUrl = `${pathname}${search}`;
+    const rewrittenUrl = `${newUrlPath}${targetPathname}`;
+    const relativeUrl = existingUrl.replace(parsedUrl.pathname, '');
 
     // sometimes the url is relative to the root of the domain, so we need to remove both
     // and in order to prevent string to be replaced twice, we need to replace it along with the surrounding quotes
-    assets.push({ from: `"${newUrl}"`, to: `"${newUrlPath}${pathname}"` });
-    assets.push({ from: `'${newUrl}'`, to: `'${newUrlPath}${pathname}'` });
+    assets.push({ from: `"${existingUrl}"`, to: `"${rewrittenUrl}"` });
+    assets.push({ from: `'${existingUrl}'`, to: `'${rewrittenUrl}'` });
 
     // in case a relative link is present such as "libs/style.min.css" when url is "https://www.tchap.gouv.fr/faq/#_Toc4344724_04"
-    assets.push({ from: `"${relativeUrl}"`, to: `"${newUrlPath}${pathname}"` });
-    assets.push({ from: `'${relativeUrl}'`, to: `'${newUrlPath}${pathname}'` });
+    assets.push({ from: `"${relativeUrl}"`, to: `"${rewrittenUrl}"` });
+    assets.push({ from: `'${relativeUrl}'`, to: `'${rewrittenUrl}'` });
 
-    assets.push({ from: response.url(), to: `${newUrlPath}${pathname}` });
+    assets.push({ from: response.url(), to: `${rewrittenUrl}` });
 
-    fse.outputFile(`${folderPath}${pathname}`, buffer, 'base64');
+    fse.outputFile(`${folderPath}${targetPathname}`, buffer, 'base64');
   });
 
   let message: any;
@@ -81,6 +105,9 @@ export const downloadUrl = async (
       waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
       timeout: DOWNLOAD_TIMEOUT,
     });
+
+    await addMissingStyledComponents(page);
+
     if (parsedUrl.hash) {
       try {
         const hashLinkSelector = `[href="${parsedUrl.hash}"]`;

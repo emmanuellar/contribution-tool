@@ -47,5 +47,8 @@
 
   &:disabled {
     opacity: 0.6;
+    background-color: var(--colorBlack200);
+    border: 1px solid var(--colorBlack400);
+    color: var(--colorBlack600);
   }
 }

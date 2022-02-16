@@ -116,7 +116,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       }
       toggleSelectable('');
     },
-    [removedCss, selectedCss, pushQueryParam, selectable, toggleSelectable]
+    [url, removedCss, selectedCss, pushQueryParam, selectable, toggleSelectable]
   );
 
   const onChangeCssRule = (queryparam: 'selectedCss' | 'removedCss', index: number) => (e: any) => {
@@ -231,6 +231,10 @@ Thank you very much`;
     }
   }, [data?.isPdf]);
 
+  React.useEffect(() => {
+    toggleIframeReady(false);
+  }, [url]);
+
   return (
     <div className={s.wrapper}>
       <Drawer className={s.drawer}>
@@ -287,7 +291,14 @@ Thank you very much`;
             <div>
               <form>
                 <div>
+                  <div className={classNames('formfield')}>
+                    <label>{t('contribute/service:step2.form.url')}</label>
+                    <div className={classNames('select')}>
+                      <input defaultValue={url} onChange={onInputChange('url')} />
+                    </div>
+                  </div>
                   <h3>{t('contribute/service:step2.title')}</h3>
+
                   <div className={classNames('formfield')}>
                     <label>{t('contribute/service:step2.form.documentType')}</label>
                     <div className={classNames('select')}>
