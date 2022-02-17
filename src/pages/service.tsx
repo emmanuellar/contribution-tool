@@ -323,21 +323,20 @@ Thank you very much`;
             <form>
               <div>
                 <div className={classNames('formfield')}>
-                  <label>{t('service:step2.form.url')}</label>
+                  <label>{t('service:form.url', 'URL')}</label>
                   <div className={classNames('select')}>
                     <input defaultValue={url} onChange={onInputChange('url')} />
                   </div>
                 </div>
-                <h3>{t('service:step2.title')}</h3>
 
                 <div className={classNames('formfield')}>
-                  <label>{t('service:step2.form.documentType')}</label>
+                  <label>{t('service:form.documentType', 'Type')}</label>
                   <div className={classNames('select')}>
                     <select
                       onChange={onInputChange('documentType')}
                       defaultValue={initialDocumentType}
                     >
-                      <option value="">{t('service:step2.form.select')}</option>
+                      <option value="">{t('service:form.select')}</option>
                       {documentTypes.map((documentType) => (
                         <option key={documentType} value={documentType}>
                           {documentType}
@@ -349,15 +348,13 @@ Thank you very much`;
                 </div>
 
                 <div className={classNames('formfield')}>
-                  <label>{t('service:step2.form.serviceName')}</label>
+                  <label>{t('service:form.serviceName', 'Name')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
                 </div>
                 {!isPdf && (
                   <>
-                    <h3>{t('service:step3.title')}</h3>
-
                     <div className={classNames('formfield')}>
-                      <label>{t('service:step3.form.significantPart')}</label>
+                      <label>{t('service:form.significantPart')}</label>
                       {selectedCss.map((selected, i) => (
                         <div key={selected} className={s.selectionItem}>
                           <input
@@ -379,12 +376,12 @@ Thank you very much`;
                         disabled={!!selectable || !iframeReady}
                         type="secondary"
                       >
-                        {t('service:step3.form.significantPart.cta')}
+                        {t('service:form.significantPart.cta')}
                       </Button>
                     </div>
 
                     <div className={classNames('formfield')}>
-                      <label>{t('service:step3.form.insignificantPart')}</label>
+                      <label>{t('service:form.insignificantPart')}</label>
                       {removedCss.map((selected, i) => (
                         <div key={selected} className={s.selectionItem}>
                           <input
@@ -406,7 +403,7 @@ Thank you very much`;
                         disabled={!!selectable || !iframeReady}
                         type="secondary"
                       >
-                        {t('service:step3.form.insignificantPart.cta')}
+                        {t('service:form.insignificantPart.cta')}
                       </Button>
                     </div>
                   </>
