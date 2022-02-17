@@ -323,14 +323,14 @@ Thank you very much`;
             <form>
               <div>
                 <div className={classNames('formfield')}>
-                  <label>{t('service:form.url', 'URL')}</label>
+                  <label>{t('service:form.url')}</label>
                   <div className={classNames('select')}>
                     <input defaultValue={url} onChange={onInputChange('url')} />
                   </div>
                 </div>
 
                 <div className={classNames('formfield')}>
-                  <label>{t('service:form.documentType', 'Type')}</label>
+                  <label>{t('service:form.documentType')}</label>
                   <div className={classNames('select')}>
                     <select
                       onChange={onInputChange('documentType')}
@@ -348,7 +348,7 @@ Thank you very much`;
                 </div>
 
                 <div className={classNames('formfield')}>
-                  <label>{t('service:form.serviceName', 'Name')}</label>
+                  <label>{t('service:form.serviceName')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
                 </div>
                 {!isPdf && (
