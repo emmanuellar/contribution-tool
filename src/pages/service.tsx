@@ -1,12 +1,11 @@
-import { Dialog, Transition } from '@headlessui/react';
 import { FiChevronDown, FiExternalLink, FiTrash2 } from 'react-icons/fi';
-import { Fragment, useState } from 'react';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
 } from '../modules/Contribute/interfaces';
 
 import Button from 'modules/Common/components/Button';
+import { Dialog } from '@headlessui/react';
 import Drawer from 'components/Drawer';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
@@ -23,6 +22,7 @@ import { useEvent } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import { useState } from 'react';
 import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
@@ -31,14 +31,14 @@ import { withI18n } from 'modules/I18n';
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
-  let [isOpen, setIsOpen] = useState(true);
+  let [isDialogOpen, setIsDialogOpen] = useState(true);
 
-  const closeModal = () => {
-    setIsOpen(false);
+  const closeDialog = () => {
+    setIsDialogOpen(false);
   };
 
-  const openModal = () => {
-    setIsOpen(true);
+  const openDialog = () => {
+    setIsDialogOpen(true);
   };
 
   const router = useRouter();
@@ -247,55 +247,39 @@ Thank you very much`;
 
   return (
     <div className={s.wrapper}>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className={classNames(sDialog.dialog)} onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
-          </Transition.Child>
+      <Dialog
+        open={isDialogOpen}
+        as="div"
+        className={classNames(sDialog.dialog)}
+        onClose={closeDialog}
+      >
+        <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <div className={classNames(sDialog.dialog_content)}>
-              <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
-              <Dialog.Description>
-                <TextContent>
-                  <p>
-                    <Trans i18nKey="service:dialog.start.p1">
-                      Most of the time, contractual documents contains a header, a footer,
-                      navigation menus, possibly ads… We aim at tracking only{' '}
-                      <strong>the significant parts of the document</strong>
-                    </Trans>
-                  </p>
-                  <p>
-                    <Trans i18nKey="service:dialog.start.p2">
-                      In order to achieve that, you will have to select the part of the documents
-                      that contains the relevant part and remove the insignificant parts.
-                    </Trans>
-                  </p>
-                </TextContent>
-              </Dialog.Description>
-              <div className="mt__L text__right">
-                <Button onClick={closeModal}>{t('service:dialog.start.cta')}</Button>
-              </div>
-            </div>
-          </Transition.Child>
-        </Dialog>
-      </Transition>
+        <div className={classNames(sDialog.dialog_content)}>
+          <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
+          <Dialog.Description>
+            <TextContent>
+              <p>
+                <Trans i18nKey="service:dialog.start.p1">
+                  Most of the time, contractual documents contains a header, a footer, navigation
+                  menus, possibly ads… We aim at tracking only{' '}
+                  <strong>the significant parts of the document</strong>
+                </Trans>
+              </p>
+              <p>
+                <Trans i18nKey="service:dialog.start.p2">
+                  In order to achieve that, you will have to select the part of the documents that
+                  contains the relevant part and remove the insignificant parts.
+                </Trans>
+              </p>
+            </TextContent>
+          </Dialog.Description>
+          <div className="mt__L text__right">
+            <Button onClick={closeDialog}>{t('service:dialog.start.cta')}</Button>
+          </div>
+        </div>
+      </Dialog>
+
       <Drawer className={s.drawer}>
         <>
           <nav>
