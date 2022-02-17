@@ -38,7 +38,7 @@ const Layout = ({
           <Header>
             {() => (
               <>
-                <HeaderMenu>{t('header:title')}</HeaderMenu>
+                <HeaderMenu></HeaderMenu>
                 <HeaderMenu type="secondary">
                   <LanguageSwitcher />
                   <ul>
