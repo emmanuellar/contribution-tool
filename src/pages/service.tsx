@@ -8,7 +8,6 @@ import {
 
 import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
-import { FiArrowRight as IconArrowRight } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
@@ -51,7 +50,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       localPath,
       versionsRepo,
       url,
-      step: initialStep,
       selectedCss: initialSelectedCss,
       removedCss: initialRemovedCss,
       documentType: initialDocumentType,
@@ -88,7 +86,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   const [selectable, toggleSelectable] = React.useState('');
   const [iframeReady, toggleIframeReady] = useToggle(false);
   const [loading, toggleLoading] = useToggle(false);
-  const [step, setStep] = React.useState<number>(initialStep ? +initialStep : 1);
 
   const selectedCss = !initialSelectedCss
     ? []
@@ -115,13 +112,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       revalidateOnMount: true,
     }
   );
-
-  const passToStep = (newStep: number) => (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    pushQueryParam('step')(newStep);
-    setStep(newStep);
-  };
 
   const selectInIframe = (queryparam: 'selectedCss' | 'removedCss') => () => {
     toggleSelectable(queryparam);
