@@ -318,9 +318,6 @@ Thank you very much`;
             >
               {t('service:back')}
             </LinkIcon>
-            <a className="a__small" onClick={passToStep(1)}>
-              {t('service:help')}
-            </a>
           </nav>
           <div>
             <form>
