@@ -35,10 +35,7 @@ const HomePage = () => {
       {/* Hero */}
       <Container layout="wide" paddingY={false} dark={true}>
         <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Hero
-            title={t('homepage:title')}
-            subtitle={t('homepage:subtitle', { versionsRepo: versionsRepo })}
-          ></Hero>
+          <Hero title={t('homepage:title')}></Hero>
         </Container>
       </Container>
 
