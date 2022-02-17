@@ -1,9 +1,10 @@
 {
   "back": "Retour",
   "could_not_create_issue": "Nous sommes vraiment désolés mais la création automatique de ce nouveau service a échoué, nous aurions besoin que vous nous envoyiez un email.",
-  "cta": "OK",
-  "description1": "La plupart du temps, les documents contractuels contiennent un en-tête, un pied de page, des menus de navigation, éventuellement des publicités... Nous visons à suivre uniquement <strong>les parties significatives du document</strong>.",
-  "description2": "Pour y parvenir, vous devrez sélectionner la partie des documents qui contient la partie pertinente et supprimer les parties insignifiantes.",
+  "dialog.start.cta": "Commencer",
+  "dialog.start.p1": "La plupart du temps, les documents contractuels contiennent un en-tête, un pied de page, des menus de navigation, éventuellement des publicités... Nous visons à suivre uniquement <strong>les parties significatives du document</strong>.",
+  "dialog.start.p2": "Pour y parvenir, vous devrez sélectionner la partie document qui vous semble pertinente et supprimer les parties insignifiantes.",
+  "dialog.start.title": "Quelques points d'attention",
   "error.cta": "Faites-nous savoir !",
   "error.title": "Nous sommes désolés, une erreur est survenue",
   "expertMode": "Expert Mode",
@@ -22,6 +23,5 @@
   "step3.form.significantPart": "Partie(s) significative(s)",
   "step3.form.significantPart.cta": "Ajouter une partie",
   "step3.title": "Étape 3 : sélection d'une partie significative du document",
-  "submit": "Envoyer",
-  "title": "Quelques points d'attention 🤗"
+  "submit": "Envoyer"
 }

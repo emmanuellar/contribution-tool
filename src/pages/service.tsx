@@ -1,4 +1,6 @@
+import { Dialog, Transition } from '@headlessui/react';
 import { FiChevronDown, FiExternalLink, FiTrash2 } from 'react-icons/fi';
+import { Fragment, useState } from 'react';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
@@ -6,15 +8,18 @@ import {
 
 import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
+import { FiArrowRight as IconArrowRight } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
 import React from 'react';
+import TextContent from 'modules/Common/components/TextContent';
 import { Trans } from 'react-i18next';
 import api from 'utils/api';
 import classNames from 'classnames';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
+import sDialog from '../../src/modules/Common/components/Dialog.module.css';
 import { useEvent } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
@@ -27,6 +32,16 @@ import { withI18n } from 'modules/I18n';
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
+  let [isOpen, setIsOpen] = useState(true);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
+  const openModal = () => {
+    setIsOpen(true);
+  };
+
   const router = useRouter();
   const { t } = useTranslation();
   const { notify } = useNotifier();
@@ -239,185 +254,198 @@ Thank you very much`;
   React.useEffect(() => {
     toggleIframeReady(false);
   }, [url]);
-  console.log(`./?${commonUrlParams}`);
+
   return (
     <div className={s.wrapper}>
-      <Drawer className={s.drawer}>
-        {step === 1 && (
-          <>
-            <nav>
-              <LinkIcon
-                className={s.backButton}
-                iconColor="var(--colorBlack400)"
-                href={`/?${commonUrlParams}`}
-                direction="left"
-                small={true}
-              >
-                {t('service:back')}
-              </LinkIcon>
-            </nav>
-            <div>
-              <h2>{t('service:title')}</h2>
-              <p>
-                <Trans i18nKey="service:description1">
-                  Most of the time, contractual documents contains a header, a footer, navigation
-                  menus, possibly ads… We aim at tracking only{' '}
-                  <strong>the significant parts of the document</strong>
-                </Trans>
-              </p>
-              <p>
-                <Trans i18nKey="service:description2">
-                  In order to achieve that, you will have to select the part of the documents that
-                  contains the relevant part and remove the insignificant parts.
-                </Trans>
-              </p>
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className={classNames(sDialog.dialog)} onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
+          </Transition.Child>
+
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div className={classNames(sDialog.dialog_content)}>
+              <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
+              <Dialog.Description>
+                <TextContent>
+                  <p>
+                    <Trans i18nKey="service:dialog.start.p1">
+                      Most of the time, contractual documents contains a header, a footer,
+                      navigation menus, possibly ads… We aim at tracking only{' '}
+                      <strong>the significant parts of the document</strong>
+                    </Trans>
+                  </p>
+                  <p>
+                    <Trans i18nKey="service:dialog.start.p2">
+                      In order to achieve that, you will have to select the part of the documents
+                      that contains the relevant part and remove the insignificant parts.
+                    </Trans>
+                  </p>
+                </TextContent>
+              </Dialog.Description>
+              <div className="mt__L text__right">
+                <Button onClick={closeModal}>{t('service:dialog.start.cta')}</Button>
+              </div>
             </div>
-            <nav>
-              <Button onClick={passToStep(2)}>{t('service:cta')}</Button>
-            </nav>
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <nav>
-              <LinkIcon
-                className={s.backButton}
-                iconColor="var(--colorBlack400)"
-                href={`/?${commonUrlParams}`}
-                direction="left"
-                small={true}
-              >
-                {t('service:back')}
-              </LinkIcon>
-              <a className="a__small" onClick={passToStep(1)}>
-                {t('service:help')}
-              </a>
-            </nav>
-            <div>
-              <form>
-                <div>
-                  <div className={classNames('formfield')}>
-                    <label>{t('service:step2.form.url')}</label>
-                    <div className={classNames('select')}>
-                      <input defaultValue={url} onChange={onInputChange('url')} />
-                    </div>
+          </Transition.Child>
+        </Dialog>
+      </Transition>
+      <Drawer className={s.drawer}>
+        <>
+          <nav>
+            <LinkIcon
+              className={s.backButton}
+              iconColor="var(--colorBlack400)"
+              href={`/?${commonUrlParams}`}
+              direction="left"
+              small={true}
+            >
+              {t('service:back')}
+            </LinkIcon>
+            <a className="a__small" onClick={passToStep(1)}>
+              {t('service:help')}
+            </a>
+          </nav>
+          <div>
+            <form>
+              <div>
+                <div className={classNames('formfield')}>
+                  <label>{t('service:step2.form.url')}</label>
+                  <div className={classNames('select')}>
+                    <input defaultValue={url} onChange={onInputChange('url')} />
                   </div>
-                  <h3>{t('service:step2.title')}</h3>
-
-                  <div className={classNames('formfield')}>
-                    <label>{t('service:step2.form.documentType')}</label>
-                    <div className={classNames('select')}>
-                      <select
-                        onChange={onInputChange('documentType')}
-                        defaultValue={initialDocumentType}
-                      >
-                        <option value="">{t('service:step2.form.select')}</option>
-                        {documentTypes.map((documentType) => (
-                          <option key={documentType} value={documentType}>
-                            {documentType}
-                          </option>
-                        ))}
-                      </select>
-                      <FiChevronDown color="333333"></FiChevronDown>
-                    </div>
-                  </div>
-
-                  <div className={classNames('formfield')}>
-                    <label>{t('service:step2.form.serviceName')}</label>
-                    <input defaultValue={initialName} onChange={onInputChange('name')} />
-                  </div>
-                  {!isPdf && (
-                    <>
-                      <h3>{t('service:step3.title')}</h3>
-
-                      <div className={classNames('formfield')}>
-                        <label>{t('service:step3.form.significantPart')}</label>
-                        {selectedCss.map((selected, i) => (
-                          <div key={selected} className={s.selectionItem}>
-                            <input
-                              defaultValue={selected}
-                              onChange={onChangeCssRule('selectedCss', i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule('selectedCss', i)}
-                              type="secondary"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          onClick={selectInIframe('selectedCss')}
-                          disabled={!!selectable || !iframeReady}
-                          type="secondary"
-                        >
-                          {t('service:step3.form.significantPart.cta')}
-                        </Button>
-                      </div>
-
-                      <div className={classNames('formfield')}>
-                        <label>{t('service:step3.form.insignificantPart')}</label>
-                        {removedCss.map((selected, i) => (
-                          <div key={selected} className={s.selectionItem}>
-                            <input
-                              defaultValue={selected}
-                              onChange={onChangeCssRule('removedCss', i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule('removedCss', i)}
-                              type="secondary"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          onClick={selectInIframe('removedCss')}
-                          disabled={!!selectable || !iframeReady}
-                          type="secondary"
-                        >
-                          {t('service:step3.form.insignificantPart.cta')}
-                        </Button>
-                      </div>
-                    </>
-                  )}
                 </div>
-                {expertMode && (
+                <h3>{t('service:step2.title')}</h3>
+
+                <div className={classNames('formfield')}>
+                  <label>{t('service:step2.form.documentType')}</label>
+                  <div className={classNames('select')}>
+                    <select
+                      onChange={onInputChange('documentType')}
+                      defaultValue={initialDocumentType}
+                    >
+                      <option value="">{t('service:step2.form.select')}</option>
+                      {documentTypes.map((documentType) => (
+                        <option key={documentType} value={documentType}>
+                          {documentType}
+                        </option>
+                      ))}
+                    </select>
+                    <FiChevronDown color="333333"></FiChevronDown>
+                  </div>
+                </div>
+
+                <div className={classNames('formfield')}>
+                  <label>{t('service:step2.form.serviceName')}</label>
+                  <input defaultValue={initialName} onChange={onInputChange('name')} />
+                </div>
+                {!isPdf && (
                   <>
-                    <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
-                    <div className={classNames(s.expertButtons)}>
-                      {localPath && (
-                        <Button
-                          onClick={saveOnLocal}
-                          size="sm"
-                          type="secondary"
-                          title={`Save on ${localPath}`}
-                        >
-                          {t('service:expertMode.button.label')}
-                        </Button>
-                      )}
-                      <a href={url} target="_blank" rel="noopener" title={url}>
-                        <FiExternalLink />
-                      </a>
+                    <h3>{t('service:step3.title')}</h3>
+
+                    <div className={classNames('formfield')}>
+                      <label>{t('service:step3.form.significantPart')}</label>
+                      {selectedCss.map((selected, i) => (
+                        <div key={selected} className={s.selectionItem}>
+                          <input
+                            defaultValue={selected}
+                            onChange={onChangeCssRule('selectedCss', i)}
+                          />
+
+                          <Button
+                            onClick={onRemoveCssRule('selectedCss', i)}
+                            type="secondary"
+                            onlyIcon={true}
+                          >
+                            <FiTrash2></FiTrash2>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        onClick={selectInIframe('selectedCss')}
+                        disabled={!!selectable || !iframeReady}
+                        type="secondary"
+                      >
+                        {t('service:step3.form.significantPart.cta')}
+                      </Button>
+                    </div>
+
+                    <div className={classNames('formfield')}>
+                      <label>{t('service:step3.form.insignificantPart')}</label>
+                      {removedCss.map((selected, i) => (
+                        <div key={selected} className={s.selectionItem}>
+                          <input
+                            defaultValue={selected}
+                            onChange={onChangeCssRule('removedCss', i)}
+                          />
+
+                          <Button
+                            onClick={onRemoveCssRule('removedCss', i)}
+                            type="secondary"
+                            onlyIcon={true}
+                          >
+                            <FiTrash2></FiTrash2>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        onClick={selectInIframe('removedCss')}
+                        disabled={!!selectable || !iframeReady}
+                        type="secondary"
+                      >
+                        {t('service:step3.form.insignificantPart.cta')}
+                      </Button>
                     </div>
                   </>
                 )}
-              </form>
-            </div>
-            <nav>
-              <a className="a__small" onClick={toggleExpertMode}>
-                {t('service:expertMode')}
-              </a>
-              <Button disabled={submitDisabled} onClick={onValidate}>
-                {loading ? '...' : t('service:submit')}
-              </Button>
-            </nav>
-          </>
-        )}
+              </div>
+              {expertMode && (
+                <>
+                  <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
+                  <div className={classNames(s.expertButtons)}>
+                    {localPath && (
+                      <Button
+                        onClick={saveOnLocal}
+                        size="sm"
+                        type="secondary"
+                        title={`Save on ${localPath}`}
+                      >
+                        {t('service:expertMode.button.label')}
+                      </Button>
+                    )}
+                    <a href={url} target="_blank" rel="noopener" title={url}>
+                      <FiExternalLink />
+                    </a>
+                  </div>
+                </>
+              )}
+            </form>
+          </div>
+          <nav>
+            <a className="a__small" onClick={toggleExpertMode}>
+              {t('service:expertMode')}
+            </a>
+            <Button disabled={submitDisabled} onClick={onValidate}>
+              {loading ? '...' : t('service:submit')}
+            </Button>
+          </nav>
+        </>
       </Drawer>
       {data?.error && (
         <div className={s.fullPage}>
