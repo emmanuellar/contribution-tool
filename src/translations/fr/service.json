@@ -11,14 +11,14 @@
   "expertMode.button.label": "Sauver en local",
   "form.documentType": "Type",
   "form.insignificantPart": "Partie(s) insignifiante(s)",
-  "form.insignificantPart.cta": "Supprimer une partie",
+  "form.insignificantPart.cta": "Sélectionner",
   "form.select": "Sélectionner...",
   "form.serviceName": "Nom",
   "form.significantPart": "Partie(s) significative(s)",
-  "form.significantPart.cta": "Ajouter une partie",
+  "form.significantPart.cta": "Sélectionner",
   "form.url": "URL",
   "loading.subtitle": "Cela prend généralement entre 5s et 30s",
   "loading.title": "Nous préparons le site Web",
   "send_email": "Envoyez-nous un email",
-  "submit": "Envoyer"
+  "submit": "Ajouter le document"
 }
