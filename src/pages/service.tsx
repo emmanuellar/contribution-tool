@@ -239,7 +239,7 @@ Thank you very much`;
   React.useEffect(() => {
     toggleIframeReady(false);
   }, [url]);
-
+  console.log(`./?${commonUrlParams}`);
   return (
     <div className={s.wrapper}>
       <Drawer className={s.drawer}>
@@ -249,7 +249,7 @@ Thank you very much`;
               <LinkIcon
                 className={s.backButton}
                 iconColor="var(--colorBlack400)"
-                href={`?${commonUrlParams}`}
+                href={`/?${commonUrlParams}`}
                 direction="left"
                 small={true}
               >
@@ -283,7 +283,7 @@ Thank you very much`;
               <LinkIcon
                 className={s.backButton}
                 iconColor="var(--colorBlack400)"
-                href={`?${commonUrlParams}`}
+                href={`/?${commonUrlParams}`}
                 direction="left"
                 small={true}
               >
