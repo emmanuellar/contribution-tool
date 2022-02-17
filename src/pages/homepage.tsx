@@ -3,6 +3,7 @@ import Search, { SearchProps } from 'components/Search/Search';
 import Column from 'modules/Common/components/Column';
 import Container from 'modules/Common/containers/Container';
 import Hero from 'modules/Common/components/Hero';
+import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import Layout from 'modules/Common/containers/Layout';
 import TextContent from 'modules/Common/components/TextContent';
 import { useEvent } from 'react-use';
@@ -40,24 +41,30 @@ const HomePage = () => {
       </Container>
 
       <Container paddingY={false}>
-        <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Column width={100}>
-            {!destination && <TextContent>{t('homepage:no-destination')}</TextContent>}
-            {destination && (
-              <>
-                <TextContent>
-                  <p>{t('homepage:content.p1')}</p>
-                </TextContent>
-                <Search
-                  label={t('homepage:search.label')}
-                  buttonLabel={t('homepage:search.button')}
-                  placeholder="https://www.amazon.com/gp/help/customer/display.html?nodeId=13819201"
-                  onSearchSubmit={onSubmit}
-                />
-              </>
-            )}
-          </Column>
-        </Container>
+        {!destination && (
+          <Container gridCols="12" gridGutters="11" flex={true} alignX="center" paddingX={false}>
+            <Column width={75} className="text__center">
+              <TextContent className="text__error">
+                <IconAlert /> {t('homepage:no-destination')}
+              </TextContent>
+            </Column>
+          </Container>
+        )}
+        {destination && (
+          <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
+            <Column width={100}>
+              <TextContent>
+                <p>{t('homepage:content.p1')}</p>
+              </TextContent>
+              <Search
+                label={t('homepage:search.label')}
+                buttonLabel={t('homepage:search.button')}
+                placeholder="https://www.amazon.com/gp/help/customer/display.html?nodeId=13819201"
+                onSearchSubmit={onSubmit}
+              />
+            </Column>
+          </Container>
+        )}
       </Container>
     </Layout>
   );
