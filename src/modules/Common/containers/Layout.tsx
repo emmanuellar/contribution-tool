@@ -38,7 +38,6 @@ const Layout = ({
           <Header>
             {() => (
               <>
-                <HeaderMenu></HeaderMenu>
                 <HeaderMenu type="secondary">
                   <LanguageSwitcher />
                   <ul>
