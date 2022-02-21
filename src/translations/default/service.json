@@ -3,7 +3,7 @@
   "could_not_create_issue": "We're truly sorry but the automatic creation of this new service failed, we will need you to send us an email",
   "cta": "OK",
   "description1": "Most of the time, contractual documents contains a header, a footer, navigation menus, possibly ads… We aim at tracking only <2>the significant parts of the document</2>",
-  "description2": "In order to achieve that, you will have to select the part of the documents that contains the relevant part and remove the insignificant parts.",
+  "description2": "In order to achieve that, you will have to select those specific parts and remove the insignificant ones.",
   "error.cta": "Let us know!",
   "error.title": "We're sorry, an error occured",
   "expertMode": "Expert Mode",

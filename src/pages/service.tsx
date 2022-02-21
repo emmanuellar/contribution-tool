@@ -259,8 +259,8 @@ Thank you very much`;
               </p>
               <p>
                 <Trans i18nKey="service:dialog.start.p2">
-                  In order to achieve that, you will have to select the part of the documents that
-                  contains the relevant part and remove the insignificant parts.
+                  In order to achieve that, you will have to select those specific parts and remove
+                  the insignificant ones.
                 </Trans>
               </p>
             </TextContent>
