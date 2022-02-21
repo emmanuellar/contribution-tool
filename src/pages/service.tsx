@@ -284,7 +284,7 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
-          <div>
+          <div className={s.formWrapper}>
             <form>
               <div>
                 <div className={classNames('formfield')}>
@@ -374,29 +374,9 @@ Thank you very much`;
                   </>
                 )}
               </div>
-              {expertMode && (
-                <>
-                  <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
-                  <div className={classNames(s.expertButtons)}>
-                    {localPath && (
-                      <Button
-                        onClick={saveOnLocal}
-                        size="sm"
-                        type="secondary"
-                        title={`Save on ${localPath}`}
-                      >
-                        {t('service:expertMode.button.label')}
-                      </Button>
-                    )}
-                    <a href={url} target="_blank" rel="noopener" title={url}>
-                      <FiExternalLink />
-                    </a>
-                  </div>
-                </>
-              )}
             </form>
           </div>
-          <nav>
+          <nav className={s.formActions}>
             <a className="a__small" onClick={toggleExpertMode}>
               {t('service:expertMode')}
             </a>
@@ -404,6 +384,26 @@ Thank you very much`;
               {loading ? '...' : t('service:submit')}
             </Button>
           </nav>
+          {expertMode && (
+            <div className={s.expert}>
+              <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
+              <div className={classNames(s.expertButtons)}>
+                {localPath && (
+                  <Button
+                    onClick={saveOnLocal}
+                    size="sm"
+                    type="secondary"
+                    title={`Save on ${localPath}`}
+                  >
+                    {t('service:expertMode.button.label')}
+                  </Button>
+                )}
+                <a href={url} target="_blank" rel="noopener" title={url}>
+                  <FiExternalLink />
+                </a>
+              </div>
+            </div>
+          )}
         </>
       </Drawer>
       {data?.error && (
