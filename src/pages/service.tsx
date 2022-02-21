@@ -22,7 +22,6 @@ import { useEvent } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { useState } from 'react';
 import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
@@ -31,15 +30,7 @@ import { withI18n } from 'modules/I18n';
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
-  let [isDialogOpen, setIsDialogOpen] = useState(true);
-
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-  const openDialog = () => {
-    setIsDialogOpen(true);
-  };
+  let [isDialogOpen, toggleDialogOpen] = useToggle(true);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -251,7 +242,7 @@ Thank you very much`;
         open={isDialogOpen}
         as="div"
         className={classNames(sDialog.dialog)}
-        onClose={closeDialog}
+        onClose={toggleDialogOpen}
       >
         <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
@@ -275,7 +266,7 @@ Thank you very much`;
             </TextContent>
           </Dialog.Description>
           <div className="mt__L text__right">
-            <Button onClick={closeDialog}>{t('service:dialog.start.cta')}</Button>
+            <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button>
           </div>
         </div>
       </Dialog>
