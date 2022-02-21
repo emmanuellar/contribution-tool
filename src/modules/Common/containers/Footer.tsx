@@ -1,4 +1,3 @@
-import Logo from '../components/Logo';
 import React from 'react';
 import classNames from 'classnames';
 import s from './Footer.module.css';

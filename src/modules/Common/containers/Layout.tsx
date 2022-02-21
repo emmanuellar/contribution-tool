@@ -1,4 +1,4 @@
-import { FiGithub, FiLink, FiMail, FiTwitter } from 'react-icons/fi';
+import { FiGithub, FiMail, FiTwitter } from 'react-icons/fi';
 import React, { ReactNode } from 'react';
 
 import { Analytics } from 'modules/Analytics';
