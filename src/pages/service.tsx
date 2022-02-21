@@ -18,7 +18,7 @@ import classNames from 'classnames';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import sDialog from '../../src/modules/Common/components/Dialog.module.css';
-import { useEvent } from 'react-use';
+import { useEvent, useLocalStorage } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -31,6 +31,7 @@ const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   let [isDialogOpen, toggleDialogOpen] = useToggle(true);
+  let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -238,38 +239,48 @@ Thank you very much`;
 
   return (
     <div className={s.wrapper}>
-      <Dialog
-        open={isDialogOpen}
-        as="div"
-        className={classNames(sDialog.dialog)}
-        onClose={toggleDialogOpen}
-      >
-        <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
+      {!isDialogViewed && (
+        <Dialog
+          open={isDialogOpen}
+          as="div"
+          className={classNames(sDialog.dialog)}
+          onClose={toggleDialogOpen}
+        >
+          <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
-        <div className={classNames(sDialog.dialog_content)}>
-          <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
-          <Dialog.Description>
-            <TextContent>
-              <p>
-                <Trans i18nKey="service:dialog.start.p1">
-                  Most of the time, contractual documents contains a header, a footer, navigation
-                  menus, possibly ads… We aim at tracking only{' '}
-                  <strong>the significant parts of the document</strong>
-                </Trans>
-              </p>
-              <p>
-                <Trans i18nKey="service:dialog.start.p2">
-                  In order to achieve that, you will have to select those specific parts and remove
-                  the insignificant ones.
-                </Trans>
-              </p>
-            </TextContent>
-          </Dialog.Description>
-          <div className="mt__L text__right">
-            <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button>
+          <div className={classNames(sDialog.dialog_content)}>
+            <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
+            <Dialog.Description>
+              <TextContent>
+                <p>
+                  <Trans i18nKey="service:dialog.start.p1">
+                    Most of the time, contractual documents contains a header, a footer, navigation
+                    menus, possibly ads… We aim at tracking only{' '}
+                    <strong>the significant parts of the document</strong>
+                  </Trans>
+                </p>
+                <p>
+                  <Trans i18nKey="service:dialog.start.p2">
+                    In order to achieve that, you will have to select those specific parts and
+                    remove the insignificant ones.
+                  </Trans>
+                </p>
+              </TextContent>
+            </Dialog.Description>
+            <div className="mt__L text__right">
+              {/* <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button> */}
+              <Button
+                onClick={() => {
+                  toggleDialogOpen();
+                  setDialogViewed(true);
+                }}
+              >
+                {t('service:dialog.start.cta')}
+              </Button>
+            </div>
           </div>
-        </div>
-      </Dialog>
+        </Dialog>
+      )}
 
       <Drawer className={s.drawer}>
         <>
