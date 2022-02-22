@@ -1,5 +1,0 @@
-name: 'ota-vagrant-preproduction'
-repository: 'https://github.com/OpenTermsArchive/contribution-tool.git'
-branch: 'develop'
-app_port: '7022'
-env_file: './docker/.env.vagrant'

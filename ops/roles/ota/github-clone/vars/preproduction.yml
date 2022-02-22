@@ -1,5 +1,0 @@
-name: 'ota-contribute-preproduction'
-repository: 'https://github.com/OpenTermsArchive/contribution-tool.git'
-branch: 'develop'
-app_port: '7024'
-env_file: './docker/.env.preproduction'
