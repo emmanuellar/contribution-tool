@@ -450,7 +450,7 @@
 							if (button.click && !button.classList.contains('idcac')) {
 								button.classList.add('idcac');
 								
-								if (typeof chrome == 'object' && chrome.runtime)
+								if (typeof chrome == 'object' && chrome.runtime && false)
 									chrome.runtime.sendMessage({command: "cookie_warning_dismissed", url: document.location.href});
 								
 								button.click();
@@ -470,7 +470,7 @@
 				if (e.click && !e.classList.contains('idcac')) {
 					e.classList.add('idcac');
 					
-					if (typeof chrome == 'object' && chrome.runtime)
+					if (typeof chrome == 'object' && chrome.runtime && false)
 						chrome.runtime.sendMessage({command: "cookie_warning_dismissed", url: document.location.href});
 					
 					e.click();

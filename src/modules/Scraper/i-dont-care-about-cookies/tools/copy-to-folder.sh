@@ -2,7 +2,11 @@
 
 EXTENSION_ID=fihnjjcciajhdojfnbdddfaoknhalnja
 EXTENSION_FOLDER=./src/modules/Scraper/i-dont-care-about-cookies/extension
+# If you use Brave
 BROWSER_EXTENSIONS_FOLDER=~/Library/Application\ Support/BraveSoftware/Brave-Browser/Default/Extensions/$EXTENSION_ID
+# If you use Chrome
+# BROWSER_EXTENSIONS_FOLDER=~/Library/Application\ Support/Google/Chrome/Default/Extensions/$EXTENSION_ID
+
 
 if [[ ! -e $BROWSER_EXTENSIONS_FOLDER ]]; then
   echo ""
@@ -30,6 +34,13 @@ cp -Rf "$BROWSER_EXTENSIONS_FOLDER/"*/data $EXTENSION_FOLDER/data
 # remove unused
 rm -Rf $EXTENSION_FOLDER/data/menu*
 rm -Rf $EXTENSION_FOLDER/data/options*
+
+# as we are not in a real browser environment
+# We do not want to send messages so we prevent it from running
+sed -i.bak "s/typeof chrome == \'object\' \&\& chrome\.runtime/typeof chrome == \'object\' \&\& chrome\.runtime \&\& false/" "$EXTENSION_FOLDER/data/js/common.js"
+# as we use -i.bak to be compatible across GNU and MAC, we need to remove the leftover file
+# https://stackoverflow.com/a/22084103/2497753
+rm $EXTENSION_FOLDER/data/js/common.js.bak
 
 echo "folder copied in $EXTENSION_FOLDER/data"
 
