@@ -40,7 +40,7 @@ const Container: React.FC<ContainerProps> = ({
   gridCols = '12',
   gridGutters = '11',
   backgroundImage,
-  alignX = 'center',
+  alignX = 'left',
   ...props
 }: ContainerProps) => {
   let additionnalStyle: any = {};

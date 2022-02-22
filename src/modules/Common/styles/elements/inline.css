@@ -10,3 +10,11 @@
   letter-spacing: 0.5px;
   color: var(--colorBlack400);
 }
+
+.text__error {
+  color: var(--colorError);
+}
+
+.text__center {
+  text-align: center;
+}

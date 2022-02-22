@@ -1,0 +1,9 @@
+{
+  "breadcrumb.thanks.name": "Thanks",
+  "subscribe_form.fields.document.default": "__STRING_NOT_TRANSLATED__",
+  "subscribe_form.fields.document.label": "__STRING_NOT_TRANSLATED__",
+  "subscribe_form.fields.service.default": "__STRING_NOT_TRANSLATED__",
+  "subscribe_form.fields.service.label": "__STRING_NOT_TRANSLATED__",
+  "subscribe_form.fields.service.optgroup.gatekeepers": "__STRING_NOT_TRANSLATED__",
+  "subscribe_form.fields.service.optgroup.otherservices": "__STRING_NOT_TRANSLATED__"
+}

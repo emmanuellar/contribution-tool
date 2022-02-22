@@ -44,7 +44,7 @@ label {
   width: 100%;
 
   & + .formfield {
-    margin-top: var(--mL);
+    margin-top: var(--mM);
   }
 
   &.formfield__alignRight {

@@ -1,5 +1,0 @@
-name: 'ota-contribute-production'
-repository: 'https://github.com/OpenTermsArchive/contribution-tool.git'
-branch: 'main'
-app_port: '7023'
-env_file: './docker/.env.production'

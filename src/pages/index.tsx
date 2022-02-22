@@ -1,5 +1,4 @@
-import { withI18n } from 'modules/I18n';
+import Homepage, { getStaticProps as defaultGetStaticProps } from './homepage';
 
-export const getStaticProps = withI18n()();
-
-export { default } from 'modules/Contribute/pages/home';
+export const getStaticProps = defaultGetStaticProps;
+export default Homepage;

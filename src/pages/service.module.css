@@ -5,11 +5,7 @@
   height: 100vh;
   border-right: 1px solid var(--colorBlack200);
   background-color: var(--colorWhite);
-
-  & > nav,
-  & > div {
-    padding: 20px;
-  }
+  padding: var(--mL) var(--mM);
 
   & > div > p:not(:last-child) {
     margin-bottom: var(--mM);
@@ -50,6 +46,14 @@
   & > div {
     overflow-y: auto;
   }
+}
+
+.formWrapper {
+  padding: var(--mL) 0;
+}
+
+.formActions {
+  margin-top: var(--mL);
 }
 
 .wrapper {
@@ -107,4 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.expert {
 }

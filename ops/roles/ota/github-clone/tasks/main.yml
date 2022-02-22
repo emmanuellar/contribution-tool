@@ -1,13 +1,7 @@
-- name: Include vars
-  include_vars: '{{ENV}}.yml'
-
-- name: Include secret vars
-  include_vars: '{{ENV}}.secrets.yml'
-
 - name: Clone Repo
   git:
     repo: '{{ repository }}'
-    dest: '/home/{{ ansible_user }}/{{ name }}'
+    dest: '/home/{{ ansible_user }}/{{ directory }}'
     version: '{{ branch }}'
     force: yes
     accept_hostkey: yes
@@ -17,6 +11,14 @@
     - update
   register: git_clone_result
 
+# It would have been a lot better to inline vault the .env variables here
+# but it seems to only work in yaml files
+- name: 'Assemble secrets and common .env file'
+  assemble:
+    src: '{{ env_directory }}'
+    dest: '/home/{{ ansible_user }}/{{ directory }}/.env'
+    remote_src: False
+
 - name: Build the image
   become: yes
   community.general.docker_image:
@@ -25,22 +27,20 @@
     build:
       network: host
       pull: yes
-      args:
-        ENV_FILE: '{{ env_file }}'
-      path: '/home/{{ ansible_user }}/{{ name }}'
-    name: '{{ name }}:{{ git_clone_result.after[:7] }}'
+      path: '/home/{{ ansible_user }}/{{ directory }}'
+    name: '{{ directory }}:{{ git_clone_result.after[:7] }}'
     force_source: yes
 
 - name: Start the container
   become: yes
   community.general.docker_container:
-    name: '{{ name }}'
-    image: '{{ name }}:{{ git_clone_result.after[:7] }}'
+    name: '{{ directory }}'
+    image: '{{ directory }}:{{ git_clone_result.after[:7] }}'
     restart: yes
     state: started
     restart_policy: unless-stopped
     ports:
-      - '{{ app_port }}:3000'
+      - '{{ port }}:3000'
     env:
       GITHUB_TOKEN: "{{ GITHUB_TOKEN if GITHUB_TOKEN is defined else '' }}"
 

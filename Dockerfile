@@ -32,8 +32,6 @@ RUN mkdir -p /usr/src/app
 
 ENV PORT 3000
 
-ARG ENV_FILE="./docker/.env.production"
-
 WORKDIR /usr/src/app
 
 COPY package.json /usr/src/app
@@ -46,8 +44,6 @@ COPY package-lock.json /usr/src/app
 RUN npm install
 
 COPY . /usr/src/app
-RUN rm .env.*
-COPY $ENV_FILE /usr/src/app/.env.production
 
 ENV NODE_ENV=production
 ENV NODE_OPTIONS='--max_old_space_size=8192'
