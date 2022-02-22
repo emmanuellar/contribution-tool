@@ -19,7 +19,7 @@ const { serverRuntimeConfig } = getConfig();
 
 const isPdf = async (url: string) => {
   try {
-    const response = await axios.head(url);
+    const response = await axios.head(url, { timeout: 3000 });
     return response.headers['content-type'] === 'application/pdf';
   } catch (e) {
     return false;
