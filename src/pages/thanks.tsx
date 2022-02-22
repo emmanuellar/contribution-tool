@@ -22,19 +22,19 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
   }`;
 
   return (
-    <Layout title={t('contribute/thanks:seo.title')} desc={t('contribute/thanks:seo.desc')}>
+    <Layout title={t('thanks:seo.title')} desc={t('thanks:seo.desc')}>
       {/* Hero */}
       <Container layout="wide" paddingY={false} dark={true} bgColor="#010613">
         <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Hero title={t('contribute/thanks:title')}></Hero>
+          <Hero title={t('thanks:title')}></Hero>
         </Container>
       </Container>
 
       <Container gridCols="12" gridGutters="11" paddingYSmall={true}>
         <Breadcrumb
           items={[
-            { name: t('contribute/home:title'), url: `/?${commonUrlParams}` },
-            { name: t('contribute:breadcrumb.thanks.name') },
+            { name: t('homepage:title'), url: `/?${commonUrlParams}` },
+            { name: t('common:breadcrumb.thanks.name') },
           ]}
         />
       </Container>
@@ -48,11 +48,11 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
       <Container gridCols="9" gridGutters="8">
         <TextContent className="text__center">
           <Link href={`/?${commonUrlParams}`}>
-            <Button>{t('contribute/thanks:cta')}</Button>
+            <Button>{t('thanks:cta')}</Button>
           </Link>
         </TextContent>
       </Container>
     </Layout>
   );
 }
-export const getStaticProps = withI18n({ load: 'mdx', filename: 'contribute/thanks' })();
+export const getStaticProps = withI18n({ load: 'mdx', filename: 'thanks' })();

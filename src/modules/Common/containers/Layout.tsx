@@ -1,4 +1,4 @@
-import { FiGithub, FiMail, FiTwitter, FiLink } from 'react-icons/fi';
+import { FiGithub, FiMail, FiTwitter } from 'react-icons/fi';
 import React, { ReactNode } from 'react';
 
 import { Analytics } from 'modules/Analytics';
@@ -38,7 +38,6 @@ const Layout = ({
           <Header>
             {() => (
               <>
-                <HeaderMenu>{t('header:title')}</HeaderMenu>
                 <HeaderMenu type="secondary">
                   <LanguageSwitcher />
                   <ul>
@@ -90,21 +89,6 @@ const Layout = ({
           <Footer>
             <FooterMenu>
               <ul>
-                <li>
-                  <Link href="https://opentermsarchive.org">
-                    <a
-                      target="_blank"
-                      rel="noopener"
-                      title={'opentermsarchive.org'}
-                      className={classNames('a_icontext', 'a__small', 'footer_menus_icontext')}
-                    >
-                      <span className={classNames('icon_circle', 'icon_circle__medium', 'mr__2XS')}>
-                        <FiLink color="#fefffd" />
-                      </span>
-                      <span>opentermsarchive.org</span>
-                    </a>
-                  </Link>
-                </li>
                 <li>
                   <Link href="https://twitter.com/OpenTerms">
                     <a

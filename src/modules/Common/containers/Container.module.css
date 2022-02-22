@@ -132,7 +132,15 @@
   }
 
   &.container__alignXleft {
-    margin-left: 0;
+    justify-content: flex-start;
+  }
+
+  &.container__alignXright {
+    justify-content: flex-end;
+  }
+
+  &.container__alignXcenter {
+    justify-content: center;
   }
 }
 

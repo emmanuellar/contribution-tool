@@ -7,6 +7,10 @@
   }
 
   &.headerMenu__primary {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+
     & ul {
       & li {
         margin: 0 var(--mS);
@@ -15,6 +19,7 @@
   }
 
   &.headerMenu__secondary {
+    margin-left: auto;
     & ul {
       & li:not(:last-child) {
         margin: 0 var(--m2XS);
@@ -40,6 +45,7 @@
     }
 
     &.headerMenu__primary {
+      align-items: flex-end;
       & ul {
         & li {
           margin: var(--mS) auto;

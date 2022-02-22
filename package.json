@@ -25,6 +25,7 @@
     "prettier": "prettier --write ."
   },
   "dependencies": {
+    "@headlessui/react": "^1.4.3",
     "@socialgouv/matomo-next": "^1.2.1",
     "@svgr/webpack": "^5.5.0",
     "accept-language": "^3.0.18",
