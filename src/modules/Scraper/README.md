@@ -19,6 +19,16 @@ git add ./src/modules/Scraper/i-dont-care-about-cookies
 git commit -m "Update i-dont-care-about-cookies definitions"
 ```
 
+## Customization
+
+Well, this extension is really good but it may not be working for all websites.
+If you happen to fall in a case where it does not work, you can either:
+
+- contact author@i-dont-care-about-cookies.eu
+- add button rule to `./additional-search-groups.txt`. this will add the rules at runtime
+
+**NOTE**: Be extremely careful with rules you add in here as it will be triggered on all pages. So you should be very specific
+
 ## Further doc
 
 [Extension Readme.md](./src/modules/Scraper/i-dont-care-about-cookies/extension/README.md)
