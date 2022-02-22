@@ -30,7 +30,6 @@ import { withI18n } from 'modules/I18n';
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
-  let [isDialogOpen, toggleDialogOpen] = useToggle(true);
   let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
 
   const router = useRouter();
@@ -241,10 +240,10 @@ Thank you very much`;
     <div className={s.wrapper}>
       {!isDialogViewed && (
         <Dialog
-          open={isDialogOpen}
+          open={!isDialogViewed}
           as="div"
           className={classNames(sDialog.dialog)}
-          onClose={toggleDialogOpen}
+          onClose={() => setDialogViewed(true)}
         >
           <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
@@ -271,7 +270,6 @@ Thank you very much`;
               {/* <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button> */}
               <Button
                 onClick={() => {
-                  toggleDialogOpen();
                   setDialogViewed(true);
                 }}
               >
