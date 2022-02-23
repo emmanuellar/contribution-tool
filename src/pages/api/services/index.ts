@@ -132,7 +132,7 @@ const saveHistoryFile = async ({
       ...(historyJson[documentType] || []),
     ],
   };
-  fs.writeFileSync(historyFullPath, JSON.stringify(newHistoryJson, null, 2));
+  fs.writeFileSync(historyFullPath, `${JSON.stringify(newHistoryJson, null, 2)}\n`);
 };
 
 const saveOnLocal =
@@ -163,7 +163,7 @@ const saveOnLocal =
         };
       }
 
-      fs.writeFileSync(fullPath, JSON.stringify(json, null, 2));
+      fs.writeFileSync(fullPath, `${JSON.stringify(json, null, 2)}\n`);
 
       res.json({
         status: 'ok',
