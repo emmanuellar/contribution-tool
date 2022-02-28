@@ -187,6 +187,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
           </>,
           { autoClose: 10000 }
         );
+        toggleLoading(false);
         return;
       }
       router.push(`/thanks?${commonUrlParams}&url=${encodeURIComponent(url)}`);

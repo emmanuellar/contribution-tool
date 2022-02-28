@@ -11,15 +11,20 @@ import puppeteer from 'puppeteer';
 
 const cached_rules: any = {};
 
-// Load files from chrome extension
-export const extensionPath = path.join(
+export const modulePath = path.join(
   path.resolve(),
-  'src/modules/Scraper/i-dont-care-about-cookies/extension'
+  'src/modules/Scraper/i-dont-care-about-cookies'
 );
+// Load files from chrome extension
+export const extensionPath = path.join(modulePath, 'extension');
 const extensionDataPath = path.join(extensionPath, 'data');
 
 const embeds = fse.readFileSync(path.resolve(extensionDataPath, 'js', 'embeds.js'), 'utf8');
 const commonFile = fse.readFileSync(path.resolve(extensionDataPath, 'js', 'common.js'), 'utf8');
+const additionalSearchGroups = fse.readFileSync(
+  path.resolve(modulePath, 'additional-search-groups.txt'),
+  'utf8'
+);
 const css = fse.readFileSync(path.resolve(extensionDataPath, 'css', 'common.css'), 'utf8');
 
 export const interceptCookieUrls = (url: string, host_levels: string[]) => {
@@ -140,7 +145,13 @@ export const removeCookieBanners = async (page: puppeteer.Page, hostname: string
   const status = await activateDomain(hostname || '');
 
   if (!status) {
-    await page.addScriptTag({ content: commonFile });
+    await page.addScriptTag({
+      content: commonFile.replace(
+        'let searchGroups = [',
+        `let searchGroups = [
+      ${additionalSearchGroups}`
+      ),
+    });
   }
 
   // To give the time to the popup to actually close. 1s seemed too short

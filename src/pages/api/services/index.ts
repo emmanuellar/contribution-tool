@@ -19,7 +19,7 @@ const { serverRuntimeConfig } = getConfig();
 
 const isPdf = async (url: string) => {
   try {
-    const response = await axios.head(url);
+    const response = await axios.head(url, { timeout: 3000 });
     return response.headers['content-type'] === 'application/pdf';
   } catch (e) {
     return false;
@@ -132,7 +132,7 @@ const saveHistoryFile = async ({
       ...(historyJson[documentType] || []),
     ],
   };
-  fs.writeFileSync(historyFullPath, JSON.stringify(newHistoryJson, null, 2));
+  fs.writeFileSync(historyFullPath, `${JSON.stringify(newHistoryJson, null, 2)}\n`);
 };
 
 const saveOnLocal =
@@ -163,7 +163,7 @@ const saveOnLocal =
         };
       }
 
-      fs.writeFileSync(fullPath, JSON.stringify(json, null, 2));
+      fs.writeFileSync(fullPath, `${JSON.stringify(json, null, 2)}\n`);
 
       res.json({
         status: 'ok',
