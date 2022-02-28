@@ -29,6 +29,8 @@ import { withI18n } from 'modules/I18n';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
+const significantCssClass = 'selectedCss';
+
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
 
@@ -41,7 +43,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       localPath,
       versionsRepo,
       url,
-      selectedCss: initialSelectedCss,
+      [significantCssClass]: initialSignificantCss,
       removedCss: initialRemovedCss,
       documentType: initialDocumentType,
       name: initialName,
@@ -66,7 +68,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     documents: {
       [initialDocumentType || '???']: {
         fetch: url,
-        select: initialSelectedCss,
+        select: initialSignificantCss,
         remove: initialRemovedCss,
       },
     },
@@ -78,11 +80,11 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   const [iframeReady, toggleIframeReady] = useToggle(false);
   const [loading, toggleLoading] = useToggle(false);
 
-  const selectedCss = !initialSelectedCss
+  const significantCss = !initialSignificantCss
     ? []
-    : Array.isArray(initialSelectedCss)
-    ? initialSelectedCss
-    : [initialSelectedCss];
+    : Array.isArray(initialSignificantCss)
+    ? initialSignificantCss
+    : [initialSignificantCss];
 
   const removedCss = !initialRemovedCss
     ? []
@@ -110,14 +112,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 
   const onSelect = React.useCallback(
     (cssPath: string) => {
-      const cssRules = selectable === 'selectedCss' ? selectedCss : removedCss;
+      const cssRules = selectable === significantCssClass ? significantCss : removedCss;
 
       if (!cssRules.includes(cssPath)) {
         pushQueryParam(selectable)([...cssRules, cssPath]);
       }
       toggleSelectable('');
     },
-    [url, removedCss, selectedCss, pushQueryParam, selectable, toggleSelectable]
+    [url, removedCss, significantCss, pushQueryParam, selectable, toggleSelectable]
   );
 
   const onChangeCssRule = (queryparam: 'selectedCss' | 'removedCss', index: number) => (e: any) => {
@@ -126,14 +128,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       onRemoveCssRule(queryparam, index)();
       return;
     }
-    const cssRules = queryparam === 'selectedCss' ? selectedCss : removedCss;
+    const cssRules = queryparam === significantCssClass ? significantCss : removedCss;
     const newCss = [...cssRules];
     newCss[index] = value;
     pushQueryParam(queryparam)(newCss);
   };
 
   const onRemoveCssRule = (queryparam: 'selectedCss' | 'removedCss', index: number) => () => {
-    const cssRules = queryparam === 'selectedCss' ? selectedCss : removedCss;
+    const cssRules = queryparam === significantCssClass ? significantCss : removedCss;
     const newCss = [...cssRules];
     delete newCss[index];
     pushQueryParam(queryparam)(newCss);
@@ -225,7 +227,7 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = !initialSelectedCss || !iframeReady || loading;
+  const submitDisabled = !initialSignificantCss || !iframeReady || loading;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
@@ -330,15 +332,15 @@ Thank you very much`;
                   <>
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
-                      {selectedCss.map((selected, i) => (
+                      {significantCss.map((selected, i) => (
                         <div key={selected} className={s.selectionItem}>
                           <input
                             defaultValue={selected}
-                            onChange={onChangeCssRule('selectedCss', i)}
+                            onChange={onChangeCssRule(significantCssClass, i)}
                           />
 
                           <Button
-                            onClick={onRemoveCssRule('selectedCss', i)}
+                            onClick={onRemoveCssRule(significantCssClass, i)}
                             type="secondary"
                             onlyIcon={true}
                           >
@@ -347,7 +349,7 @@ Thank you very much`;
                         </div>
                       ))}
                       <Button
-                        onClick={selectInIframe('selectedCss')}
+                        onClick={selectInIframe(significantCssClass)}
                         disabled={!!selectable || !iframeReady}
                         type="secondary"
                       >
@@ -355,7 +357,7 @@ Thank you very much`;
                       </Button>
                     </div>
 
-                    {(selectedCss.length > 0 || removedCss.length > 0) && (
+                    {(significantCss.length > 0 || removedCss.length > 0) && (
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.insignificantPart')}</label>
                         {removedCss.map((selected, i) => (
@@ -434,7 +436,7 @@ Thank you very much`;
               <IframeSelector
                 selectable={!!selectable}
                 url={isPdf ? url : data?.url}
-                selected={selectedCss}
+                selected={significantCss}
                 removed={removedCss}
                 onSelect={onSelect}
                 onReady={toggleIframeReady}
