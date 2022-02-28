@@ -2,6 +2,7 @@
 .docker
 .dockerignore
 .env.local
+.env.example
 .git
 .husky
 .idea

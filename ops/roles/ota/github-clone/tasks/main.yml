@@ -41,8 +41,6 @@
     restart_policy: unless-stopped
     ports:
       - '{{ port }}:3000'
-    env:
-      GITHUB_TOKEN: "{{ GITHUB_TOKEN if GITHUB_TOKEN is defined else '' }}"
 
 - name: Prune containers and images
   become: yes
