@@ -355,32 +355,34 @@ Thank you very much`;
                       </Button>
                     </div>
 
-                    <div className={classNames('formfield')}>
-                      <label>{t('service:form.insignificantPart')}</label>
-                      {removedCss.map((selected, i) => (
-                        <div key={selected} className={s.selectionItem}>
-                          <input
-                            defaultValue={selected}
-                            onChange={onChangeCssRule('removedCss', i)}
-                          />
+                    {(selectedCss.length > 0 || removedCss.length > 0) && (
+                      <div className={classNames('formfield')}>
+                        <label>{t('service:form.insignificantPart')}</label>
+                        {removedCss.map((selected, i) => (
+                          <div key={selected} className={s.selectionItem}>
+                            <input
+                              defaultValue={selected}
+                              onChange={onChangeCssRule('removedCss', i)}
+                            />
 
-                          <Button
-                            onClick={onRemoveCssRule('removedCss', i)}
-                            type="secondary"
-                            onlyIcon={true}
-                          >
-                            <FiTrash2></FiTrash2>
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        onClick={selectInIframe('removedCss')}
-                        disabled={!!selectable || !iframeReady}
-                        type="secondary"
-                      >
-                        {t('service:form.insignificantPart.cta')}
-                      </Button>
-                    </div>
+                            <Button
+                              onClick={onRemoveCssRule('removedCss', i)}
+                              type="secondary"
+                              onlyIcon={true}
+                            >
+                              <FiTrash2></FiTrash2>
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={selectInIframe('removedCss')}
+                          disabled={!!selectable || !iframeReady}
+                          type="secondary"
+                        >
+                          {t('service:form.insignificantPart.cta')}
+                        </Button>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
