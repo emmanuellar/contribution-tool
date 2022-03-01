@@ -65,6 +65,14 @@
   }
 }
 
+.moreinfo {
+  margin-top: calc(-1 * var(--mXS));
+  font-style: italic;
+  margin-bottom: var(--mXS);
+  display: block;
+  font-size: 12px;
+}
+
 .selectionItem {
   display: flex;
   align-items: flex-start;

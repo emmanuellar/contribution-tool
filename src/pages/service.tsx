@@ -30,6 +30,9 @@ import { withI18n } from 'modules/I18n';
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
 const significantCssClass = 'selectedCss';
+const insignificantCssClass = 'removedCss';
+const hiddenCssClass = 'hiddenCss';
+type CssRuleChange = 'selectedCss' | 'removedCss' | 'hiddenCss';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
@@ -44,7 +47,8 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       versionsRepo,
       url,
       [significantCssClass]: initialSignificantCss,
-      removedCss: initialRemovedCss,
+      [insignificantCssClass]: initialInsignificantCss,
+      [hiddenCssClass]: initialHiddenCss,
       documentType: initialDocumentType,
       name: initialName,
       expertMode,
@@ -69,7 +73,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       [initialDocumentType || '???']: {
         fetch: url,
         select: initialSignificantCss,
-        remove: initialRemovedCss,
+        remove: initialInsignificantCss,
       },
     },
   };
@@ -86,11 +90,17 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     ? initialSignificantCss
     : [initialSignificantCss];
 
-  const removedCss = !initialRemovedCss
+  const insignificantCss = !initialInsignificantCss
     ? []
-    : Array.isArray(initialRemovedCss)
-    ? initialRemovedCss
-    : [initialRemovedCss];
+    : Array.isArray(initialInsignificantCss)
+    ? initialInsignificantCss
+    : [initialInsignificantCss];
+
+  const hiddenCss = !initialHiddenCss
+    ? []
+    : Array.isArray(initialHiddenCss)
+    ? initialHiddenCss
+    : [initialHiddenCss];
 
   // const data = { url: 'http://localhost:3000' };
   const { data } = useSWR<GetContributeServiceResponse>(
@@ -106,36 +116,72 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     }
   );
 
-  const selectInIframe = (queryparam: 'selectedCss' | 'removedCss') => () => {
+  const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
   };
 
   const onSelect = React.useCallback(
     (cssPath: string) => {
-      const cssRules = selectable === significantCssClass ? significantCss : removedCss;
+      let cssRules = [];
+      switch (true) {
+        case selectable === significantCssClass:
+          cssRules = significantCss;
+          break;
+        case selectable === insignificantCssClass:
+          cssRules = insignificantCss;
+          break;
+        case selectable === hiddenCssClass:
+          cssRules = hiddenCss;
+          break;
+      }
 
       if (!cssRules.includes(cssPath)) {
         pushQueryParam(selectable)([...cssRules, cssPath]);
       }
       toggleSelectable('');
     },
-    [url, removedCss, significantCss, pushQueryParam, selectable, toggleSelectable]
+    [url, hiddenCss, insignificantCss, significantCss, pushQueryParam, selectable, toggleSelectable]
   );
 
-  const onChangeCssRule = (queryparam: 'selectedCss' | 'removedCss', index: number) => (e: any) => {
+  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (e: any) => {
     const value = e.target?.value;
     if (!value) {
       onRemoveCssRule(queryparam, index)();
       return;
     }
-    const cssRules = queryparam === significantCssClass ? significantCss : removedCss;
+
+    let cssRules = [];
+    switch (true) {
+      case queryparam === significantCssClass:
+        cssRules = significantCss;
+        break;
+      case queryparam === insignificantCssClass:
+        cssRules = insignificantCss;
+        break;
+      case queryparam === hiddenCssClass:
+        cssRules = hiddenCss;
+        break;
+    }
+
     const newCss = [...cssRules];
     newCss[index] = value;
     pushQueryParam(queryparam)(newCss);
   };
 
-  const onRemoveCssRule = (queryparam: 'selectedCss' | 'removedCss', index: number) => () => {
-    const cssRules = queryparam === significantCssClass ? significantCss : removedCss;
+  const onRemoveCssRule = (queryparam: CssRuleChange, index: number) => () => {
+    let cssRules = [];
+
+    switch (true) {
+      case queryparam === significantCssClass:
+        cssRules = significantCss;
+        break;
+      case queryparam === insignificantCssClass:
+        cssRules = insignificantCss;
+        break;
+      case queryparam === hiddenCssClass:
+        cssRules = hiddenCss;
+        break;
+    }
     const newCss = [...cssRules];
     delete newCss[index];
     pushQueryParam(queryparam)(newCss);
@@ -331,6 +377,34 @@ Thank you very much`;
                 {!isPdf && (
                   <>
                     <div className={classNames('formfield')}>
+                      <label>{t('service:form.hiddenPart')}</label>
+                      <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
+                      {hiddenCss.map((hidden, i) => (
+                        <div key={hidden} className={s.selectionItem}>
+                          <input
+                            defaultValue={hidden}
+                            onChange={onChangeCssRule(hiddenCssClass, i)}
+                          />
+
+                          <Button
+                            onClick={onRemoveCssRule(hiddenCssClass, i)}
+                            type="secondary"
+                            onlyIcon={true}
+                          >
+                            <FiTrash2></FiTrash2>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        onClick={selectInIframe(hiddenCssClass)}
+                        disabled={!!selectable || !iframeReady}
+                        type="secondary"
+                      >
+                        {t('service:form.hiddenPart.cta')}
+                      </Button>
+                    </div>
+
+                    <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
                       {significantCss.map((selected, i) => (
                         <div key={selected} className={s.selectionItem}>
@@ -357,18 +431,18 @@ Thank you very much`;
                       </Button>
                     </div>
 
-                    {(significantCss.length > 0 || removedCss.length > 0) && (
+                    {(significantCss.length > 0 || insignificantCss.length > 0) && (
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.insignificantPart')}</label>
-                        {removedCss.map((selected, i) => (
+                        {insignificantCss.map((selected, i) => (
                           <div key={selected} className={s.selectionItem}>
                             <input
                               defaultValue={selected}
-                              onChange={onChangeCssRule('removedCss', i)}
+                              onChange={onChangeCssRule(insignificantCssClass, i)}
                             />
 
                             <Button
-                              onClick={onRemoveCssRule('removedCss', i)}
+                              onClick={onRemoveCssRule(insignificantCssClass, i)}
                               type="secondary"
                               onlyIcon={true}
                             >
@@ -377,7 +451,7 @@ Thank you very much`;
                           </div>
                         ))}
                         <Button
-                          onClick={selectInIframe('removedCss')}
+                          onClick={selectInIframe(insignificantCssClass)}
                           disabled={!!selectable || !iframeReady}
                           type="secondary"
                         >
@@ -437,7 +511,8 @@ Thank you very much`;
                 selectable={!!selectable}
                 url={isPdf ? url : data?.url}
                 selected={significantCss}
-                removed={removedCss}
+                removed={insignificantCss}
+                hidden={hiddenCss}
                 onSelect={onSelect}
                 onReady={toggleIframeReady}
               />
