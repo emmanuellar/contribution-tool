@@ -25,10 +25,13 @@ const STYLE_HIGHLIGHT_ID = 'ota-highlight'; // same as in /public/iframe-selecto
 const EVENT_NAME = 'ota-event'; // same as in /public/iframe-selector/injected-script.js
 
 // Initially done to display even fadeIn elements on https://policy.pinterest.com/fr/privacy-policy
-const globalRules = `
-*:not(#${STYLE_HIGHLIGHT_ID}) {
+// added `body > *` in order to let top elements like modals background untouched
+const preventFadeInRule = `
+body > * *:not(#${STYLE_HIGHLIGHT_ID}) {
   opacity: 1!important;
-}
+}`;
+const globalRules = `
+${preventFadeInRule}
 `;
 
 const IframeSelector = ({
