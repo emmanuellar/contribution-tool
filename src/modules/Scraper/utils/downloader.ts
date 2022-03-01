@@ -1,6 +1,10 @@
 import 'ts-replace-all';
 
-import { getHostname, removeCookieBanners } from '../i-dont-care-about-cookies';
+import {
+  getHostname,
+  removeCookieBanners,
+  interceptCookieUrls,
+} from '../i-dont-care-about-cookies';
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -56,11 +60,21 @@ export const downloadUrl = async (
     });
   const page = await browser.newPage();
   await page.setUserAgent(new UserAgent().toString());
+  await page.setRequestInterception(true);
   page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
 
   const hostname = getHostname(url, true);
 
   let assets: { from: string; to: string }[] = [];
+
+  page.on('request', (request) => {
+    if (request.resourceType() === 'script' && interceptCookieUrls(request.url(), [])) {
+      console.log(`Blocking`, request.url());
+      request.abort();
+    } else {
+      request.continue();
+    }
+  });
 
   page.on('response', async (response) => {
     const resourceType = response.request().resourceType();
