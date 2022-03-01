@@ -18,6 +18,7 @@ const pickEnabledCss = `
     border: 1px solid red;
     box-sizing: border-box;
     pointer-events: none;
+    z-index: 10000;
   }
 `;
 const pickDisabledCss = `
