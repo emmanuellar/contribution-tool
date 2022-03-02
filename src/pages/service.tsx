@@ -49,6 +49,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       [significantCssClass]: initialSignificantCss,
       [insignificantCssClass]: initialInsignificantCss,
       [hiddenCssClass]: initialHiddenCss,
+      acceptLanguage,
       documentType: initialDocumentType,
       name: initialName,
       expertMode,
@@ -102,9 +103,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     ? initialHiddenCss
     : [initialHiddenCss];
 
-  // const data = { url: 'http://localhost:3000' };
+  const apiUrlParams = new URLSearchParams();
+  apiUrlParams.append('url', url);
+  if (acceptLanguage) {
+    apiUrlParams.append('acceptLanguage', acceptLanguage);
+  }
+
   const { data } = useSWR<GetContributeServiceResponse>(
-    isPdf ? null : `/api/services?url=${encodeURIComponent(url)}`,
+    isPdf || !url ? null : `/api/services?${apiUrlParams.toString()}`,
     {
       initialData: {
         status: 'ko',
@@ -478,6 +484,17 @@ Thank you very much`;
                       >
                         {t('service:form.hiddenPart.cta')}
                       </Button>
+                    </div>
+                    <div className={classNames('formfield')}>
+                      <label>{t('service:form.acceptLanguage')}</label>
+                      <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>
+                      <div className={classNames('select')}>
+                        <input
+                          defaultValue={acceptLanguage}
+                          onChange={onInputChange('acceptLanguage')}
+                          minLength={2}
+                        />
+                      </div>
                     </div>
                     <div className={classNames('formfield', s.expert)}>
                       <label>{t('service:form.label.json')}</label>

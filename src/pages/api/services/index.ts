@@ -27,7 +27,7 @@ const isPdf = async (url: string) => {
 };
 
 const get =
-  (url: string) =>
+  (url: string, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
     if (await isPdf(url)) {
       res.json({
@@ -39,9 +39,10 @@ const get =
       return res;
     }
 
-    const folderName = url.replace(/[^\p{L}\d_]/gimu, '_');
+    const folderName = `${url.replace(/[^\p{L}\d_]/gimu, '_')}_${acceptLanguage}`;
 
     const folderPath = path.join(serverRuntimeConfig.scrapedFilesFolder, folderName);
+
     const newUrlPath = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${
       serverRuntimeConfig.scrapedIframeUrl
     }/${folderName}`;
@@ -63,7 +64,7 @@ const get =
       console.log(`Folder ${folderPath} does not exist`);
       console.log(`downloading ${url}`);
       console.time('downloading');
-      const { error } = await downloadUrl(url, { folderPath, newUrlPath });
+      const { error } = await downloadUrl(url, { folderPath, newUrlPath, acceptLanguage });
       console.timeEnd('downloading');
 
       if (error) {
@@ -212,7 +213,7 @@ const addNewService =
 const services = async (req: NextApiRequest, res: NextApiResponse) => {
   const { body, query } = req;
   if (req.method === 'GET' && query?.url) {
-    return get(query.url as string)(req, res);
+    return get(query.url as string, query.acceptLanguage as string)(req, res);
   }
 
   if (req.method === 'POST' && body?.json) {
