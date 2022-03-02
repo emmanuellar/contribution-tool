@@ -26,6 +26,7 @@ import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
+import debounce from 'lodash/debounce';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -193,9 +194,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam(queryparam)(newCss);
   };
 
-  const onInputChange = (fieldName: string) => (event: any) => {
-    pushQueryParam(fieldName)(event.target.value);
-  };
+  const onInputChange = (fieldName: string) =>
+    debounce((event: any) => {
+      pushQueryParam(fieldName)(event.target.value);
+    }, 500);
 
   const toggleExpertMode = () => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
