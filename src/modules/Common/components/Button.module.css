@@ -43,6 +43,10 @@
   &.sm {
     font-size: 0.8em;
     padding: var(--pXS) var(--pM);
+
+    &.button__hasOnlyIcon {
+      padding: var(--pXS);
+    }
   }
 
   &:disabled {

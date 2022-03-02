@@ -5,7 +5,6 @@
   height: 100vh;
   border-right: 1px solid var(--colorBlack200);
   background-color: var(--colorWhite);
-  padding: var(--mL) var(--mM);
 
   & > div > p:not(:last-child) {
     margin-bottom: var(--mM);
@@ -20,12 +19,6 @@
     cursor: pointer;
   }
 
-  & nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   & h3 {
     margin-top: var(--mXL);
     margin-bottom: var(--mS);
@@ -36,7 +29,8 @@
   }
 
   & label {
-    margin-top: var(--mM);
+    margin-top: var(--mS);
+    margin-bottom: var(--m2XS);
   }
 
   & textarea {
@@ -48,12 +42,20 @@
   }
 }
 
+.drawerNav {
+  padding: var(--mM);
+}
+
 .formWrapper {
-  padding: var(--mL) 0;
+  padding: 0 var(--mM) var(--mL) var(--mM);
 }
 
 .formActions {
-  margin-top: var(--mL);
+  margin-top: auto;
+  padding: var(--mL) var(--mM);
+  border-top: 1px solid var(--colorBlack200);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .wrapper {
@@ -63,6 +65,14 @@
   & > div {
     flex: 1;
   }
+}
+
+.moreinfo {
+  margin-top: calc(-1 * var(--mXS));
+  font-style: italic;
+  margin-bottom: var(--mXS);
+  display: block;
+  font-size: 12px;
 }
 
 .selectionItem {
@@ -96,10 +106,11 @@
 }
 
 .json {
+  font-size: 1.4rem;
   width: 800px;
   max-width: 100%;
-  height: 300px;
-  margin-top: 20px;
+  height: 240px;
+
   overflow: auto;
   padding: 10px;
   border: 1px solid var(--colorBlack400);
@@ -114,4 +125,15 @@
 }
 
 .expert {
+}
+
+.toggleExpertMode {
+  border-top: 1px solid var(--colorBlack200);
+  padding-top: var(--pM);
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  & svg {
+    margin-left: auto;
+  }
 }
