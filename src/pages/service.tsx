@@ -1,8 +1,9 @@
-import { FiChevronDown, FiExternalLink, FiTrash2 } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
 } from '../modules/Contribute/interfaces';
+import { useEvent, useLocalStorage } from 'react-use';
 
 import Button from 'modules/Common/components/Button';
 import { Dialog } from '@headlessui/react';
@@ -18,7 +19,6 @@ import classNames from 'classnames';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import sDialog from '../../src/modules/Common/components/Dialog.module.css';
-import { useEvent, useLocalStorage } from 'react-use';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -331,7 +331,7 @@ Thank you very much`;
 
       <Drawer className={s.drawer}>
         <>
-          <nav>
+          <nav className={s.drawerNav}>
             <LinkIcon
               className={s.backButton}
               iconColor="var(--colorBlack400)"
@@ -377,6 +377,80 @@ Thank you very much`;
                 {!isPdf && (
                   <>
                     <div className={classNames('formfield')}>
+                      <label>{t('service:form.significantPart')}</label>
+                      {significantCss.map((selected, i) => (
+                        <div key={selected} className={s.selectionItem}>
+                          <input
+                            defaultValue={selected}
+                            onChange={onChangeCssRule(significantCssClass, i)}
+                          />
+
+                          <Button
+                            onClick={onRemoveCssRule(significantCssClass, i)}
+                            type="secondary"
+                            size="sm"
+                            onlyIcon={true}
+                          >
+                            <FiTrash2></FiTrash2>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        onClick={selectInIframe(significantCssClass)}
+                        disabled={!!selectable || !iframeReady}
+                        type="secondary"
+                        size="sm"
+                      >
+                        {t('service:form.significantPart.cta')}
+                      </Button>
+                    </div>
+
+                    {(significantCss.length > 0 || insignificantCss.length > 0) && (
+                      <div className={classNames('formfield')}>
+                        <label>{t('service:form.insignificantPart')}</label>
+
+                        {insignificantCss.map((selected, i) => (
+                          <div key={selected} className={s.selectionItem}>
+                            <input
+                              defaultValue={selected}
+                              onChange={onChangeCssRule(insignificantCssClass, i)}
+                            />
+
+                            <Button
+                              onClick={onRemoveCssRule(insignificantCssClass, i)}
+                              type="secondary"
+                              size="sm"
+                              onlyIcon={true}
+                            >
+                              <FiTrash2></FiTrash2>
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={selectInIframe(insignificantCssClass)}
+                          disabled={!!selectable || !iframeReady}
+                          type="secondary"
+                          size="sm"
+                        >
+                          {t('service:form.insignificantPart.cta')}
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className={classNames('formfield', s.toggleExpertMode)}>
+                  <a onClick={toggleExpertMode}>{t('service:expertMode')}</a>
+
+                  {expertMode ? (
+                    <FiChevronUp color="333333"></FiChevronUp>
+                  ) : (
+                    <FiChevronDown color="333333"></FiChevronDown>
+                  )}
+                </div>
+                {expertMode && (
+                  <>
+                    <div className={classNames('formfield')}>
                       <label>{t('service:form.hiddenPart')}</label>
                       <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
                       {hiddenCss.map((hidden, i) => (
@@ -389,6 +463,7 @@ Thank you very much`;
                           <Button
                             onClick={onRemoveCssRule(hiddenCssClass, i)}
                             type="secondary"
+                            size="sm"
                             onlyIcon={true}
                           >
                             <FiTrash2></FiTrash2>
@@ -399,99 +474,38 @@ Thank you very much`;
                         onClick={selectInIframe(hiddenCssClass)}
                         disabled={!!selectable || !iframeReady}
                         type="secondary"
+                        size="sm"
                       >
                         {t('service:form.hiddenPart.cta')}
                       </Button>
                     </div>
-
-                    <div className={classNames('formfield')}>
-                      <label>{t('service:form.significantPart')}</label>
-                      {significantCss.map((selected, i) => (
-                        <div key={selected} className={s.selectionItem}>
-                          <input
-                            defaultValue={selected}
-                            onChange={onChangeCssRule(significantCssClass, i)}
-                          />
-
+                    <div className={classNames('formfield', s.expert)}>
+                      <label>{t('service:form.label.json')}</label>
+                      <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
+                      <div className={classNames(s.expertButtons)}>
+                        {localPath && (
                           <Button
-                            onClick={onRemoveCssRule(significantCssClass, i)}
+                            onClick={saveOnLocal}
+                            size="sm"
                             type="secondary"
-                            onlyIcon={true}
+                            title={`Save on ${localPath}`}
                           >
-                            <FiTrash2></FiTrash2>
+                            {t('service:expertMode.button.label')}
                           </Button>
-                        </div>
-                      ))}
-                      <Button
-                        onClick={selectInIframe(significantCssClass)}
-                        disabled={!!selectable || !iframeReady}
-                        type="secondary"
-                      >
-                        {t('service:form.significantPart.cta')}
-                      </Button>
-                    </div>
-
-                    {(significantCss.length > 0 || insignificantCss.length > 0) && (
-                      <div className={classNames('formfield')}>
-                        <label>{t('service:form.insignificantPart')}</label>
-                        {insignificantCss.map((selected, i) => (
-                          <div key={selected} className={s.selectionItem}>
-                            <input
-                              defaultValue={selected}
-                              onChange={onChangeCssRule(insignificantCssClass, i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule(insignificantCssClass, i)}
-                              type="secondary"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          onClick={selectInIframe(insignificantCssClass)}
-                          disabled={!!selectable || !iframeReady}
-                          type="secondary"
-                        >
-                          {t('service:form.insignificantPart.cta')}
-                        </Button>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </>
                 )}
               </div>
             </form>
           </div>
+
           <nav className={s.formActions}>
-            <a className="a__small" onClick={toggleExpertMode}>
-              {t('service:expertMode')}
-            </a>
             <Button disabled={submitDisabled} onClick={onValidate}>
               {loading ? '...' : t('service:submit')}
             </Button>
           </nav>
-          {expertMode && (
-            <div className={s.expert}>
-              <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
-              <div className={classNames(s.expertButtons)}>
-                {localPath && (
-                  <Button
-                    onClick={saveOnLocal}
-                    size="sm"
-                    type="secondary"
-                    title={`Save on ${localPath}`}
-                  >
-                    {t('service:expertMode.button.label')}
-                  </Button>
-                )}
-                <a href={url} target="_blank" rel="noopener" title={url}>
-                  <FiExternalLink />
-                </a>
-              </div>
-            </div>
-          )}
         </>
       </Drawer>
       {data?.error && (
