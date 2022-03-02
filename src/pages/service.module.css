@@ -136,4 +136,8 @@
   & svg {
     margin-left: auto;
   }
+
+  & a {
+    flex: 1;
+  }
 }
