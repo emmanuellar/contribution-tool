@@ -21,6 +21,8 @@
   "form.significantPart": "Significant part(s)",
   "form.significantPart.cta": "Select",
   "form.url": "URL",
+  "form.acceptLanguage": "Force language (fr, es, ...)",
+  "form.acceptLanguage.more": "If the language of the document is not the one you were expecting.",
   "loading.subtitle": "It usually takes between 5s and 30s",
   "loading.title": "We're preparing the website",
   "send_email": "Send us an email",

@@ -37,7 +37,11 @@ const addMissingStyledComponents = async (page: Page) => {
 
 export const downloadUrl = async (
   url: string,
-  { folderPath, newUrlPath }: { folderPath: string; newUrlPath: string }
+  {
+    folderPath,
+    newUrlPath,
+    acceptLanguage = 'en',
+  }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
   fse.ensureDirSync(folderPath);
   const parsedUrl = new URL(url);
@@ -60,6 +64,10 @@ export const downloadUrl = async (
     });
   const page = await browser.newPage();
   await page.setUserAgent(new UserAgent().toString());
+
+  // same functionnality as in OpenTermsArchive Core
+  await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
+
   await page.setRequestInterception(true);
   page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
 

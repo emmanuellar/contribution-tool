@@ -65,7 +65,7 @@ label {
   }
 
   & svg {
-    top: var(--mM);
+    top: var(--mS);
     right: var(--mS);
     position: absolute;
     pointer-events: none;
