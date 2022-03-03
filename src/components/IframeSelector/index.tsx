@@ -6,6 +6,7 @@ interface IframeSelectorProps {
   url: string;
   selected?: string[];
   removed?: string[];
+  hidden?: string[];
   selectable: boolean;
   onSelect: (cssPath: string) => any;
   onReady: () => any;
@@ -25,10 +26,24 @@ const STYLE_HIGHLIGHT_ID = 'ota-highlight'; // same as in /public/iframe-selecto
 const EVENT_NAME = 'ota-event'; // same as in /public/iframe-selector/injected-script.js
 
 // Initially done to display even fadeIn elements on https://policy.pinterest.com/fr/privacy-policy
-const globalRules = `
-*:not(#${STYLE_HIGHLIGHT_ID}) {
+// added `body > *` in order to let top elements like modals background untouched
+const preventFadeInRule = `
+body > * *:not(#${STYLE_HIGHLIGHT_ID}) {
   opacity: 1!important;
-}
+}`;
+
+// Initially done to force page to scroll after removing newsletter popups
+// exemple https://www.comptoirdescotonniers.com/cgv-c4.html
+const forceScrollRule = `
+html, body {
+  overflow: auto!important;
+  height: auto!important;
+  position: relative!important;
+}`;
+
+const globalRules = `
+${preventFadeInRule}
+${forceScrollRule}
 `;
 
 const IframeSelector = ({
@@ -36,6 +51,7 @@ const IframeSelector = ({
   selectable,
   selected = [],
   removed = [],
+  hidden = [],
   onSelect,
   onReady,
 }: IframeSelectorProps) => {
@@ -57,6 +73,7 @@ const IframeSelector = ({
       return;
     }
 
+    const hiddenCssSelectors = hidden.filter((m) => !!m).join(',');
     const selectedCssSelectors = selected.filter((m) => !!m).join(',');
     const selectedChildrenCssSelectors = selected.map((s) => `${s} *`).join(',');
     const removedCssSelectors = removed.filter((m) => !!m).join(',');
@@ -79,8 +96,14 @@ const IframeSelector = ({
           ${removedChildrenCssSelectors} { background: #e39694!important; }`
           : ''
       }
+      ${
+        hiddenCssSelectors
+          ? `
+          ${hiddenCssSelectors} { display: none!important; }`
+          : ''
+      }
     `;
-  }, [selected, removed]);
+  }, [selected, removed, hidden]);
 
   React.useEffect(() => {
     if (!initDone) {

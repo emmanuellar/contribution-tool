@@ -1,6 +1,10 @@
 import 'ts-replace-all';
 
-import { getHostname, removeCookieBanners } from '../i-dont-care-about-cookies';
+import {
+  getHostname,
+  removeCookieBanners,
+  interceptCookieUrls,
+} from '../i-dont-care-about-cookies';
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -33,7 +37,11 @@ const addMissingStyledComponents = async (page: Page) => {
 
 export const downloadUrl = async (
   url: string,
-  { folderPath, newUrlPath }: { folderPath: string; newUrlPath: string }
+  {
+    folderPath,
+    newUrlPath,
+    acceptLanguage = 'en',
+  }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
   fse.ensureDirSync(folderPath);
   const parsedUrl = new URL(url);
@@ -56,11 +64,25 @@ export const downloadUrl = async (
     });
   const page = await browser.newPage();
   await page.setUserAgent(new UserAgent().toString());
+
+  // same functionnality as in OpenTermsArchive Core
+  await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
+
+  await page.setRequestInterception(true);
   page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
 
   const hostname = getHostname(url, true);
 
   let assets: { from: string; to: string }[] = [];
+
+  page.on('request', (request) => {
+    if (request.resourceType() === 'script' && interceptCookieUrls(request.url(), [])) {
+      console.log(`Blocking`, request.url());
+      request.abort();
+    } else {
+      request.continue();
+    }
+  });
 
   page.on('response', async (response) => {
     const resourceType = response.request().resourceType();
