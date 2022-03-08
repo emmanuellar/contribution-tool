@@ -62,7 +62,7 @@
     "react-icons": "^4.3.1",
     "react-toastify": "^7.0.4",
     "react-use": "^17.3.2",
-    "swr": "0.5.6",
+    "swr": "^1.2.2",
     "ts-replace-all": "^1.0.0",
     "user-agents": "^1.0.949"
   },
