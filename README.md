@@ -51,8 +51,7 @@ Here are some examples for contributing to different projects using
 
 - /en?destination=OpenTermsArchive/contrib-declarations
 - /en?destination=OpenTermsArchive/dating-declarations
-- /en?destination=ambanum/test-repo (For tests)
-- /fr?destination=ambanum/test-repo2 (For tests)
+- /en?destination=OpenTermsArchive/sandbox (For tests)
 
 ### Usage
 
@@ -71,7 +70,7 @@ It takes a full local path string and must point to the exact folder containing 
 See below examples:
 
 ```
-/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/contrib-declarations/declarations
+/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/contrib-declarations/declarations
 /en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/somewhere-else/dating-declarations/declarations
 ```
 
@@ -85,8 +84,8 @@ As this is a very time consuming thing to do (retrieve the last version date, fo
 **CAUTION**: You need to have a `localPath` query param (described in the previous paragraph) in the url for this to happen.
 
 ```
-/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/contrib-declarations/declarations&versionsRepo=OpenTermsArchive/contrib-versions
-/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/dating-declarations/declarations&versionsRepo=ambanum/OpenTermsArchive/dating-versions
+/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/contrib-declarations/declarations&versionsRepo=OpenTermsArchive/contrib-versions
+/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/dating-declarations/declarations&versionsRepo=OpenTermsArchive/dating-versions
 ```
 
 ## Contributing
