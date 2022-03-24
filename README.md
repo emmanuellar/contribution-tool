@@ -49,8 +49,8 @@ This repo must be passed by an url parameter called `destination`
 
 Here are some examples for contributing to different projects using
 
-- /en?destination=OpenTermsArchive/services-all
-- /en?destination=OpenTermsArchive/services-dating
+- /en?destination=OpenTermsArchive/contrib-declarations
+- /en?destination=OpenTermsArchive/dating-declarations
 - /en?destination=ambanum/test-repo (For tests)
 - /fr?destination=ambanum/test-repo2 (For tests)
 
@@ -71,8 +71,8 @@ It takes a full local path string and must point to the exact folder containing 
 See below examples:
 
 ```
-/en?destination=OpenTermsArchive/services-all&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/services-all/declarations
-/en?destination=OpenTermsArchive/services-dating&localPath=/Users/username/Workspace/somewhere-else/services-dating/declarations
+/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/contrib-declarations/declarations
+/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/somewhere-else/dating-declarations/declarations
 ```
 
 This way, a `Save on local` button will appear on the contribution interface. By clicking on it, it will add or modify the service declaration (saved as a `.json` file) in the corresponding directory.
@@ -85,8 +85,8 @@ As this is a very time consuming thing to do (retrieve the last version date, fo
 **CAUTION**: You need to have a `localPath` query param (described in the previous paragraph) in the url for this to happen.
 
 ```
-/en?destination=OpenTermsArchive/services-all&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/services-all/declarations&versionsRepo=ambanum/OpenTermsArchive-versions
-/en?destination=OpenTermsArchive/services-dating&localPath=/Users/username/Workspace/OpenTermsArchive/services-dating/declarations&versionsRepo=ambanum/OpenTermsArchive/versions-dating
+/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/ambanum/OpenTermsArchive/contrib-declarations/declarations&versionsRepo=OpenTermsArchive/contrib-versions
+/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/dating-declarations/declarations&versionsRepo=ambanum/OpenTermsArchive/dating-versions
 ```
 
 ## Contributing
