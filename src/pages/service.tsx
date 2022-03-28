@@ -66,7 +66,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 
   if (!destination && typeof window !== 'undefined') {
     // This is here as previously created issues still point at a url that has no `destination` param
-    pushQueryParam('destination')('OpenTermsArchive/services-all');
+    pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
   }
 
   const json = {
