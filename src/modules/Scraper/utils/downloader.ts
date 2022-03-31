@@ -35,6 +35,19 @@ const addMissingStyledComponents = async (page: Page) => {
   });
 };
 
+/*
+ * Base tag is sometimes used to specify a default URL and a default target for all links on a page
+ * https://www.w3schools.com/tags/tag_base.asp
+ *
+ * As we download all files, we do not want to keep this tag
+ * Initially done for https://fr.aegeanair.com/conditions-et-avis/conditions-generales-de-transport/
+ */
+const removeBaseTag = async (page: Page) => {
+  await page.evaluate(() => {
+    document.querySelector('base')?.remove();
+  });
+};
+
 export const downloadUrl = async (
   url: string,
   {
@@ -63,7 +76,7 @@ export const downloadUrl = async (
       ],
     });
   const page = await browser.newPage();
-  await page.setUserAgent(new UserAgent().toString());
+  await page.setUserAgent(new UserAgent({ deviceCategory: 'desktop' }).toString());
 
   // same functionnality as in OpenTermsArchive Core
   await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
@@ -129,6 +142,7 @@ export const downloadUrl = async (
     });
 
     await addMissingStyledComponents(page);
+    await removeBaseTag(page);
 
     if (parsedUrl.hash) {
       try {

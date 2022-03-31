@@ -51,7 +51,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-mixins": "^8.0.0",
     "postcss-nesting": "^8.0.1",
-    "puppeteer": "^10.4.0",
+    "puppeteer": "^13.5.0",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-recaptcha": "^3.5.0",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
@@ -64,7 +64,7 @@
     "react-use": "17.2.4",
     "swr": "0.5.6",
     "ts-replace-all": "^1.0.0",
-    "user-agents": "1.0.753"
+    "user-agents": "^1.0.948"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

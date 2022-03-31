@@ -27,8 +27,9 @@ const EVENT_NAME = 'ota-event'; // same as in /public/iframe-selector/injected-s
 
 // Initially done to display even fadeIn elements on https://policy.pinterest.com/fr/privacy-policy
 // added `body > *` in order to let top elements like modals background untouched
+// added `:not(.modal)` as we do not want modals to be displayed if they should not be
 const preventFadeInRule = `
-body > * *:not(#${STYLE_HIGHLIGHT_ID}) {
+body > * *:not(#${STYLE_HIGHLIGHT_ID}):not(.modal) {
   opacity: 1!important;
 }`;
 
