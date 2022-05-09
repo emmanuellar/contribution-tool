@@ -5,9 +5,8 @@ import { serverRuntimeConfig } from '../../next.config';
 import next from 'next';
 
 const dev = process.env.NODE_ENV !== 'production';
-const port = +(process.env.PORT || 3000);
-const hostname = 'localhost'; // https://github.com/vercel/next.js/blob/85cc454023aa36c86602db9110e7377704b62e53/packages/next/server/lib/start-server.ts
-const app = next({ dev, port, hostname });
+const port = (process.env.PORT as number | undefined) || 3000;
+const app = next({ dev, port, hostname: 'localhost' });
 const handle = app.getRequestHandler();
 
 (async () => {
