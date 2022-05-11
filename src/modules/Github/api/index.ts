@@ -34,6 +34,17 @@ export const getDocumentTypes: any = async () => {
   }
 };
 
+export const createLabel = async (
+  params: Parameters<typeof octokit.rest.issues.createLabel>[0]
+) => {
+  return octokit.rest.issues.createLabel(params).catch((error) => {
+    if (error.toString().includes('"code":"already_exists"')) {
+      return;
+    }
+    console.error(`Could not create label "${params?.name}": ${error.toString()}`);
+  });
+};
+
 export const createIssue: any = async (
   params: Parameters<typeof octokit.rest.issues.create>[0]
 ) => {

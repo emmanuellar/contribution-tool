@@ -1,4 +1,4 @@
-import { addCommentToIssue, createIssue, searchIssue } from 'modules/Github/api';
+import { addCommentToIssue, createIssue, searchIssue, createLabel } from 'modules/Github/api';
 
 export const addService = async ({
   destination,
@@ -42,6 +42,15 @@ ${JSON.stringify(json, null, 2)}
 You will need to create the following file in the root of the project: \`services/${name.trimEnd()}.json\`
 
 `;
+  const labelName = process.env.GITHUB_LABEL_ADD || 'add';
+
+  await createLabel({
+    ...commonParams,
+    name: labelName,
+    description: 'Automatically created by Open Terms Archive Contribution Tool',
+    color: 'C2E0C6',
+  });
+
   let existingIssue = await searchIssue({
     ...commonParams,
     title: issueTitle,
@@ -66,7 +75,7 @@ New service addition requested through the contribution tool
 
 ${issueBodyCommon}
 `,
-      labels: [process.env.GITHUB_LABEL_ADD || 'add'],
+      labels: [labelName],
     });
   }
 
