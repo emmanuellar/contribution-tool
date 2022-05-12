@@ -170,7 +170,7 @@ export const downloadUrl = async (
     fse.writeFileSync(`${folderPath}/index.html`, filteredHtml);
 
     message = { status: 'ok' };
-  } catch (e) {
+  } catch (e: any) {
     console.error(e.toString());
     fse.removeSync(folderPath);
     message = { status: 'ko', error: e.toString() };

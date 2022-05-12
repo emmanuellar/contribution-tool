@@ -113,7 +113,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   const { data } = useSWR<GetContributeServiceResponse>(
     isPdf || !url ? null : `/api/services?${apiUrlParams.toString()}`,
     {
-      initialData: {
+      fallbackData: {
         status: 'ko',
         message: '',
         url: '',
