@@ -53,12 +53,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       [insignificantCssClass]: initialInsignificantCss,
       [hiddenCssClass]: initialHiddenCss,
       acceptLanguage,
+      executeClientScripts,
       documentType: initialDocumentType,
       name: initialName,
       expertMode,
     },
     pushQueryParam,
     removeQueryParams,
+    removeQueryParam,
   } = useUrl();
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
@@ -79,6 +81,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
         fetch: url,
         select: initialSignificantCss,
         remove: initialInsignificantCss,
+        ...(executeClientScripts ? { executeClientScripts: true } : {}),
       },
     },
   };
@@ -201,6 +204,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     debounce((event: any) => {
       pushQueryParam(fieldName)(event.target.value);
     }, 500);
+
+  const onCheckboxChange = (fieldName: string) => (event: any) => {
+    if (event.target.checked) {
+      pushQueryParam(fieldName)('true');
+    } else {
+      removeQueryParam(fieldName);
+    }
+  };
 
   const toggleExpertMode = () => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
@@ -352,7 +363,16 @@ Thank you very much`;
                     <FiChevronDown color="333333"></FiChevronDown>
                   </div>
                 </div>
-
+                <div className={classNames('formfield')}>
+                  <label>{t('service:form.executeClientScripts')}</label>
+                  <div className={classNames('select')}>
+                    <input
+                      type="checkbox"
+                      defaultChecked={!!executeClientScripts}
+                      onChange={onCheckboxChange('executeClientScripts')}
+                    />
+                  </div>
+                </div>
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.serviceName')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
