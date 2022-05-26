@@ -56,6 +56,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       expertMode,
     },
     pushQueryParam,
+    removeQueryParams,
   } = useUrl();
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
@@ -286,8 +287,9 @@ Thank you very much`;
   React.useEffect(() => {
     if (!!data?.isPdf) {
       toggleIsPdf(true);
+      removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
     }
-  }, [data?.isPdf]);
+  }, [data?.isPdf, removeQueryParams]);
 
   React.useEffect(() => {
     toggleIframeReady(false);
