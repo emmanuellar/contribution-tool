@@ -18,6 +18,8 @@
   "form.label.json": "JSON",
   "form.select": "Sélectionner...",
   "form.serviceName": "Nom",
+  "form.executeClientScripts": "Navigateur headless",
+  "form.executeClientScripts.more": "Utiliser un navigateur headless pour récupérer le document",
   "form.significantPart": "Partie(s) significative(s)",
   "form.significantPart.cta": "Sélectionner",
   "form.url": "URL",
