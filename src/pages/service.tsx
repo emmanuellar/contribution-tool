@@ -34,7 +34,10 @@ const hiddenCssClass = 'hiddenCss';
 type CssRuleChange = 'selectedCss' | 'removedCss' | 'hiddenCss';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
-  let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
+  let [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
+    'serviceHelpDialogViewed',
+    false
+  );
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -311,8 +314,8 @@ Thank you very much`;
 
   return (
     <div className={s.wrapper}>
-      {!isDialogViewed && (
-        <ServiceHelpDialog open={!isDialogViewed} onClose={() => setDialogViewed(true)} />
+      {!isServiceHelpViewed && (
+        <ServiceHelpDialog open={!isServiceHelpViewed} onClose={() => setServiceHelpViewed(true)} />
       )}
       <Drawer className={s.drawer}>
         <>

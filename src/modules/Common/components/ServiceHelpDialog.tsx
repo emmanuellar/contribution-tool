@@ -19,18 +19,18 @@ const ServiceHelpDialog: React.FC<ServiceHelpDialogProps> = ({ onClose, open }) 
       <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
       <div className={classNames(sDialog.dialog_content)}>
-        <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
+        <Dialog.Title as="h3">{t('service:dialog.help.title')}</Dialog.Title>
         <Dialog.Description>
           <TextContent>
             <p>
-              <Trans i18nKey="service:dialog.start.p1">
+              <Trans i18nKey="service:dialog.help.p1">
                 Most of the time, contractual documents contains a header, a footer, navigation
                 menus, possibly ads… We aim at tracking only{' '}
                 <strong>the significant parts of the document</strong>
               </Trans>
             </p>
             <p>
-              <Trans i18nKey="service:dialog.start.p2">
+              <Trans i18nKey="service:dialog.help.p2">
                 In order to achieve that, you will have to select those specific parts and remove
                 the insignificant ones.
               </Trans>
@@ -38,8 +38,8 @@ const ServiceHelpDialog: React.FC<ServiceHelpDialogProps> = ({ onClose, open }) 
           </TextContent>
         </Dialog.Description>
         <div className="mt__L text__right">
-          {/* <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button> */}
-          <Button onClick={onClose}>{t('service:dialog.start.cta')}</Button>
+          {/* <Button onClick={toggleDialogOpen}>{t('service:dialog.help.cta')}</Button> */}
+          <Button onClick={onClose}>{t('service:dialog.help.cta')}</Button>
         </div>
       </div>
     </Dialog>
