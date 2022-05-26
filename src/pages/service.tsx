@@ -204,6 +204,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
   };
 
+  const onVerify = async () => {
+    console.log('Open modal');
+  };
+
   const onValidate = async () => {
     toggleLoading(true);
     try {
@@ -282,6 +286,7 @@ Thank you very much`;
     });
   };
 
+  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
@@ -524,6 +529,9 @@ Thank you very much`;
           </div>
 
           <nav className={s.formActions}>
+            <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
+              {loading ? '...' : t('service:verify')}
+            </Button>
             <Button disabled={submitDisabled} onClick={onValidate}>
               {loading ? '...' : t('service:submit')}
             </Button>
