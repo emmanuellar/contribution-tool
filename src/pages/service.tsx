@@ -24,6 +24,7 @@ import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
 import debounce from 'lodash/debounce';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
+import ServiceVerifyDialog from 'modules/Common/data-components/ServiceVerifyDialog';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -37,6 +38,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     'serviceHelpDialogViewed',
     false
   );
+  const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -205,7 +207,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   };
 
   const onVerify = async () => {
-    console.log('Open modal');
+    toggleServiceVerifyDisplayed(true);
   };
 
   const onValidate = async () => {
@@ -304,6 +306,11 @@ Thank you very much`;
       {!isServiceHelpViewed && (
         <ServiceHelpDialog open={!isServiceHelpViewed} onClose={() => setServiceHelpViewed(true)} />
       )}
+      <ServiceVerifyDialog
+        open={isServiceVerifyDisplayed}
+        onClose={toggleServiceVerifyDisplayed}
+        json={Object.values(json.documents)[0]}
+      />
 
       <Drawer className={s.drawer}>
         <>
