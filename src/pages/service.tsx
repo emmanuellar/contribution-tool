@@ -282,7 +282,7 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = !initialSignificantCss || !iframeReady || loading;
+  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
