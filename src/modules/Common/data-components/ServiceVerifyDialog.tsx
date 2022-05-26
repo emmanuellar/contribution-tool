@@ -7,6 +7,9 @@ import Button from 'modules/Common/components/Button';
 import { useTranslation } from 'next-i18next';
 import useSwr from 'swr';
 import { GetServiceVerifyResponse } from '../interfaces';
+import ReactMarkdown from 'react-markdown';
+import Column from 'modules/Common/components/Column';
+import Container from 'modules/Common/containers/Container';
 
 type ServiceVerifyDialogProps = {
   open: boolean;
@@ -26,26 +29,28 @@ const ServiceVerifyDialog: React.FC<ServiceVerifyDialogProps> = ({
   );
 
   return (
-    <Dialog
-      open={open}
-      as="div"
-      className={classNames(sDialog.dialog, sDialog['dialog_content--full-page'])}
-      onClose={onClose}
-    >
+    <Dialog open={open} as="div" className={classNames(sDialog.dialog)} onClose={onClose}>
       <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
       {/* TODO Make dialog scrollable */}
-      <div className={classNames(sDialog.dialog_content)} {...props}>
+      <div
+        className={classNames(sDialog.dialog_content, sDialog['dialog_content--full-page'])}
+        {...props}
+      >
         <Dialog.Title as="h3">{t('service:dialog.verify.title')}</Dialog.Title>
         <Dialog.Description>
           <TextContent>
             {!data && 'Loading...'}
             {data && data.error && <>An error occured: {data.error}</>}
             {data && !data.error && (
-              <>
-                {/* TODO Display snapshot on the left and veersion on the right, formatted in MD */}
-                {data.version}
-              </>
+              <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
+                <Column width={100} title={'Snapshot'} style={{ overflow: 'auto' }}>
+                  <pre style={{ background: '#F7F7F7' }}>{data.snapshot}</pre>
+                </Column>
+                <Column width={100} title={'Version'}>
+                  <ReactMarkdown children={data.version || ''} />
+                </Column>
+              </Container>
             )}
           </TextContent>
         </Dialog.Description>
