@@ -26,7 +26,12 @@ const ServiceVerifyDialog: React.FC<ServiceVerifyDialogProps> = ({
   );
 
   return (
-    <Dialog open={open} as="div" className={classNames(sDialog.dialog)} onClose={onClose}>
+    <Dialog
+      open={open}
+      as="div"
+      className={classNames(sDialog.dialog, sDialog['dialog_content--full-page'])}
+      onClose={onClose}
+    >
       <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
 
       {/* TODO Make dialog scrollable */}
