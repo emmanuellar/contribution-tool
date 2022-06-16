@@ -27,8 +27,10 @@ const isPdf = async (url: string) => {
 };
 
 const get =
-  (url: string, acceptLanguage: string = 'en') =>
+  (json: any, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
+    const url = json.fetch;
+
     if (await isPdf(url)) {
       res.json({
         status: 'ok',
@@ -64,7 +66,7 @@ const get =
       console.log(`Folder ${folderPath} does not exist`);
       console.log(`downloading ${url}`);
       console.time('downloading');
-      const { error } = await downloadUrl(url, { folderPath, newUrlPath, acceptLanguage });
+      const { error } = await downloadUrl(json, { folderPath, newUrlPath, acceptLanguage });
       console.timeEnd('downloading');
 
       if (error) {
@@ -212,8 +214,15 @@ const addNewService =
 
 const services = async (req: NextApiRequest, res: NextApiResponse) => {
   const { body, query } = req;
-  if (req.method === 'GET' && query?.url) {
-    return get(query.url as string, query.acceptLanguage as string)(req, res);
+  if (req.method === 'GET' && query?.json) {
+    try {
+      const json = JSON.parse(query.json as string);
+      return get(json, query.acceptLanguage as string)(req, res);
+    } catch (e: any) {
+      res.statusCode = HttpStatusCode.METHOD_FAILURE;
+      res.json({ status: 'ko', message: e.toString() });
+      return;
+    }
   }
 
   if (req.method === 'POST' && body?.json) {

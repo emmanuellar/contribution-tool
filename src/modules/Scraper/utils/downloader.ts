@@ -15,6 +15,7 @@ import { Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 const DOWNLOAD_TIMEOUT = 30 * 1000;
 const logDebug = debug('ota.org:debug');
+import { getVersion } from 'modules/OTA-api/services/open-terms-archive';
 
 /*
  * Handle styled-components which hides the content of css Rules
@@ -82,19 +83,25 @@ const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
 };
 
 export const downloadUrl = async (
-  url: string,
+  json: any,
   {
     folderPath,
     newUrlPath,
     acceptLanguage = 'en',
   }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
+  const url = json.fetch;
   fse.ensureDirSync(folderPath);
   const parsedUrl = new URL(url);
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
   const domainname = `${domain}.${extension}`;
   const hostname = getHostname(url, true);
+
+  if (!json.select) {
+    json.select = ['html'];
+  }
+
 
   const browser = await puppeteer
     .use(RecaptchaPlugin())

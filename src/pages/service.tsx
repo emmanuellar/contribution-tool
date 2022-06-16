@@ -107,7 +107,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     : [initialHiddenCss];
 
   const apiUrlParams = new URLSearchParams();
-  apiUrlParams.append('url', url);
+  apiUrlParams.append('json', JSON.stringify(Object.values(json.documents)[0]));
   if (acceptLanguage) {
     apiUrlParams.append('acceptLanguage', acceptLanguage);
   }
