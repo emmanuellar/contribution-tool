@@ -7,13 +7,14 @@ import {
 } from '../i-dont-care-about-cookies';
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import debug from 'debug';
 import fse from 'fs-extra';
-import { Page } from 'puppeteer';
-import puppeteer from 'puppeteer-extra';
+import type { Page, Browser } from 'puppeteer'; // from open-terms-archive
+import puppeteer from 'puppeteer-extra'; // from open-terms-archive
 const logDebug = debug('ota.org:debug');
-import { getVersion } from 'modules/OTA-api/services/open-terms-archive';
+import { getVersion, stopBrowser, launchBrowser } from 'modules/Common/services/open-terms-archive';
+
+puppeteer.use(RecaptchaPlugin());
 
 /*
  * Handle styled-components which hides the content of css Rules
@@ -89,7 +90,10 @@ export const downloadUrl = async (
   }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
   const url = json.fetch;
-  fse.ensureDirSync(folderPath);
+  const snapshotFilePath = `${folderPath}/snapshot.html`;
+  const indexFilePath = `${folderPath}/index.html`;
+
+  fse.ensureFileSync(indexFilePath);
   const parsedUrl = new URL(url);
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
@@ -103,26 +107,16 @@ export const downloadUrl = async (
   let data;
 
   try {
-    data = await getVersion(json);
+    data = await getVersion(json, { language: acceptLanguage });
   } catch (e: any) {
     console.error(e.toString());
     fse.removeSync(folderPath);
     return { status: 'ko', error: e.toString() };
   }
 
-  const browser = await puppeteer
-    .use(RecaptchaPlugin())
-    .use(StealthPlugin())
-    .launch({
-      executablePath: process.env.CHROME_BIN,
-      args: [
-        '--no-sandbox',
-        '--disable-gpu',
-        '--headless',
-        '--disable-dev-shm-usage',
-        '--disable-setuid-sandbox',
-      ],
-    });
+  fse.writeFileSync(snapshotFilePath, data.snapshot);
+  const browser: Browser = await launchBrowser();
+
   const page = await browser.newPage();
 
   await page.setRequestInterception(true);
@@ -132,7 +126,7 @@ export const downloadUrl = async (
 
   page.on('request', (request) => {
     if (request.resourceType() === 'script' && interceptCookieUrls(request.url(), [])) {
-      console.log(`Blocking`, request.url());
+      console.log(`Blocking cookie url`, request.url());
       request.abort();
     } else {
       request.continue();
@@ -178,9 +172,14 @@ export const downloadUrl = async (
 
   let message: any;
   try {
-    await page.setContent(data.snapshot, {
-      waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
+    // Needed because setContent does not wait for resource to be loaded
+    // https://github.com/puppeteer/puppeteer/issues/728#issuecomment-524884442
+    // and page.goto(`file://${process.cwd()}/${snapshotFilePath}`) causes unexpected problems
+    await page.goto(url, {
+      waitUntil: 'networkidle0', // same as in OTA Core
+      timeout: 30000,
     });
+    await page.setContent(data.snapshot);
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
@@ -189,7 +188,7 @@ export const downloadUrl = async (
 
     const html = await page.content();
 
-    fse.writeFileSync(`${folderPath}/index.html`, cleanHtml(html, assets));
+    fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
 
     message = { status: 'ok' };
   } catch (e: any) {
@@ -199,7 +198,8 @@ export const downloadUrl = async (
   }
 
   await page.close();
-  await browser.close();
+
+  await stopBrowser();
 
   return message;
 };

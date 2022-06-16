@@ -26,3 +26,6 @@ export const getVersion = async (documentDeclaration: any, config: any) => {
     mimeType,
   };
 };
+
+export const launchBrowser = launchHeadlessBrowser;
+export const stopBrowser = stopHeadlessBrowser;
