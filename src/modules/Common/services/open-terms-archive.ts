@@ -1,12 +1,13 @@
 import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
 import filter from 'open-terms-archive/filter';
 
-export const getVersion = async (config: any) => {
+export const getVersion = async (documentDeclaration: any, config: any) => {
   await launchHeadlessBrowser();
   const { content, mimeType } = await fetch({
-    url: config.fetch,
-    executeClientScripts: config.executeClientScripts,
-    cssSelectors: config.select,
+    url: documentDeclaration.fetch,
+    executeClientScripts: documentDeclaration.executeClientScripts,
+    cssSelectors: documentDeclaration.select,
+    config,
   });
   await stopHeadlessBrowser();
 
@@ -14,9 +15,9 @@ export const getVersion = async (config: any) => {
     content,
     mimeType,
     documentDeclaration: {
-      location: config.fetch,
-      contentSelectors: config.select,
-      noiseSelectors: config.remove,
+      location: documentDeclaration.fetch,
+      contentSelectors: documentDeclaration.select,
+      noiseSelectors: documentDeclaration.remove,
     },
   });
   return {
