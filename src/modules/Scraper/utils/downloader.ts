@@ -8,7 +8,6 @@ import {
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import UserAgent from 'user-agents';
 import debug from 'debug';
 import fse from 'fs-extra';
 import { Page } from 'puppeteer';
@@ -102,6 +101,15 @@ export const downloadUrl = async (
     json.select = ['html'];
   }
 
+  let data;
+
+  try {
+    data = await getVersion(json);
+  } catch (e: any) {
+    console.error(e.toString());
+    fse.removeSync(folderPath);
+    return { status: 'ko', error: e.toString() };
+  }
 
   const browser = await puppeteer
     .use(RecaptchaPlugin())
@@ -117,10 +125,6 @@ export const downloadUrl = async (
       ],
     });
   const page = await browser.newPage();
-  await page.setUserAgent(new UserAgent({ deviceCategory: 'desktop' }).toString());
-
-  // same functionnality as in OpenTermsArchive Core
-  await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
 
   await page.setRequestInterception(true);
   outputPageLogs(page);
@@ -175,7 +179,7 @@ export const downloadUrl = async (
 
   let message: any;
   try {
-    await page.goto(url, {
+    await page.setContent(data.snapshot, {
       waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
       timeout: DOWNLOAD_TIMEOUT,
     });
