@@ -12,7 +12,6 @@ import debug from 'debug';
 import fse from 'fs-extra';
 import { Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
-const DOWNLOAD_TIMEOUT = 30 * 1000;
 const logDebug = debug('ota.org:debug');
 import { getVersion } from 'modules/OTA-api/services/open-terms-archive';
 
@@ -181,7 +180,6 @@ export const downloadUrl = async (
   try {
     await page.setContent(data.snapshot, {
       waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
-      timeout: DOWNLOAD_TIMEOUT,
     });
 
     await addMissingStyledComponents(page);
