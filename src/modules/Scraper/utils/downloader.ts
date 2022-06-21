@@ -48,6 +48,39 @@ const removeBaseTag = async (page: Page) => {
   });
 };
 
+const outputPageLogs = (page: Page) => {
+  page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+};
+
+const waitForHashIfExists = async (page: Page, hash?: string) => {
+  if (!hash) {
+    return;
+  }
+  try {
+    const hashLinkSelector = `[href="${hash}"]`;
+
+    await page.waitForSelector(hashLinkSelector, { timeout: 1000 });
+    await page.click(hashLinkSelector);
+  } catch (e) {
+    // no link found, do nothing
+  }
+};
+
+/*
+ * Replace all asset urls by ones from this server and prevent scripts from loading
+ */
+const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
+  // https://stackoverflow.com/questions/6659351/removing-all-script-tags-from-html-with-js-regular-expression
+  // replace all scripts with empty string
+  let filteredHtml = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gim, '');
+
+  assets.forEach(({ from, to }) => {
+    filteredHtml = filteredHtml.replaceAll(from, to);
+  });
+
+  return filteredHtml;
+};
+
 export const downloadUrl = async (
   url: string,
   {
@@ -61,6 +94,7 @@ export const downloadUrl = async (
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
   const domainname = `${domain}.${extension}`;
+  const hostname = getHostname(url, true);
 
   const browser = await puppeteer
     .use(RecaptchaPlugin())
@@ -82,9 +116,7 @@ export const downloadUrl = async (
   await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
 
   await page.setRequestInterception(true);
-  page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
-
-  const hostname = getHostname(url, true);
+  outputPageLogs(page);
 
   let assets: { from: string; to: string }[] = [];
 
@@ -143,31 +175,12 @@ export const downloadUrl = async (
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
-
-    if (parsedUrl.hash) {
-      try {
-        const hashLinkSelector = `[href="${parsedUrl.hash}"]`;
-
-        await page.waitForSelector(hashLinkSelector, { timeout: 1000 });
-        await page.click(hashLinkSelector);
-      } catch (e) {
-        // no link found, do nothing
-      }
-    }
-
+    await waitForHashIfExists(page, parsedUrl.hash);
     await removeCookieBanners(page, hostname);
 
     const html = await page.content();
 
-    // https://stackoverflow.com/questions/6659351/removing-all-script-tags-from-html-with-js-regular-expression
-    // replace all scripts with empty string
-    let filteredHtml = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gim, '');
-
-    assets.forEach(({ from, to }) => {
-      filteredHtml = filteredHtml.replaceAll(from, to);
-    });
-
-    fse.writeFileSync(`${folderPath}/index.html`, filteredHtml);
+    fse.writeFileSync(`${folderPath}/index.html`, cleanHtml(html, assets));
 
     message = { status: 'ok' };
   } catch (e: any) {
@@ -175,6 +188,7 @@ export const downloadUrl = async (
     fse.removeSync(folderPath);
     message = { status: 'ko', error: e.toString() };
   }
+
   await page.close();
   await browser.close();
 
