@@ -56,6 +56,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       expertMode,
     },
     pushQueryParam,
+    removeQueryParams,
   } = useUrl();
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
@@ -281,13 +282,14 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = !initialSignificantCss || !iframeReady || loading;
+  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
       toggleIsPdf(true);
+      removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
     }
-  }, [data?.isPdf]);
+  }, [data?.isPdf, removeQueryParams]);
 
   React.useEffect(() => {
     toggleIframeReady(false);
@@ -458,35 +460,37 @@ Thank you very much`;
                 </div>
                 {expertMode && (
                   <>
-                    <div className={classNames('formfield')}>
-                      <label>{t('service:form.hiddenPart')}</label>
-                      <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
-                      {hiddenCss.map((hidden, i) => (
-                        <div key={hidden} className={s.selectionItem}>
-                          <input
-                            defaultValue={hidden}
-                            onChange={onChangeCssRule(hiddenCssClass, i)}
-                          />
+                    {!isPdf && (
+                      <div className={classNames('formfield')}>
+                        <label>{t('service:form.hiddenPart')}</label>
+                        <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
+                        {hiddenCss.map((hidden, i) => (
+                          <div key={hidden} className={s.selectionItem}>
+                            <input
+                              defaultValue={hidden}
+                              onChange={onChangeCssRule(hiddenCssClass, i)}
+                            />
 
-                          <Button
-                            onClick={onRemoveCssRule(hiddenCssClass, i)}
-                            type="secondary"
-                            size="sm"
-                            onlyIcon={true}
-                          >
-                            <FiTrash2></FiTrash2>
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        onClick={selectInIframe(hiddenCssClass)}
-                        disabled={!!selectable || !iframeReady}
-                        type="secondary"
-                        size="sm"
-                      >
-                        {t('service:form.hiddenPart.cta')}
-                      </Button>
-                    </div>
+                            <Button
+                              onClick={onRemoveCssRule(hiddenCssClass, i)}
+                              type="secondary"
+                              size="sm"
+                              onlyIcon={true}
+                            >
+                              <FiTrash2></FiTrash2>
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={selectInIframe(hiddenCssClass)}
+                          disabled={!!selectable || !iframeReady}
+                          type="secondary"
+                          size="sm"
+                        >
+                          {t('service:form.hiddenPart.cta')}
+                        </Button>
+                      </div>
+                    )}
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.acceptLanguage')}</label>
                       <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>

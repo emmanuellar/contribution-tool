@@ -97,12 +97,24 @@ const useUrl = () => {
     [pushQueryParams, queryParams]
   );
 
+  const removeQueryParams = React.useCallback(
+    (paramNames: string[], as?: IParamsAs, options?: IParamsOptions) => {
+      const paramsToRemove = paramNames.reduce(
+        (acc, paramName) => ({ ...acc, [paramName]: undefined }),
+        {}
+      );
+      pushQueryParams({ ...queryParams, ...paramsToRemove }, as, options);
+    },
+    [pushQueryParams, queryParams]
+  );
+
   return {
     queryParams,
     replaceQueryParams,
     pushQueryParams,
     pushQueryParam,
     removeQueryParam,
+    removeQueryParams,
   };
 };
 
