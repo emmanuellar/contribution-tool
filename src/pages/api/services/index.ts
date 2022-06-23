@@ -17,6 +17,8 @@ import path from 'path';
 
 const { serverRuntimeConfig } = getConfig();
 
+const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
+
 const isPdf = async (url: string) => {
   try {
     const response = await axios.head(url, { timeout: 3000 });
@@ -41,7 +43,19 @@ const get =
       return res;
     }
 
-    const folderName = `${url.replace(/[^\p{L}\d_]/gimu, '_')}_${acceptLanguage}`;
+    // In case executeClientScripts is true, ota snapshot fetcher will wait
+    // for selector to be found on the page, so resulting snapshot will be
+    // different each time a new selector is added
+    // same if language changes
+    const folderName = cleanStringForFileSystem(
+      `${url}_${acceptLanguage}${
+        json.executeClientScripts
+          ? `_${json.executeClientScripts}_${
+              json.select ? (Array.isArray(json.select) ? json.select.join(',') : json.select) : ''
+            }`
+          : ''
+      }`
+    );
 
     const folderPath = path.join(serverRuntimeConfig.scrapedFilesFolder, folderName);
 
@@ -87,13 +101,14 @@ const get =
         url: newUrl,
       });
       return res;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       res.statusCode = HttpStatusCode.METHOD_FAILURE;
       res.json({
         status: 'ko',
         message: 'Could not download url',
         url: '',
+        error: e.toString(),
       });
       return res;
     }
@@ -220,7 +235,7 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
       return get(json, query.acceptLanguage as string)(req, res);
     } catch (e: any) {
       res.statusCode = HttpStatusCode.METHOD_FAILURE;
-      res.json({ status: 'ko', message: e.toString() });
+      res.json({ status: 'ko', message: 'Error occured', error: e.toString() });
       return;
     }
   }
