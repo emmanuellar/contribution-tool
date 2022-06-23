@@ -1,0 +1,36 @@
+---
+- name: Install common required packages
+  apt:
+    pkg:
+      - build-essential
+      - curl
+      - git
+    update_cache: yes
+    state: latest
+
+- name: Add the NodeSource repository to the system
+  shell: curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+
+- name: Install NodeJS and NPM
+  apt:
+    name: nodejs
+    update_cache: yes
+    state: latest
+
+- name: Update NPM to latest version
+  command: npm install -g npm
+
+- name: Install pm2
+  command: npm install -g pm2 --production=true
+
+- name: Install Chromium
+  apt:
+    pkg:
+      - chromium
+    update_cache: yes
+    state: latest
+
+  # See https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#recommended-enable-user-namespace-cloning
+- name: Enable user namespace cloning to allow running Chromium in a sandbox
+  command: sysctl -w kernel.unprivileged_userns_clone=1
+  when: ansible_facts['architecture'] != "aarch64"
