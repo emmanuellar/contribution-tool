@@ -141,3 +141,9 @@
     flex: 1;
   }
 }
+
+.pageWronglyLoadedLink {
+  color: var(--colorWarning);
+  font-size: 0.8em;
+  text-align: right;
+}

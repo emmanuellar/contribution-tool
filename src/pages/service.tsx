@@ -355,7 +355,6 @@ Thank you very much`;
           </div>
         </Dialog>
       )}
-
       <Drawer className={s.drawer}>
         <>
           <nav className={s.drawerNav}>
@@ -378,7 +377,6 @@ Thank you very much`;
                     <input defaultValue={url} onChange={onInputChange('url')} />
                   </div>
                 </div>
-
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.documentType')}</label>
                   <div className={classNames('select')}>
@@ -464,7 +462,16 @@ Thank you very much`;
                     )}
                   </>
                 )}
-
+                {!executeClientScripts && iframeReady && !isPdf && (
+                  <div className={classNames('formfield', 'text__right')}>
+                    <a
+                      className={classNames(s.pageWronglyLoadedLink)}
+                      onClick={() => pushQueryParam('executeClientScripts')('true')}
+                    >
+                      {t('service:pageNotAccurate.cta')}
+                    </a>
+                  </div>
+                )}
                 <div className={classNames('formfield', s.toggleExpertMode)}>
                   <a onClick={toggleExpertMode}>{t('service:expertMode')}</a>
 
@@ -486,6 +493,7 @@ Thank you very much`;
                           type="checkbox"
                           defaultChecked={!!executeClientScripts}
                           onChange={onCheckboxChange('executeClientScripts')}
+                          disabled={isPdf}
                         />
                       </div>
                     </div>
@@ -567,7 +575,6 @@ Thank you very much`;
           <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
         </div>
       )}
-
       {!data?.error && (
         <>
           {data?.url || isPdf ? (
