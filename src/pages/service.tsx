@@ -58,6 +58,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam,
     removeQueryParams,
   } = useUrl();
+
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
   }`;
@@ -292,8 +293,10 @@ Thank you very much`;
   }, [data?.isPdf, removeQueryParams]);
 
   React.useEffect(() => {
-    toggleIframeReady(false);
-  }, [url]);
+    if (data?.url !== url) {
+      toggleIframeReady(false);
+    }
+  }, [url, data?.url]);
 
   return (
     <div className={s.wrapper}>
