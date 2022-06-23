@@ -122,6 +122,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
         error: '',
       },
       revalidateOnMount: true,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
     }
   );
 
@@ -541,6 +544,7 @@ Thank you very much`;
           <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
         </div>
       )}
+
       {!data?.error && (
         <>
           {data?.url || isPdf ? (
