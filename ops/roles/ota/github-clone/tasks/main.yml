@@ -7,9 +7,8 @@
     accept_hostkey: yes
     key_file: '/home/{{ ansible_user }}/.ssh/cgus-bot-key'
   tags:
-    - setup
+    - start
     - update
-  register: git_clone_result
 
 # It would have been a lot better to inline vault the .env variables here
 # but it seems to only work in yaml files
@@ -19,34 +18,52 @@
     dest: '/home/{{ ansible_user }}/{{ directory }}/.env'
     remote_src: False
 
-- name: Build the image
-  become: yes
-  community.general.docker_image:
-    timeout: 600 # Build can take a long time as it pre-creates all pages
-    source: build
-    build:
-      network: host
-      pull: yes
-      path: '/home/{{ ansible_user }}/{{ directory }}'
-    name: '{{ directory }}:{{ git_clone_result.after[:7] }}'
-    force_source: yes
+- name: Verify if app already exists
+  shell: pm2 list | grep {{ directory }} | awk '{print $2}'
+  register: APP_ALREADY_EXISTS
 
-- name: Start the container
-  become: yes
-  community.general.docker_container:
-    name: '{{ directory }}'
-    image: '{{ directory }}:{{ git_clone_result.after[:7] }}'
-    restart: yes
-    state: started
-    restart_policy: unless-stopped
-    ports:
-      - '{{ port }}:3000'
+- name: Stop Open Terms Archive Contribution tool if it exists
+  when: APP_ALREADY_EXISTS.stdout | length > 0
+  command:
+    cmd: pm2 delete {{ directory }}
+  tags:
+    - stop
+    - update
 
-- name: Prune containers and images
-  become: yes
-  community.docker.docker_prune:
-    containers: yes
-    images: yes
-    networks: false
-    volumes: false
-    builder_cache: false
+- name: Delete previous build
+  file:
+    state: absent
+    path: '/home/{{ ansible_user }}/{{ directory }}/dist'
+  tags:
+    - start
+    - update
+
+- name: Install npm packages
+  command:
+    cmd: npm install
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  tags:
+    - start
+    - update
+
+- name: Build Open Terms Archive Contribution tool
+  command:
+    cmd: npm run build
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  environment:
+    NODE_ENV: production
+  tags:
+    - start
+    - update
+
+- name: Start Open Terms Archive Contribution tool
+  command:
+    cmd: pm2 start --name {{ directory }} npm -- start
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  environment:
+    NODE_ENV: production
+    PORT: '{{ port }}'
+  tags:
+    - restart
+    - start
+    - update
