@@ -109,27 +109,26 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     ? initialHiddenCss
     : [initialHiddenCss];
 
-  const apiUrlParams = new URLSearchParams();
-  apiUrlParams.append('json', JSON.stringify(Object.values(json.documents)[0]));
+  const documentDeclaration = Object.values(json.documents)[0];
+  let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(documentDeclaration))}`;
+
   if (acceptLanguage) {
-    apiUrlParams.append('acceptLanguage', acceptLanguage);
+    apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const { data } = useSWR<GetContributeServiceResponse>(
-    isPdf || !url ? null : `/api/services?${apiUrlParams.toString()}`,
-    {
-      fallbackData: {
-        status: 'ko',
-        message: '',
-        url: '',
-        error: '',
-      },
-      revalidateOnMount: true,
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const shouldNotRefetchDocument = isPdf || !documentDeclaration.fetch;
+  const apiUrl = `/api/services?${apiUrlParams}`;
+
+  const { data } = useSWR<GetContributeServiceResponse>(shouldNotRefetchDocument ? null : apiUrl, {
+    revalidateOnMount: true,
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  if (!url) {
+    return null;
+  }
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
