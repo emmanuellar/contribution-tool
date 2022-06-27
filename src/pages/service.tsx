@@ -8,6 +8,7 @@ import { useEvent, useLocalStorage } from 'react-use';
 import Button from 'modules/Common/components/Button';
 import { Dialog } from '@headlessui/react';
 import Drawer from 'components/Drawer';
+import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
@@ -16,6 +17,7 @@ import TextContent from 'modules/Common/components/TextContent';
 import { Trans } from 'react-i18next';
 import api from 'utils/api';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import sDialog from '../../src/modules/Common/components/Dialog.module.css';
@@ -26,7 +28,6 @@ import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
-import debounce from 'lodash/debounce';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -461,16 +462,7 @@ Thank you very much`;
                     )}
                   </>
                 )}
-                {!executeClientScripts && iframeReady && !isPdf && (
-                  <div className={classNames('formfield', 'text__right')}>
-                    <a
-                      className={classNames(s.pageWronglyLoadedLink)}
-                      onClick={() => pushQueryParam('executeClientScripts')('true')}
-                    >
-                      {t('service:pageNotAccurate.cta')}
-                    </a>
-                  </div>
-                )}
+
                 <div className={classNames('formfield', s.toggleExpertMode)}>
                   <a onClick={toggleExpertMode}>{t('service:expertMode')}</a>
 
@@ -560,11 +552,28 @@ Thank you very much`;
             </form>
           </div>
 
-          <nav className={s.formActions}>
-            <Button disabled={submitDisabled} onClick={onValidate}>
-              {loading ? '...' : t('service:submit')}
-            </Button>
-          </nav>
+          <div className={s.formBottom}>
+            {!executeClientScripts && iframeReady && !isPdf && (
+              <div
+                className={classNames(s.formInfos, 'text__light', 'text__error', 'text__center')}
+              >
+                <IconAlert /> {t('service:pageNotAccurate.desc')}
+                <br />
+                <a
+                  className={classNames('text__error')}
+                  onClick={() => pushQueryParam('executeClientScripts')('true')}
+                >
+                  {t('service:pageNotAccurate.cta')}
+                </a>
+              </div>
+            )}
+
+            <nav className={s.formActions}>
+              <Button disabled={submitDisabled} onClick={onValidate}>
+                {loading ? '...' : t('service:submit')}
+              </Button>
+            </nav>
+          </div>
         </>
       </Drawer>
       {data?.error && (
