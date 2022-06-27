@@ -4,7 +4,7 @@
   "prettier": "prettier-config-ambanum",
   "scripts": {
     "dev": "NODE_OPTIONS=\"--insecure-http-parser --max-http-header-size=3276 \" ts-node src/server/index.mjs",
-    "build": "rm -Rf dist && cp -R src/translations/en src/translations/default && next build --debug && tsc && rm -Rf src/translations/default",
+    "build": "cp -R src/translations/en src/translations/default && next build --debug && tsc && rm -Rf src/translations/default",
     "start": "NODE_ENV=production node dist/src/server/index.mjs",
     "type-check": "tsc",
     "update-cookie-extension": "src/modules/Scraper/i-dont-care-about-cookies/tools/copy-to-folder.sh",
