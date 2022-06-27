@@ -58,6 +58,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam,
     removeQueryParams,
   } = useUrl();
+
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
   }`;
@@ -121,6 +122,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
         error: '',
       },
       revalidateOnMount: true,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
     }
   );
 
@@ -292,8 +296,10 @@ Thank you very much`;
   }, [data?.isPdf, removeQueryParams]);
 
   React.useEffect(() => {
-    toggleIframeReady(false);
-  }, [url]);
+    if (data?.url !== url) {
+      toggleIframeReady(false);
+    }
+  }, [url, data?.url]);
 
   return (
     <div className={s.wrapper}>
@@ -538,6 +544,7 @@ Thank you very much`;
           <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
         </div>
       )}
+
       {!data?.error && (
         <>
           {data?.url || isPdf ? (
