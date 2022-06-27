@@ -577,7 +577,7 @@ Thank you very much`;
       )}
       {!data?.error && (
         <>
-          {data?.url || isPdf ? (
+          {data?.url || isPdf || iframeReady ? (
             isPdf ? (
               <iframe src={url} width="100%" style={{ height: '100vh' }} />
             ) : (

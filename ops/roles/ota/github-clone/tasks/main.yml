@@ -30,14 +30,6 @@
     - stop
     - update
 
-- name: Delete previous build
-  file:
-    state: absent
-    path: '/home/{{ ansible_user }}/{{ directory }}/dist'
-  tags:
-    - start
-    - update
-
 - name: Install npm packages
   command:
     cmd: npm install
