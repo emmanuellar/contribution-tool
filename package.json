@@ -34,7 +34,7 @@
     "fs-extra": "^10.0.1",
     "http-status-codes": "^2.2.0",
     "lodash": "^4.17.21",
-    "next": "^12.1.6",
+    "next": "12.1.6",
     "next-i18next": "^9.2.0",
     "next-mdx-remote": "^3.0.2",
     "nprogress": "^0.2.0",
