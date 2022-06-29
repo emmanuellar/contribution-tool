@@ -5,7 +5,7 @@
     version: '{{ branch }}'
     force: yes
     accept_hostkey: yes
-    key_file: '/home/{{ ansible_user }}/.ssh/cgus-bot-key'
+    key_file: '/home/{{ ansible_user }}/.ssh/ota-bot-key'
   tags:
     - start
     - update
