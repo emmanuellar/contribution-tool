@@ -49,7 +49,9 @@ const removeBaseTag = async (page: Page) => {
 };
 
 const outputPageLogs = (page: Page) => {
-  page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+  if (process.env.NODE_ENV !== 'production') {
+    page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+  }
 };
 
 const waitForHashIfExists = async (page: Page, hash?: string) => {
