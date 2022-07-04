@@ -7,14 +7,14 @@ import {
 } from '../i-dont-care-about-cookies';
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import UserAgent from 'user-agents';
 import debug from 'debug';
 import fse from 'fs-extra';
-import { Page } from 'puppeteer';
-import puppeteer from 'puppeteer-extra';
-const DOWNLOAD_TIMEOUT = 30 * 1000;
+import type { Page, Browser } from 'puppeteer'; // from open-terms-archive
+import puppeteer from 'puppeteer-extra'; // from open-terms-archive
 const logDebug = debug('ota.org:debug');
+import { getVersion, stopBrowser, launchBrowser } from 'modules/Common/services/open-terms-archive';
+
+puppeteer.use(RecaptchaPlugin());
 
 /*
  * Handle styled-components which hides the content of css Rules
@@ -49,7 +49,9 @@ const removeBaseTag = async (page: Page) => {
 };
 
 const outputPageLogs = (page: Page) => {
-  page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+  if (process.env.NODE_ENV !== 'production') {
+    page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+  }
 };
 
 const waitForHashIfExists = async (page: Page, hash?: string) => {
@@ -82,38 +84,42 @@ const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
 };
 
 export const downloadUrl = async (
-  url: string,
+  json: any,
   {
     folderPath,
     newUrlPath,
     acceptLanguage = 'en',
   }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
-  fse.ensureDirSync(folderPath);
+  const url = json.fetch;
+  const snapshotFilePath = `${folderPath}/snapshot.html`;
+  const indexFilePath = `${folderPath}/index.html`;
+
+  fse.ensureFileSync(indexFilePath);
   const parsedUrl = new URL(url);
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
   const domainname = `${domain}.${extension}`;
   const hostname = getHostname(url, true);
 
-  const browser = await puppeteer
-    .use(RecaptchaPlugin())
-    .use(StealthPlugin())
-    .launch({
-      executablePath: process.env.CHROME_BIN,
-      args: [
-        '--no-sandbox',
-        '--disable-gpu',
-        '--headless',
-        '--disable-dev-shm-usage',
-        '--disable-setuid-sandbox',
-      ],
-    });
-  const page = await browser.newPage();
-  await page.setUserAgent(new UserAgent({ deviceCategory: 'desktop' }).toString());
+  if (!json.select) {
+    json.select = ['html'];
+  }
 
-  // same functionnality as in OpenTermsArchive Core
-  await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
+  let data;
+
+  try {
+    data = await getVersion(json, { language: acceptLanguage });
+  } catch (e: any) {
+    console.error(e.toString());
+    fse.removeSync(folderPath);
+    return { status: 'ko', error: e.toString() };
+  }
+
+  fse.writeFileSync(snapshotFilePath, data.snapshot);
+  const browser: Browser = await launchBrowser();
+
+  const page = await browser.newPage();
 
   await page.setRequestInterception(true);
   outputPageLogs(page);
@@ -122,7 +128,7 @@ export const downloadUrl = async (
 
   page.on('request', (request) => {
     if (request.resourceType() === 'script' && interceptCookieUrls(request.url(), [])) {
-      console.log(`Blocking`, request.url());
+      console.log(`Blocking cookie url`, request.url());
       request.abort();
     } else {
       request.continue();
@@ -168,10 +174,14 @@ export const downloadUrl = async (
 
   let message: any;
   try {
+    // Needed because setContent does not wait for resource to be loaded
+    // https://github.com/puppeteer/puppeteer/issues/728#issuecomment-524884442
+    // and page.goto(`file://${process.cwd()}/${snapshotFilePath}`) causes unexpected problems
     await page.goto(url, {
-      waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
-      timeout: DOWNLOAD_TIMEOUT,
+      waitUntil: 'networkidle0', // same as in OTA Core
+      timeout: 30000,
     });
+    await page.setContent(data.snapshot);
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
@@ -180,7 +190,7 @@ export const downloadUrl = async (
 
     const html = await page.content();
 
-    fse.writeFileSync(`${folderPath}/index.html`, cleanHtml(html, assets));
+    fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
 
     message = { status: 'ok' };
   } catch (e: any) {
@@ -190,7 +200,8 @@ export const downloadUrl = async (
   }
 
   await page.close();
-  await browser.close();
+
+  await stopBrowser();
 
   return message;
 };

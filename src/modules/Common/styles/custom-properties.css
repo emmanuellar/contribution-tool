@@ -17,7 +17,9 @@
   --colorSecondary: #0b08a0;
   --colorTertiary: #f9dd3f;
   --colorDarkedSecondary: #b4656f;
+  --colorWarning: #ff7604;
   --colorError: #ec368d;
+  --colorErrorHover: #a52683;
   --colorSuccess: #11ebc3;
   --colorBlack900: #010613;
   --colorBlack800: #333333;

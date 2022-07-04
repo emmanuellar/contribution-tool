@@ -50,10 +50,20 @@
   padding: 0 var(--mM) var(--mL) var(--mM);
 }
 
-.formActions {
+.formBottom {
   margin-top: auto;
-  padding: var(--mL) var(--mM);
+  padding: var(--mM) var(--mM);
+}
+
+.formInfos {
   border-top: 1px solid var(--colorBlack200);
+  padding-top: var(--mM);
+  padding-bottom: var(--mM);
+}
+
+.formActions {
+  border-top: 1px solid var(--colorBlack200);
+  padding-top: var(--mM);
   display: flex;
   justify-content: flex-end;
 }
@@ -140,4 +150,10 @@
   & a {
     flex: 1;
   }
+}
+
+.pageWronglyLoadedLink {
+  color: var(--colorWarning);
+  font-size: 0.8em;
+  text-align: right;
 }
