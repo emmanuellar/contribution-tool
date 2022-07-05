@@ -8,6 +8,7 @@ import { useEvent, useLocalStorage } from 'react-use';
 import Button from 'modules/Common/components/Button';
 import { Dialog } from '@headlessui/react';
 import Drawer from 'components/Drawer';
+import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
@@ -16,6 +17,7 @@ import TextContent from 'modules/Common/components/TextContent';
 import { Trans } from 'react-i18next';
 import api from 'utils/api';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import sDialog from '../../src/modules/Common/components/Dialog.module.css';
@@ -26,7 +28,6 @@ import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
-import debounce from 'lodash/debounce';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -51,12 +52,16 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
       [insignificantCssClass]: initialInsignificantCss,
       [hiddenCssClass]: initialHiddenCss,
       acceptLanguage,
+      executeClientScripts,
       documentType: initialDocumentType,
       name: initialName,
       expertMode,
     },
     pushQueryParam,
+    removeQueryParams,
+    removeQueryParam,
   } = useUrl();
+
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
     versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
   }`;
@@ -76,6 +81,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
         fetch: url,
         select: initialSignificantCss,
         remove: initialInsignificantCss,
+        ...(executeClientScripts ? { executeClientScripts: true } : {}),
       },
     },
   };
@@ -104,24 +110,26 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     ? initialHiddenCss
     : [initialHiddenCss];
 
-  const apiUrlParams = new URLSearchParams();
-  apiUrlParams.append('url', url);
+  const documentDeclaration = Object.values(json.documents)[0];
+  let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(documentDeclaration))}`;
+
   if (acceptLanguage) {
-    apiUrlParams.append('acceptLanguage', acceptLanguage);
+    apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const { data } = useSWR<GetContributeServiceResponse>(
-    isPdf || !url ? null : `/api/services?${apiUrlParams.toString()}`,
-    {
-      fallbackData: {
-        status: 'ko',
-        message: '',
-        url: '',
-        error: '',
-      },
-      revalidateOnMount: true,
-    }
-  );
+  const shouldNotRefetchDocument = isPdf || !documentDeclaration.fetch;
+  const apiUrl = `/api/services?${apiUrlParams}`;
+
+  const { data } = useSWR<GetContributeServiceResponse>(shouldNotRefetchDocument ? null : apiUrl, {
+    revalidateOnMount: true,
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  if (!url) {
+    return null;
+  }
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
@@ -198,6 +206,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     debounce((event: any) => {
       pushQueryParam(fieldName)(event.target.value);
     }, 500);
+
+  const onCheckboxChange = (fieldName: string) => (event: any) => {
+    if (event.target.checked) {
+      pushQueryParam(fieldName)('true');
+    } else {
+      removeQueryParam(fieldName);
+    }
+  };
 
   const toggleExpertMode = () => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
@@ -281,17 +297,20 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = !initialSignificantCss || !iframeReady || loading;
+  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
       toggleIsPdf(true);
+      removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
     }
-  }, [data?.isPdf]);
+  }, [data?.isPdf, removeQueryParams]);
 
   React.useEffect(() => {
-    toggleIframeReady(false);
-  }, [url]);
+    if (data?.url !== url) {
+      toggleIframeReady(false);
+    }
+  }, [url, data?.url]);
 
   return (
     <div className={s.wrapper}>
@@ -336,7 +355,6 @@ Thank you very much`;
           </div>
         </Dialog>
       )}
-
       <Drawer className={s.drawer}>
         <>
           <nav className={s.drawerNav}>
@@ -359,7 +377,6 @@ Thank you very much`;
                     <input defaultValue={url} onChange={onInputChange('url')} />
                   </div>
                 </div>
-
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.documentType')}</label>
                   <div className={classNames('select')}>
@@ -377,7 +394,6 @@ Thank you very much`;
                     <FiChevronDown color="333333"></FiChevronDown>
                   </div>
                 </div>
-
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.serviceName')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
@@ -459,34 +475,50 @@ Thank you very much`;
                 {expertMode && (
                   <>
                     <div className={classNames('formfield')}>
-                      <label>{t('service:form.hiddenPart')}</label>
-                      <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
-                      {hiddenCss.map((hidden, i) => (
-                        <div key={hidden} className={s.selectionItem}>
-                          <input
-                            defaultValue={hidden}
-                            onChange={onChangeCssRule(hiddenCssClass, i)}
-                          />
-
-                          <Button
-                            onClick={onRemoveCssRule(hiddenCssClass, i)}
-                            type="secondary"
-                            size="sm"
-                            onlyIcon={true}
-                          >
-                            <FiTrash2></FiTrash2>
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        onClick={selectInIframe(hiddenCssClass)}
-                        disabled={!!selectable || !iframeReady}
-                        type="secondary"
-                        size="sm"
-                      >
-                        {t('service:form.hiddenPart.cta')}
-                      </Button>
+                      <label>{t('service:form.executeClientScripts')}</label>
+                      <small className={s.moreinfo}>
+                        {t('service:form.executeClientScripts.more')}
+                      </small>
+                      <div className={classNames('select')}>
+                        <input
+                          type="checkbox"
+                          defaultChecked={!!executeClientScripts}
+                          onChange={onCheckboxChange('executeClientScripts')}
+                          disabled={isPdf}
+                        />
+                      </div>
                     </div>
+                    {!isPdf && (
+                      <div className={classNames('formfield')}>
+                        <label>{t('service:form.hiddenPart')}</label>
+                        <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
+                        {hiddenCss.map((hidden, i) => (
+                          <div key={hidden} className={s.selectionItem}>
+                            <input
+                              defaultValue={hidden}
+                              onChange={onChangeCssRule(hiddenCssClass, i)}
+                            />
+
+                            <Button
+                              onClick={onRemoveCssRule(hiddenCssClass, i)}
+                              type="secondary"
+                              size="sm"
+                              onlyIcon={true}
+                            >
+                              <FiTrash2></FiTrash2>
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={selectInIframe(hiddenCssClass)}
+                          disabled={!!selectable || !iframeReady}
+                          type="secondary"
+                          size="sm"
+                        >
+                          {t('service:form.hiddenPart.cta')}
+                        </Button>
+                      </div>
+                    )}
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.acceptLanguage')}</label>
                       <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>
@@ -520,11 +552,28 @@ Thank you very much`;
             </form>
           </div>
 
-          <nav className={s.formActions}>
-            <Button disabled={submitDisabled} onClick={onValidate}>
-              {loading ? '...' : t('service:submit')}
-            </Button>
-          </nav>
+          <div className={s.formBottom}>
+            {!executeClientScripts && iframeReady && !isPdf && (
+              <div
+                className={classNames(s.formInfos, 'text__light', 'text__error', 'text__center')}
+              >
+                <IconAlert /> {t('service:pageNotAccurate.desc')}
+                <br />
+                <a
+                  className={classNames('text__error')}
+                  onClick={() => pushQueryParam('executeClientScripts')('true')}
+                >
+                  {t('service:pageNotAccurate.cta')}
+                </a>
+              </div>
+            )}
+
+            <nav className={s.formActions}>
+              <Button disabled={submitDisabled} onClick={onValidate}>
+                {loading ? '...' : t('service:submit')}
+              </Button>
+            </nav>
+          </div>
         </>
       </Drawer>
       {data?.error && (
@@ -536,7 +585,7 @@ Thank you very much`;
       )}
       {!data?.error && (
         <>
-          {data?.url || isPdf ? (
+          {data?.url || isPdf || iframeReady ? (
             isPdf ? (
               <iframe src={url} width="100%" style={{ height: '100vh' }} />
             ) : (

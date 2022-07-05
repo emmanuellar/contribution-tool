@@ -17,6 +17,8 @@ import path from 'path';
 
 const { serverRuntimeConfig } = getConfig();
 
+const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
+
 const isPdf = async (url: string) => {
   try {
     const response = await axios.head(url, { timeout: 3000 });
@@ -27,8 +29,10 @@ const isPdf = async (url: string) => {
 };
 
 const get =
-  (url: string, acceptLanguage: string = 'en') =>
+  (json: any, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
+    const url = json.fetch;
+
     if (await isPdf(url)) {
       res.json({
         status: 'ok',
@@ -39,7 +43,19 @@ const get =
       return res;
     }
 
-    const folderName = `${url.replace(/[^\p{L}\d_]/gimu, '_')}_${acceptLanguage}`;
+    // In case executeClientScripts is true, ota snapshot fetcher will wait
+    // for selector to be found on the page, so resulting snapshot will be
+    // different each time a new selector is added
+    // same if language changes
+    const folderName = cleanStringForFileSystem(
+      `${url}_${acceptLanguage}${
+        json.executeClientScripts
+          ? `_${json.executeClientScripts}_${
+              json.select ? (Array.isArray(json.select) ? json.select.join(',') : json.select) : ''
+            }`
+          : ''
+      }`
+    );
 
     const folderPath = path.join(serverRuntimeConfig.scrapedFilesFolder, folderName);
 
@@ -64,7 +80,7 @@ const get =
       console.log(`Folder ${folderPath} does not exist`);
       console.log(`downloading ${url}`);
       console.time('downloading');
-      const { error } = await downloadUrl(url, { folderPath, newUrlPath, acceptLanguage });
+      const { error } = await downloadUrl(json, { folderPath, newUrlPath, acceptLanguage });
       console.timeEnd('downloading');
 
       if (error) {
@@ -85,13 +101,14 @@ const get =
         url: newUrl,
       });
       return res;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       res.statusCode = HttpStatusCode.METHOD_FAILURE;
       res.json({
         status: 'ko',
         message: 'Could not download url',
         url: '',
+        error: e.toString(),
       });
       return res;
     }
@@ -212,8 +229,15 @@ const addNewService =
 
 const services = async (req: NextApiRequest, res: NextApiResponse) => {
   const { body, query } = req;
-  if (req.method === 'GET' && query?.url) {
-    return get(query.url as string, query.acceptLanguage as string)(req, res);
+  if (req.method === 'GET' && query?.json) {
+    try {
+      const json = JSON.parse(query.json as string);
+      return get(json, query.acceptLanguage as string)(req, res);
+    } catch (e: any) {
+      res.statusCode = HttpStatusCode.METHOD_FAILURE;
+      res.json({ status: 'ko', message: 'Error occured', error: e.toString() });
+      return;
+    }
   }
 
   if (req.method === 'POST' && body?.json) {

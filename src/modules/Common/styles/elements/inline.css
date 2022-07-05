@@ -13,8 +13,17 @@
 
 .text__error {
   color: var(--colorError);
+  &:is(a) {
+    &:hover {
+      color: var(--colorErrorHover);
+    }
+  }
 }
 
 .text__center {
   text-align: center;
+}
+
+.text__warning {
+  color: var(--colorWarning);
 }

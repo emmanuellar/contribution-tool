@@ -7,14 +7,14 @@ import {
 } from '../i-dont-care-about-cookies';
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import UserAgent from 'user-agents';
 import debug from 'debug';
 import fse from 'fs-extra';
-import { Page } from 'puppeteer';
-import puppeteer from 'puppeteer-extra';
-const DOWNLOAD_TIMEOUT = 30 * 1000;
+import type { Page, Browser } from 'puppeteer'; // from open-terms-archive
+import puppeteer from 'puppeteer-extra'; // from open-terms-archive
 const logDebug = debug('ota.org:debug');
+import { getVersion, stopBrowser, launchBrowser } from 'modules/Common/services/open-terms-archive';
+
+puppeteer.use(RecaptchaPlugin());
 
 /*
  * Handle styled-components which hides the content of css Rules
@@ -48,49 +48,87 @@ const removeBaseTag = async (page: Page) => {
   });
 };
 
+const outputPageLogs = (page: Page) => {
+  if (process.env.NODE_ENV !== 'production') {
+    page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
+  }
+};
+
+const waitForHashIfExists = async (page: Page, hash?: string) => {
+  if (!hash) {
+    return;
+  }
+  try {
+    const hashLinkSelector = `[href="${hash}"]`;
+
+    await page.waitForSelector(hashLinkSelector, { timeout: 1000 });
+    await page.click(hashLinkSelector);
+  } catch (e) {
+    // no link found, do nothing
+  }
+};
+
+/*
+ * Replace all asset urls by ones from this server and prevent scripts from loading
+ */
+const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
+  // https://stackoverflow.com/questions/6659351/removing-all-script-tags-from-html-with-js-regular-expression
+  // replace all scripts with empty string
+  let filteredHtml = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gim, '');
+
+  assets.forEach(({ from, to }) => {
+    filteredHtml = filteredHtml.replaceAll(from, to);
+  });
+
+  return filteredHtml;
+};
+
 export const downloadUrl = async (
-  url: string,
+  json: any,
   {
     folderPath,
     newUrlPath,
     acceptLanguage = 'en',
   }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
 ) => {
-  fse.ensureDirSync(folderPath);
+  const url = json.fetch;
+  const snapshotFilePath = `${folderPath}/snapshot.html`;
+  const indexFilePath = `${folderPath}/index.html`;
+
+  fse.ensureFileSync(indexFilePath);
   const parsedUrl = new URL(url);
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
   const domainname = `${domain}.${extension}`;
+  const hostname = getHostname(url, true);
 
-  const browser = await puppeteer
-    .use(RecaptchaPlugin())
-    .use(StealthPlugin())
-    .launch({
-      executablePath: process.env.CHROME_BIN,
-      args: [
-        '--no-sandbox',
-        '--disable-gpu',
-        '--headless',
-        '--disable-dev-shm-usage',
-        '--disable-setuid-sandbox',
-      ],
-    });
+  if (!json.select) {
+    json.select = ['html'];
+  }
+
+  let data;
+
+  try {
+    data = await getVersion(json, { language: acceptLanguage });
+  } catch (e: any) {
+    console.error(e.toString());
+    fse.removeSync(folderPath);
+    return { status: 'ko', error: e.toString() };
+  }
+
+  fse.writeFileSync(snapshotFilePath, data.snapshot);
+  const browser: Browser = await launchBrowser();
+
   const page = await browser.newPage();
-  await page.setUserAgent(new UserAgent({ deviceCategory: 'desktop' }).toString());
-
-  // same functionnality as in OpenTermsArchive Core
-  await page.setExtraHTTPHeaders({ 'Accept-Language': acceptLanguage });
 
   await page.setRequestInterception(true);
-  page.on('console', (consoleObj: any) => logDebug('>> in page', consoleObj.text()));
-
-  const hostname = getHostname(url, true);
+  outputPageLogs(page);
 
   let assets: { from: string; to: string }[] = [];
 
   page.on('request', (request) => {
     if (request.resourceType() === 'script' && interceptCookieUrls(request.url(), [])) {
-      console.log(`Blocking`, request.url());
+      console.log(`Blocking cookie url`, request.url());
       request.abort();
     } else {
       request.continue();
@@ -136,38 +174,23 @@ export const downloadUrl = async (
 
   let message: any;
   try {
+    // Needed because setContent does not wait for resource to be loaded
+    // https://github.com/puppeteer/puppeteer/issues/728#issuecomment-524884442
+    // and page.goto(`file://${process.cwd()}/${snapshotFilePath}`) causes unexpected problems
     await page.goto(url, {
-      waitUntil: ['domcontentloaded', 'networkidle0', 'networkidle2'],
-      timeout: DOWNLOAD_TIMEOUT,
+      waitUntil: 'networkidle0', // same as in OTA Core
+      timeout: 30000,
     });
+    await page.setContent(data.snapshot);
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
-
-    if (parsedUrl.hash) {
-      try {
-        const hashLinkSelector = `[href="${parsedUrl.hash}"]`;
-
-        await page.waitForSelector(hashLinkSelector, { timeout: 1000 });
-        await page.click(hashLinkSelector);
-      } catch (e) {
-        // no link found, do nothing
-      }
-    }
-
+    await waitForHashIfExists(page, parsedUrl.hash);
     await removeCookieBanners(page, hostname);
 
     const html = await page.content();
 
-    // https://stackoverflow.com/questions/6659351/removing-all-script-tags-from-html-with-js-regular-expression
-    // replace all scripts with empty string
-    let filteredHtml = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gim, '');
-
-    assets.forEach(({ from, to }) => {
-      filteredHtml = filteredHtml.replaceAll(from, to);
-    });
-
-    fse.writeFileSync(`${folderPath}/index.html`, filteredHtml);
+    fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
 
     message = { status: 'ok' };
   } catch (e: any) {
@@ -175,8 +198,10 @@ export const downloadUrl = async (
     fse.removeSync(folderPath);
     message = { status: 'ko', error: e.toString() };
   }
+
   await page.close();
-  await browser.close();
+
+  await stopBrowser();
 
   return message;
 };

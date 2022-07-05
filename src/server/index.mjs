@@ -1,13 +1,14 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-import express, { Request, Response } from 'express';
-import { serverRuntimeConfig } from '../../next.config';
+import pkg from '../../next.config.js';
+const { serverRuntimeConfig } = pkg;
+import express from 'express';
 import next from 'next';
 
 const dev = process.env.NODE_ENV !== 'production';
-const port = +(process.env.PORT || 3000);
-const hostname = 'localhost'; // https://github.com/vercel/next.js/blob/85cc454023aa36c86602db9110e7377704b62e53/packages/next/server/lib/start-server.ts
-const app = next({ dev, port, hostname });
+const port = process.env.PORT || 3000;
+const app = next({ dev, port, hostname: 'localhost' });
 const handle = app.getRequestHandler();
 
 (async () => {
@@ -20,10 +21,11 @@ const handle = app.getRequestHandler();
       express.static(serverRuntimeConfig.scrapedFilesFolder)
     );
 
-    server.all('*', (req: Request, res: Response) => {
+    server.all('*', (req, res) => {
       return handle(req, res);
     });
-    server.listen(port, (err?: any) => {
+
+    server.listen(port, (err) => {
       if (err) throw err;
       console.log(`> Ready on localhost:${port} - env ${process.env.NODE_ENV}`);
     });

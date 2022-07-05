@@ -1,0 +1,61 @@
+- name: Clone Repo
+  git:
+    repo: '{{ repository }}'
+    dest: '/home/{{ ansible_user }}/{{ directory }}'
+    version: '{{ branch }}'
+    force: yes
+    accept_hostkey: yes
+    key_file: '/home/{{ ansible_user }}/.ssh/ota-bot-key'
+  tags:
+    - start
+    - update
+
+# It would have been a lot better to inline vault the .env variables here
+# but it seems to only work in yaml files
+- name: 'Assemble secrets and common .env file'
+  assemble:
+    src: '{{ env_directory }}'
+    dest: '/home/{{ ansible_user }}/{{ directory }}/.env'
+    remote_src: False
+
+- name: Verify if app already exists
+  shell: pm2 list | grep {{ directory }} | awk '{print $2}'
+  register: APP_ALREADY_EXISTS
+
+- name: Stop Open Terms Archive Contribution tool if it exists
+  when: APP_ALREADY_EXISTS.stdout | length > 0
+  command:
+    cmd: pm2 delete {{ directory }}
+  tags:
+    - stop
+    - update
+
+- name: Install npm packages
+  command:
+    cmd: npm install
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  tags:
+    - start
+    - update
+
+- name: Build Open Terms Archive Contribution tool
+  command:
+    cmd: npm run build
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  environment:
+    NODE_ENV: production
+  tags:
+    - start
+    - update
+
+- name: Start Open Terms Archive Contribution tool
+  command:
+    cmd: pm2 start --name {{ directory }} npm -- start
+    chdir: '/home/{{ ansible_user }}/{{ directory }}'
+  environment:
+    NODE_ENV: production
+    PORT: '{{ port }}'
+  tags:
+    - restart
+    - start
+    - update

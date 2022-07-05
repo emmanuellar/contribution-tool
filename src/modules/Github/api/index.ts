@@ -1,4 +1,4 @@
-const DOCUMENT_TYPES_URL = 'https://opentermsarchive.org/data/api/list_documentTypes/v1/';
+const DOCUMENT_TYPES_URL = 'http://51.75.169.235:7011/data/api/list_documentTypes/v1/';
 
 import { Octokit } from 'octokit';
 import axios from 'axios';
