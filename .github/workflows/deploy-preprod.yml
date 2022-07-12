@@ -24,7 +24,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_GITHUB_ACTIONS_PRIVATE_KEY }} # generate with ssh-keygen -t rsa -b 4096 -C "martin.ratinaud@beta.gouv.fr"
-          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }} # generate with ssh-keyscan -H 51.75.169.235
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }} # generate with ssh-keyscan -H 51.89.227.200
       - run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault.key # Same as OpenTermsArchive.org
       - run: pip install --upgrade setuptools
       - run: pip install ansible==2.9.11

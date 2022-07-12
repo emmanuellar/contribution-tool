@@ -3,7 +3,7 @@ all:
     ansible_python_interpreter: /usr/bin/python3 # Needed or it fails with 'Failed to import the required Python library'
     ansible_user: debian
     repository: 'https://github.com/OpenTermsArchive/contribution-tool.git'
-    ansible_host: 51.75.169.235
+    ansible_host: 51.89.227.200
     branch: 'main'
   children:
     preprod:
