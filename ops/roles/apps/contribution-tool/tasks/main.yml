@@ -10,6 +10,13 @@
     - start
     - update
 
+- name: Set build file permissions
+  ansible.builtin.file:
+    path: /home/{{ ansible_user }}/{{ directory }}
+    owner: debian
+    group: debian
+    recurse: yes
+
 # It would have been a lot better to inline vault the .env variables here
 # but it seems to only work in yaml files
 - name: 'Assemble secrets and common .env file'
