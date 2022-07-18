@@ -16,3 +16,6 @@
 
 - name: Update Npm to latest version
   command: npm install -g npm
+
+- name: Install pm2
+  command: npm install -g pm2 --production=true

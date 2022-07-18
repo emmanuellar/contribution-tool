@@ -10,6 +10,13 @@
     - start
     - update
 
+- name: Set build file permissions
+  ansible.builtin.file:
+    path: /home/{{ ansible_user }}/{{ directory }}
+    owner: debian
+    group: debian
+    recurse: yes
+
 # It would have been a lot better to inline vault the .env variables here
 # but it seems to only work in yaml files
 - name: 'Assemble secrets and common .env file'
@@ -17,10 +24,6 @@
     src: '{{ env_directory }}'
     dest: '/home/{{ ansible_user }}/{{ directory }}/.env'
     remote_src: False
-
-- name: Install pm2
-  command: npm install -g pm2 --production=true
-  become: true
 
 - name: Verify if app already exists
   shell: pm2 list | grep {{ directory }} | awk '{print $2}'

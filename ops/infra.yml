@@ -6,3 +6,4 @@
 - import_playbook: playbooks/infra/common.yml
 - import_playbook: playbooks/infra/git.yml
 - import_playbook: playbooks/infra/node.yml
+- import_playbook: playbooks/infra/chromium.yml
