@@ -2,6 +2,7 @@ const DOCUMENT_TYPES_URL = 'http://51.89.227.200:7011/data/api/list_documentType
 
 import { Octokit } from 'octokit';
 import axios from 'axios';
+import merge from 'lodash/fp/merge';
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -67,15 +68,39 @@ export const createPull = async ({
     if (e?.response?.data?.message !== 'Reference already exists') {
       throw e;
     }
+    // Branch already exists, let's reuse it
   }
 
-  // upload file
+  let existingSha;
+  let existingContent = {};
+
+  try {
+    const { data: fileData } = await octokit.rest.repos.getContent({
+      ...params,
+      path: filePath,
+      ref: `refs/heads/${targetBranch}`,
+    });
+
+    // @ts-ignore sha is detected as not existent even though is is
+    existingSha = fileData.sha;
+    // @ts-ignore content is detected as not existent even though is is
+    existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
+  } catch (e: any) {
+    if (e?.response?.data?.message !== 'Not Found') {
+      throw e;
+    }
+    // file does not exist on main branch, continue
+  }
+
   await octokit.rest.repos.createOrUpdateFileContents({
     ...params,
     branch: newBranch,
     path: filePath,
     message: title,
-    content: Buffer.from(`${JSON.stringify(content, null, 2)}\n`).toString('base64'),
+    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
+      'base64'
+    ),
+    ...(existingSha ? { sha: existingSha } : {}),
   });
 
   const { data } = await octokit.rest.pulls.create({
