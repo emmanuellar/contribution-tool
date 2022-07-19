@@ -2,8 +2,8 @@
 - name: Install common required packages
   apt:
     pkg:
-    - build-essential
-    - nano
-    - telnet
+      - build-essential
+      - nano
+      - telnet
     update_cache: yes
     state: latest

@@ -7,7 +7,8 @@ Recipes to set up the infrastructure for the information-manipulation-analyzer a
 ## Requirements
 
 - Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-- `ansible-galaxy collection install community.general`
+  `ansible-galaxy collection install community.general`
+- Install required Ansible roles `ansible-galaxy install -r ops/requirements.yml`
 
 ### [For developement only] Additional dependencies
 
