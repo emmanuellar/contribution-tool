@@ -31,9 +31,6 @@ Default is empty
 In order for the service to automatically create issues in Github when a submitting a new service declaration, you need the below environment variables:
 
 - `GITHUB_TOKEN`: A token with repository privileges which allow access to the [GitHub API](https://github.com/settings/tokens).
-- `GITHUB_LABEL_ADD`: The name of the label used on the repo to categorize issues corresponding to a service that needs to be added (default is `add`)
-
-**Note**: contribute.opentermsarchive.org will automatically create issues with a label defined by `GITHUB_LABEL_ADD`. **This specific label will be created automatically in the target repository.**
 
 ### `NEXT_PUBLIC_MATOMO_URL`, `NEXT_PUBLIC_MATOMO_SITE_ID`
 

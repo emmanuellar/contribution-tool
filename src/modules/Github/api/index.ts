@@ -34,29 +34,6 @@ export const getDocumentTypes: any = async () => {
   }
 };
 
-export const createLabel = async (
-  params: Parameters<typeof octokit.rest.issues.createLabel>[0]
-) => {
-  return octokit.rest.issues.createLabel(params).catch((error) => {
-    if (error.toString().includes('"code":"already_exists"')) {
-      return;
-    }
-    console.error(`Could not create label "${params?.name}": ${error.toString()}`);
-  });
-};
-
-export const createIssue: any = async (
-  params: Parameters<typeof octokit.rest.issues.create>[0]
-) => {
-  try {
-    const { data } = await octokit.rest.issues.create(params);
-    return data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
-
 export const createPull = async ({
   filePath,
   targetBranch,
@@ -109,41 +86,6 @@ export const createPull = async ({
   });
 
   return data;
-};
-
-export const searchIssue = async ({ title, ...searchParams }: any) => {
-  try {
-    const request = {
-      per_page: 100,
-      ...searchParams,
-    };
-
-    const issues = await octokit.paginate(
-      octokit.rest.issues.listForRepo,
-      request,
-      (response) => response.data
-    );
-
-    const issuesWithSameTitle = issues.filter((item) => item.title === title);
-
-    return issuesWithSameTitle[0];
-  } catch (e: any) {
-    console.error('Could not search issue');
-    console.error(e.toString());
-    return null;
-  }
-};
-
-export const addCommentToIssue = async (
-  params: Parameters<typeof octokit.rest.issues.createComment>[0]
-) => {
-  try {
-    const { data } = await octokit.rest.issues.createComment(params);
-    return data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
 };
 
 export const getLatestCommit = async (params: { repo: string; path: string }) => {
