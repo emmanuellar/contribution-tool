@@ -57,6 +57,60 @@ export const createIssue: any = async (
   }
 };
 
+export const createPull = async ({
+  filePath,
+  targetBranch,
+  newBranch,
+  title,
+  content,
+  ...params
+}: {
+  filePath: string;
+  targetBranch: string;
+  newBranch: string;
+  title: string;
+  content: string;
+  owner: string;
+  repo: string;
+}) => {
+  const { data: refData } = await octokit.rest.git.getRef({
+    ...params,
+    ref: `heads/${targetBranch}`,
+  });
+  const commitSha = refData.object.sha;
+
+  // create branch if it doesn't exist
+  try {
+    await octokit.rest.git.createRef({
+      ...params,
+      ref: `refs/heads/${newBranch}`,
+      sha: commitSha,
+    });
+  } catch (e: any) {
+    if (e?.response?.data?.message !== 'Reference already exists') {
+      throw e;
+    }
+  }
+
+  // upload file
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: filePath,
+    message: title,
+    content,
+  });
+
+  const { data } = await octokit.rest.pulls.create({
+    ...params,
+    base: targetBranch,
+    head: newBranch,
+    title,
+  });
+
+  return data;
+};
+
 export const searchIssue = async ({ title, ...searchParams }: any) => {
   try {
     const request = {
