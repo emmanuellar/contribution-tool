@@ -75,7 +75,7 @@ export const createPull = async ({
     branch: newBranch,
     path: filePath,
     message: title,
-    content,
+    content: Buffer.from(`${JSON.stringify(content, null, 2)}\n`).toString('base64'),
   });
 
   const { data } = await octokit.rest.pulls.create({

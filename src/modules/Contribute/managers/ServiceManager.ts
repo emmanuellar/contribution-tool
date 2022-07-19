@@ -31,7 +31,7 @@ export const addService = async ({
     targetBranch: 'main',
     newBranch: snakeCase(prTitle),
     title: prTitle,
-    content: Buffer.from(`${JSON.stringify(json, null, 2)}\n`).toString('base64'),
+    content: json,
     filePath,
   });
 };
