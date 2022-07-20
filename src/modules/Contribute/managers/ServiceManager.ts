@@ -1,4 +1,4 @@
-import { createPull } from 'modules/Github/api';
+import { createPullRequest } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 
 export const addService = async ({
@@ -26,7 +26,7 @@ export const addService = async ({
   const prTitle = `Add ${name} - ${documentType}`;
   const filePath = `declarations/${name}.json`;
 
-  return createPull({
+  return createPullRequest({
     ...commonParams,
     targetBranch: 'main',
     newBranch: snakeCase(prTitle),

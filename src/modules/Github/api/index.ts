@@ -35,7 +35,7 @@ export const getDocumentTypes: any = async () => {
   }
 };
 
-export const createPull = async ({
+export const createPullRequest = async ({
   filePath,
   targetBranch,
   newBranch,
