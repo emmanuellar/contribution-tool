@@ -59,19 +59,11 @@ export const createPullRequest = async ({
   });
   const commitSha = refData.object.sha;
 
-  // create branch if it doesn't exist
-  try {
-    await octokit.rest.git.createRef({
-      ...params,
-      ref: `refs/heads/${newBranch}`,
-      sha: commitSha,
-    });
-  } catch (e: any) {
-    if (e?.response?.data?.message !== 'Reference already exists') {
-      throw e;
-    }
-    // Branch already exists, let's reuse it
-  }
+  await octokit.rest.git.createRef({
+    ...params,
+    ref: `refs/heads/${newBranch}`,
+    sha: commitSha,
+  });
 
   let existingSha;
   let existingContent = {};
