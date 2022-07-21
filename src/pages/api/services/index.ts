@@ -211,11 +211,13 @@ const addNewService =
       });
       return res;
     }
+
     const service: any = await addService({
       destination: body?.destination,
       name: body?.name,
       documentType: body?.documentType,
       json: body?.json,
+      url: body?.url,
     });
 
     return res.json({

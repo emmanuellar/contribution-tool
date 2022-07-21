@@ -40,6 +40,7 @@ export const createPullRequest = async ({
   targetBranch,
   newBranch,
   title,
+  body,
   content,
   ...params
 }: {
@@ -49,6 +50,7 @@ export const createPullRequest = async ({
   title: string;
   content: string;
   owner: string;
+  body: string;
   repo: string;
 }) => {
   const { data: refData } = await octokit.rest.git.getRef({
@@ -108,6 +110,7 @@ export const createPullRequest = async ({
     base: targetBranch,
     head: newBranch,
     title,
+    body,
   });
 
   return data;
