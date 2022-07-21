@@ -1,5 +1,11 @@
 import { createPullRequest } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
+import latinize from 'latinize';
+
+export const deriveIdFromName = (name: string) => {
+  return latinize(name) // remove accents
+    .replace(/(&|\\|\/|:)/gi, '-'); // remove characters that might be problematic on the file system
+};
 
 export const addService = async ({
   destination,
@@ -26,7 +32,8 @@ export const addService = async ({
   };
 
   const prTitle = `Add ${name} ${documentType}`;
-  const filePath = `declarations/${name}.json`;
+  const id = deriveIdFromName(name);
+  const filePath = `declarations/${id}.json`;
   const { origin } = new URL(url);
 
   const localUrl = url.replace(origin, 'http://localhost:3000');
