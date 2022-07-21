@@ -25,7 +25,7 @@ export const addService = async ({
     accept: 'application/vnd.github.v3+json',
   };
 
-  const prTitle = `Add ${name} - ${documentType}`;
+  const prTitle = `Add ${name} ${documentType}`;
   const filePath = `declarations/${name}.json`;
   const { origin } = new URL(url);
 
