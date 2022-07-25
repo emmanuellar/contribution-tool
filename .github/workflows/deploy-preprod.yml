@@ -4,14 +4,14 @@ on:
     branches: [develop]
 
 jobs:
-  typescript-check:
+  test:
     # CAREFUL: The part after the @ is the branch on which the file is located
-    # IF you ever wish to change something in .github/workflows/typescript-check.yml, You will need to change this reference too
+    # IF you ever wish to change something in .github/workflows/test.yml, You will need to change this reference too
     # I did not find a way to consider the one within the current branch but I believe it would be the way to go
-    uses: 'OpenTermsArchive/contribution-tool/.github/workflows/typescript-check.yml@main'
+    uses: 'OpenTermsArchive/contribution-tool/.github/workflows/test.yml@main'
 
   deploy:
-    needs: [typescript-check]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

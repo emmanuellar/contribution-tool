@@ -1,10 +1,10 @@
 {
   "back": "Retour",
   "could_not_create_issue": "Nous sommes vraiment désolés mais la création automatique de ce nouveau service a échoué, nous aurions besoin que vous nous envoyiez un email.",
-  "dialog.start.cta": "Commencer",
-  "dialog.start.p1": "La plupart du temps, les documents contractuels contiennent un en-tête, un pied de page, des menus de navigation, éventuellement des publicités... Nous visons à suivre uniquement <strong>les parties significatives du document</strong>.",
-  "dialog.start.p2": "Pour y parvenir, vous devrez sélectionner la partie document qui vous semble pertinente et supprimer les parties insignifiantes.",
-  "dialog.start.title": "Quelques points d'attention",
+  "dialog.help.cta": "Commencer",
+  "dialog.help.p1": "La plupart du temps, les documents contractuels contiennent un en-tête, un pied de page, des menus de navigation, éventuellement des publicités... Nous visons à suivre uniquement <strong>les parties significatives du document</strong>.",
+  "dialog.help.p2": "Pour y parvenir, vous devrez sélectionner la partie document qui vous semble pertinente et supprimer les parties insignifiantes.",
+  "dialog.help.title": "Quelques points d'attention",
   "error.cta": "Faites-nous savoir !",
   "error.title": "Nous sommes désolés, une erreur est survenue",
   "pageNotAccurate.desc": "Un problème avec le chargement de la page ?",
@@ -30,5 +30,6 @@
   "loading.subtitle": "Cela prend généralement entre 5s et 30s",
   "loading.title": "Nous préparons le site Web",
   "send_email": "Envoyez-nous un email",
+  "verify": "Vérifier la version",
   "submit": "Ajouter le document"
 }

@@ -1,3 +1,22 @@
+@keyframes slide-in-blurred-right {
+  0% {
+    transform: translateX(1000px) scaleX(1.5) scaleY(0.8);
+    transform-origin: 0% 50%;
+    filter: blur(40px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scaleY(1) scaleX(1);
+    transform-origin: 50% 50%;
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.main {
+  position: relative;
+}
+
 .drawer {
   display: flex;
   position: sticky;
@@ -66,6 +85,7 @@
   padding-top: var(--mM);
   display: flex;
   justify-content: flex-end;
+  gap: var(--mL);
 }
 
 .wrapper {
@@ -101,7 +121,6 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  width: 100vw;
   & h1 {
     max-width: 50%;
     margin: 0 auto 40px;
@@ -111,6 +130,31 @@
     margin-bottom: 40px;
     &:last-child {
       margin-bottom: 0;
+    }
+  }
+}
+
+.fullPageAbove {
+  position: absolute;
+  background: white;
+  width: 100%;
+  height: 100vh;
+  padding: 50px;
+  animation: slide-in-blurred-right 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+
+  & button {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: gray;
     }
   }
 }
