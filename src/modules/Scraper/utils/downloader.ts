@@ -155,8 +155,24 @@ export const downloadUrl = async (
       targetPathname = `${pathname}.css`;
     }
     const existingUrl = `${pathname}${search}`;
-    const rewrittenUrl = `${newUrlPath}${targetPathname}`;
+    let rewrittenUrl = `${newUrlPath}${targetPathname}`;
     const relativeUrl = existingUrl.replace(parsedUrl.pathname, '');
+
+    try {
+      fse.outputFileSync(`${folderPath}${targetPathname}`, buffer, 'base64');
+    } catch (e: any) {
+      if (e.code !== 'ENAMETOOLONG') {
+        throw e;
+      }
+      // file name is too long, try to shorten it
+      const shorterPathname = `/name-too-long-${Math.random().toString(36).substring(2)}${
+        resourceType === 'stylesheet' ? '.css' : '.js'
+      }`;
+
+      rewrittenUrl = `${newUrlPath}${shorterPathname}`;
+
+      fse.outputFileSync(`${folderPath}${shorterPathname}`, buffer, 'base64');
+    }
 
     // sometimes the url is relative to the root of the domain, so we need to remove both
     // and in order to prevent string to be replaced twice, we need to replace it along with the surrounding quotes
@@ -168,8 +184,6 @@ export const downloadUrl = async (
     assets.push({ from: `'${relativeUrl}'`, to: `'${rewrittenUrl}'` });
 
     assets.push({ from: response.url(), to: `${rewrittenUrl}` });
-
-    fse.outputFile(`${folderPath}${targetPathname}`, buffer, 'base64');
   });
 
   let message: any;
