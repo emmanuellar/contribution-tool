@@ -1,10 +1,10 @@
 {
   "back": "Go back",
   "could_not_create_issue": "We're truly sorry but the automatic creation of this new service failed, we will need you to send us an email",
-  "dialog.start.cta": "Let's begin!",
-  "dialog.start.p1": "Most of the time, contractual documents contains a header, a footer, navigation menus, possibly ads… We aim at tracking only <2>the significant parts of the document</2>",
-  "dialog.start.p2": "In order to achieve that, you will have to select those specific parts and remove the insignificant ones.",
-  "dialog.start.title": "Some points of attention",
+  "dialog.help.cta": "Let's begin!",
+  "dialog.help.p1": "Most of the time, contractual documents contains a header, a footer, navigation menus, possibly ads… We aim at tracking only <2>the significant parts of the document</2>",
+  "dialog.help.p2": "In order to achieve that, you will have to select those specific parts and remove the insignificant ones.",
+  "dialog.help.title": "Some points of attention",
   "error.cta": "Let us know!",
   "error.title": "We're sorry, an error occured",
   "pageNotAccurate.desc": "A problem with page loading?",
@@ -30,5 +30,6 @@
   "loading.subtitle": "It usually takes between 5s and 30s",
   "loading.title": "We're preparing the website",
   "send_email": "Send us an email",
+  "verify": "Verify version",
   "submit": "Add document"
 }

@@ -4,23 +4,20 @@ import {
   PostContributeServiceResponse,
 } from '../modules/Contribute/interfaces';
 import { useEvent, useLocalStorage } from 'react-use';
+import { MdClose as IconClose } from 'react-icons/md';
 
 import Button from 'modules/Common/components/Button';
-import { Dialog } from '@headlessui/react';
 import Drawer from 'components/Drawer';
 import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
 import React from 'react';
-import TextContent from 'modules/Common/components/TextContent';
-import { Trans } from 'react-i18next';
 import api from 'utils/api';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import { getDocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
-import sDialog from '../../src/modules/Common/components/Dialog.module.css';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -28,6 +25,8 @@ import { useToggle } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
+import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
+import Version from 'modules/Common/data-components/Version';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -37,7 +36,11 @@ const hiddenCssClass = 'hiddenCss';
 type CssRuleChange = 'selectedCss' | 'removedCss' | 'hiddenCss';
 
 const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
-  let [isDialogViewed, setDialogViewed] = useLocalStorage('dialogOpen', false);
+  let [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
+    'serviceHelpDialogViewed',
+    false
+  );
+  const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -219,6 +222,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
   };
 
+  const onVerify = async () => {
+    toggleServiceVerifyDisplayed(true);
+  };
+
   const onValidate = async () => {
     toggleLoading(true);
     try {
@@ -298,6 +305,7 @@ Thank you very much`;
   };
 
   const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
+  const isLoadingIframe = !data;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
@@ -314,46 +322,8 @@ Thank you very much`;
 
   return (
     <div className={s.wrapper}>
-      {!isDialogViewed && (
-        <Dialog
-          open={!isDialogViewed}
-          as="div"
-          className={classNames(sDialog.dialog)}
-          onClose={() => setDialogViewed(true)}
-        >
-          <Dialog.Overlay className={classNames(sDialog.dialog_overlay)} />
-
-          <div className={classNames(sDialog.dialog_content)}>
-            <Dialog.Title as="h3">{t('service:dialog.start.title')}</Dialog.Title>
-            <Dialog.Description>
-              <TextContent>
-                <p>
-                  <Trans i18nKey="service:dialog.start.p1">
-                    Most of the time, contractual documents contains a header, a footer, navigation
-                    menus, possibly ads… We aim at tracking only{' '}
-                    <strong>the significant parts of the document</strong>
-                  </Trans>
-                </p>
-                <p>
-                  <Trans i18nKey="service:dialog.start.p2">
-                    In order to achieve that, you will have to select those specific parts and
-                    remove the insignificant ones.
-                  </Trans>
-                </p>
-              </TextContent>
-            </Dialog.Description>
-            <div className="mt__L text__right">
-              {/* <Button onClick={toggleDialogOpen}>{t('service:dialog.start.cta')}</Button> */}
-              <Button
-                onClick={() => {
-                  setDialogViewed(true);
-                }}
-              >
-                {t('service:dialog.start.cta')}
-              </Button>
-            </div>
-          </div>
-        </Dialog>
+      {!isServiceHelpViewed && (
+        <ServiceHelpDialog open={!isServiceHelpViewed} onClose={() => setServiceHelpViewed(true)} />
       )}
       <Drawer className={s.drawer}>
         <>
@@ -569,6 +539,9 @@ Thank you very much`;
             )}
 
             <nav className={s.formActions}>
+              <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
+                {loading ? '...' : t('service:verify')}
+              </Button>
               <Button disabled={submitDisabled} onClick={onValidate}>
                 {loading ? '...' : t('service:submit')}
               </Button>
@@ -576,38 +549,44 @@ Thank you very much`;
           </div>
         </>
       </Drawer>
-      {data?.error && (
-        <div className={s.fullPage}>
-          <h1>{t('service:error.title')}</h1>
-          <p>{data?.error}</p>
-          <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
-        </div>
-      )}
-      {!data?.error && (
-        <>
-          {data?.url || isPdf || iframeReady ? (
-            isPdf ? (
-              <iframe src={url} width="100%" style={{ height: '100vh' }} />
-            ) : (
-              <IframeSelector
-                selectable={!!selectable}
-                url={isPdf ? url : data?.url}
-                selected={significantCss}
-                removed={insignificantCss}
-                hidden={hiddenCss}
-                onSelect={onSelect}
-                onReady={toggleIframeReady}
-              />
-            )
-          ) : (
-            <div className={s.fullPage}>
-              <h1>{t('service:loading.title')}</h1>
-              <p>{t('service:loading.subtitle')}</p>
-              <Loading />
-            </div>
-          )}
-        </>
-      )}
+      <div className={s.main}>
+        {isLoadingIframe && (
+          <div className={s.fullPage}>
+            <h1>{t('service:loading.title')}</h1>
+            <p>{t('service:loading.subtitle')}</p>
+            <Loading />
+          </div>
+        )}
+        {!isLoadingIframe && data?.error && (
+          <div className={s.fullPage}>
+            <h1>{t('service:error.title')}</h1>
+            <p>{data?.error}</p>
+            <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
+          </div>
+        )}
+        {isServiceVerifyDisplayed && (
+          <div className={classNames(s.fullPageAbove)}>
+            <Version json={json} />
+            <button onClick={toggleServiceVerifyDisplayed}>
+              <IconClose />
+            </button>
+          </div>
+        )}
+        {!isLoadingIframe && !data?.error && isPdf && (
+          <iframe src={url} width="100%" style={{ height: '100vh' }} />
+        )}
+        {!isLoadingIframe && !data?.error && !isPdf && (
+          <IframeSelector
+            selectable={!!selectable}
+            url={isPdf ? url : data?.url}
+            selected={significantCss}
+            removed={insignificantCss}
+            hidden={hiddenCss}
+            onSelect={onSelect}
+            onReady={toggleIframeReady}
+          />
+        )}
+      </div>
     </div>
   );
 };
