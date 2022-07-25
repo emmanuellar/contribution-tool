@@ -298,6 +298,7 @@ Thank you very much`;
   };
 
   const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
+  const isLoadingIframe = !data;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
@@ -538,38 +539,36 @@ Thank you very much`;
           </div>
         </>
       </Drawer>
-      {data?.error && (
-        <div className={s.fullPage}>
-          <h1>{t('service:error.title')}</h1>
-          <p>{data?.error}</p>
-          <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
-        </div>
-      )}
-      {!data?.error && (
-        <>
-          {data?.url || isPdf || iframeReady ? (
-            isPdf ? (
-              <iframe src={url} width="100%" style={{ height: '100vh' }} />
-            ) : (
-              <IframeSelector
-                selectable={!!selectable}
-                url={isPdf ? url : data?.url}
-                selected={significantCss}
-                removed={insignificantCss}
-                hidden={hiddenCss}
-                onSelect={onSelect}
-                onReady={toggleIframeReady}
-              />
-            )
-          ) : (
-            <div className={s.fullPage}>
-              <h1>{t('service:loading.title')}</h1>
-              <p>{t('service:loading.subtitle')}</p>
-              <Loading />
-            </div>
-          )}
-        </>
-      )}
+      <div className={s.main}>
+        {isLoadingIframe && (
+          <div className={s.fullPage}>
+            <h1>{t('service:loading.title')}</h1>
+            <p>{t('service:loading.subtitle')}</p>
+            <Loading />
+          </div>
+        )}
+        {!isLoadingIframe && data?.error && (
+          <div className={s.fullPage}>
+            <h1>{t('service:error.title')}</h1>
+            <p>{data?.error}</p>
+            <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
+          </div>
+        )}
+        {!isLoadingIframe && !data?.error && isPdf && (
+          <iframe src={url} width="100%" style={{ height: '100vh' }} />
+        )}
+        {!isLoadingIframe && !data?.error && !isPdf && (
+          <IframeSelector
+            selectable={!!selectable}
+            url={isPdf ? url : data?.url}
+            selected={significantCss}
+            removed={insignificantCss}
+            hidden={hiddenCss}
+            onSelect={onSelect}
+            onReady={toggleIframeReady}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -1,3 +1,7 @@
+.main {
+  position: relative;
+}
+
 .drawer {
   display: flex;
   position: sticky;
