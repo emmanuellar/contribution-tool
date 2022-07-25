@@ -4,6 +4,7 @@ import {
   PostContributeServiceResponse,
 } from '../modules/Contribute/interfaces';
 import { useEvent, useLocalStorage } from 'react-use';
+import { MdClose as IconClose } from 'react-icons/md';
 
 import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
@@ -25,6 +26,7 @@ import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
+import Version from 'modules/Common/data-components/Version';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -38,6 +40,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     'serviceHelpDialogViewed',
     false
   );
+  const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -217,6 +220,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 
   const toggleExpertMode = () => {
     pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
+  };
+
+  const onVerify = async () => {
+    toggleServiceVerifyDisplayed(true);
   };
 
   const onValidate = async () => {
@@ -532,6 +539,9 @@ Thank you very much`;
             )}
 
             <nav className={s.formActions}>
+              <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
+                {loading ? '...' : t('service:verify')}
+              </Button>
               <Button disabled={submitDisabled} onClick={onValidate}>
                 {loading ? '...' : t('service:submit')}
               </Button>
@@ -552,6 +562,14 @@ Thank you very much`;
             <h1>{t('service:error.title')}</h1>
             <p>{data?.error}</p>
             <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
+          </div>
+        )}
+        {isServiceVerifyDisplayed && (
+          <div className={classNames(s.fullPageAbove)}>
+            <Version json={json} />
+            <button onClick={toggleServiceVerifyDisplayed}>
+              <IconClose />
+            </button>
           </div>
         )}
         {!isLoadingIframe && !data?.error && isPdf && (
