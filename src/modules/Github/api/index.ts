@@ -2,6 +2,7 @@ const DOCUMENT_TYPES_URL = 'http://51.89.227.200:7011/data/api/list_documentType
 
 import { Octokit } from 'octokit';
 import axios from 'axios';
+import merge from 'lodash/fp/merge';
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -34,62 +35,77 @@ export const getDocumentTypes: any = async () => {
   }
 };
 
-export const createLabel = async (
-  params: Parameters<typeof octokit.rest.issues.createLabel>[0]
-) => {
-  return octokit.rest.issues.createLabel(params).catch((error) => {
-    if (error.toString().includes('"code":"already_exists"')) {
-      return;
-    }
-    console.error(`Could not create label "${params?.name}": ${error.toString()}`);
+export const createPullRequest = async ({
+  filePath,
+  targetBranch,
+  newBranch,
+  title,
+  body,
+  content,
+  ...params
+}: {
+  filePath: string;
+  targetBranch: string;
+  newBranch: string;
+  title: string;
+  content: string;
+  owner: string;
+  body: string;
+  repo: string;
+}) => {
+  const { data: refData } = await octokit.rest.git.getRef({
+    ...params,
+    ref: `heads/${targetBranch}`,
   });
-};
+  const commitSha = refData.object.sha;
 
-export const createIssue: any = async (
-  params: Parameters<typeof octokit.rest.issues.create>[0]
-) => {
+  await octokit.rest.git.createRef({
+    ...params,
+    ref: `refs/heads/${newBranch}`,
+    sha: commitSha,
+  });
+
+  let existingSha;
+  let existingContent = {};
+
   try {
-    const { data } = await octokit.rest.issues.create(params);
-    return data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
+    const { data: fileData } = await octokit.rest.repos.getContent({
+      ...params,
+      path: filePath,
+      ref: `refs/heads/${targetBranch}`,
+    });
 
-export const searchIssue = async ({ title, ...searchParams }: any) => {
-  try {
-    const request = {
-      per_page: 100,
-      ...searchParams,
-    };
-
-    const issues = await octokit.paginate(
-      octokit.rest.issues.listForRepo,
-      request,
-      (response) => response.data
-    );
-
-    const issuesWithSameTitle = issues.filter((item) => item.title === title);
-
-    return issuesWithSameTitle[0];
+    // @ts-ignore sha is detected as not existent even though is is
+    existingSha = fileData.sha;
+    // @ts-ignore content is detected as not existent even though is is
+    existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
   } catch (e: any) {
-    console.error('Could not search issue');
-    console.error(e.toString());
-    return null;
+    if (e?.response?.data?.message !== 'Not Found') {
+      throw e;
+    }
+    // file does not exist on main branch, continue
   }
-};
 
-export const addCommentToIssue = async (
-  params: Parameters<typeof octokit.rest.issues.createComment>[0]
-) => {
-  try {
-    const { data } = await octokit.rest.issues.createComment(params);
-    return data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: filePath,
+    message: title,
+    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
+      'base64'
+    ),
+    ...(existingSha ? { sha: existingSha } : {}),
+  });
+
+  const { data } = await octokit.rest.pulls.create({
+    ...params,
+    base: targetBranch,
+    head: newBranch,
+    title,
+    body,
+  });
+
+  return data;
 };
 
 export const getLatestCommit = async (params: { repo: string; path: string }) => {

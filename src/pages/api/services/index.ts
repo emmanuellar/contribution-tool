@@ -212,19 +212,33 @@ const addNewService =
       return res;
     }
 
-    const service: any = await addService({
-      destination: body?.destination,
-      name: body?.name,
-      documentType: body?.documentType,
-      json: body?.json,
-      url: body?.url,
-    });
+    try {
+      const service: any = await addService({
+        destination: body?.destination,
+        name: body?.name,
+        documentType: body?.documentType,
+        json: body?.json,
+        url: body?.url,
+      });
+      return res.json({
+        status: 'ok',
+        message: `PR available on Github`,
+        url: service?.html_url,
+      });
+    } catch (e: any) {
+      let message = e.toString();
 
-    return res.json({
-      status: 'ok',
-      message: `issue available on Github`,
-      url: service?.html_url,
-    });
+      if (e?.response?.data?.message === 'Reference already exists') {
+        message = `A branch with this name already exists on ${body?.destination}`;
+      }
+
+      res.json({
+        status: 'ko',
+        message,
+        error: e.toString(),
+      });
+      return res;
+    }
   };
 
 const services = async (req: NextApiRequest, res: NextApiResponse) => {
