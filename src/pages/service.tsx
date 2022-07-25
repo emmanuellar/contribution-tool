@@ -305,7 +305,7 @@ Thank you very much`;
   };
 
   const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
-  const isLoadingIframe = !data;
+  const isLoadingIframe = !data && !isPdf;
 
   React.useEffect(() => {
     if (!!data?.isPdf) {
