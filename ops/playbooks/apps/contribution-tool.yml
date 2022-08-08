@@ -1,7 +1,6 @@
 ---
 - name: Contribution tool
   hosts: all
-  become: yes
 
   roles:
     - apps/contribution-tool
