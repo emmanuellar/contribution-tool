@@ -49,7 +49,7 @@ export const addService = async ({
   const checkBoxes = [
     '- [ ] **The suggested document matches the scope of this instance**: it targets a service in the language, jurisdiction, and industry that are part of those [described](../#scope) for this instance.',
     '- [ ] **The service name matches what you see on the web page**, and it complies with the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-name).',
-    '- [ ] **The service ID (i.e. the name of the file) is derived from the service name** according to the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-id).',
+    `- [ ] **The service ID \`${id}\`(i.e. the name of the file) is derived from the service name** according to the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-id).`,
     '- [ ] The document type is appropriate for this document: if you read out loud the [document type tryptich](https://github.com/ambanum/OpenTermsArchive/blob/main/src/archivist/services/documentTypes.json), you can say that **“this document describes how the `writer` commits to handle the `object` for its `audience`”**.',
     ...selectorsCheckBoxes,
     '- [ ] **The document content is relevant**: it is not just a series of links, for example.',
