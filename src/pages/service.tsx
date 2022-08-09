@@ -21,7 +21,7 @@ import s from './service.module.css';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { useToggle } from 'react-use';
+import { useToggle, useKeyPressEvent } from 'react-use';
 import { useTranslation } from 'next-i18next';
 import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
@@ -71,6 +71,8 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   useEvent('touchstart', () => {
     router.push(`/sorry?${commonUrlParams}`);
   });
+
+  useKeyPressEvent('Escape', () => toggleServiceVerifyDisplayed(false));
 
   if (!destination && typeof window !== 'undefined') {
     // This is here as previously created issues still point at a url that has no `destination` param
