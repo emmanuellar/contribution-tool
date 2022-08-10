@@ -14,7 +14,7 @@ interface OTADocumentDeclaration {
 
 type OTAVersion = string;
 
-interface Snapshot {
+export interface Snapshot {
   content: string;
   mimeType: string;
   documentDeclaration: OTADocumentDeclaration;

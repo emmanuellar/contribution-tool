@@ -106,10 +106,10 @@ export const downloadUrl = async (
     json.select = ['html'];
   }
 
-  let data;
+  let snapshot: Snapshot;
 
   try {
-    data = await getVersion(json, { language: acceptLanguage });
+    snapshot = await getSnapshot(json, { language: acceptLanguage });
   } catch (e: any) {
     console.error(e.toString());
     fse.removeSync(folderPath);
@@ -195,7 +195,7 @@ export const downloadUrl = async (
       waitUntil: 'networkidle0', // same as in OTA Core
       timeout: 30000,
     });
-    await page.setContent(data.snapshot);
+    await page.setContent(snapshot.content);
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
