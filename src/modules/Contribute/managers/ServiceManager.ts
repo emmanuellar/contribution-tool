@@ -1,4 +1,4 @@
-import { createPullRequest, updateDocumentInBranch } from 'modules/Github/api';
+import { createDocumentPullRequest, updateDocumentInBranch } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 
@@ -70,7 +70,7 @@ Thanks to your work and attention, Open Terms Archive will ensure that high qual
 `;
 
   try {
-    return await createPullRequest({
+    return await createDocumentPullRequest({
       ...commonParams,
       targetBranch: 'main',
       newBranch: branchName,
