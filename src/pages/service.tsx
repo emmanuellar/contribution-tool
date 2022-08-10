@@ -136,6 +136,8 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     return null;
   }
 
+  const error = data?.error || apiError?.toString();
+
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
   };
@@ -285,7 +287,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 I need you to track "${initialDocumentType}" of "${initialName}" for me but I had a failure with.
 
 -----
-${data?.error}
+${error}
 -----
 
 Here is the url ${window.location.href}&expertMode=true
@@ -559,10 +561,10 @@ Thank you very much`;
             <Loading />
           </div>
         )}
-        {!isLoadingIframe && data?.error && (
+        {!isLoadingIframe && error && (
           <div className={s.fullPage}>
             <h1>{t('service:error.title')}</h1>
-            <p>{data?.error}</p>
+            <p>{error}</p>
             <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
           </div>
         )}

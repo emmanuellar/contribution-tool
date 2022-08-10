@@ -103,7 +103,7 @@ const get =
       return res;
     } catch (e: any) {
       console.error(e);
-      res.statusCode = HttpStatusCode.METHOD_FAILURE;
+      res.statusCode = HttpStatusCode.OK;
       res.json({
         status: 'ko',
         message: 'Could not download url',
