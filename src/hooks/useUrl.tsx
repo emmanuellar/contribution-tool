@@ -69,7 +69,10 @@ const useUrl = () => {
       const newParsed = queryString.stringify(newUrlParams);
 
       const newUrl = `${pathname}${newParsed ? `?${newParsed}` : ''}`;
-      router.push(newUrl, as, options);
+
+      if (router.asPath !== newUrl) {
+        router.push(newUrl, as, options);
+      }
       return newUrl;
     },
     [router, pathname, queryParams]
