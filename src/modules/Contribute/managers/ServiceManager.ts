@@ -57,15 +57,15 @@ export const addService = async ({
     '- [ ] **The generated version is clean**: it does not contain navigation links, unnecessary images, or extra content.',
   ];
 
-  const body = `This suggestion has been created with the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can see this declaration suggestion [online](${url}) or [on your local instance](${localUrl}) if you have one set up.
+  const body = `This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can see this declaration suggestion [online](${url}) or [on your local instance](${localUrl}) if you have one set up.
   
-Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, here are the things you should check:
+Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
 
 ${checkBoxes.join('\n')}
 
-If there seems to be no appropriate document type for this document yet it is relevant to track for this instance, please check if there is already an [open discussion](https://github.com/ambanum/OpenTermsArchive/discussions) about such a type and reference your case there, or open a new discussion if not.
+If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/ambanum/OpenTermsArchive/discussions) about such a type and reference your case there, or open a new discussion if not.
 
-Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 👏💪
+Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
 `;
 
   return createPullRequest({
