@@ -1,4 +1,4 @@
-import { createPullRequest } from 'modules/Github/api';
+import { createPullRequest, updateDocumentInBranch } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 
@@ -32,6 +32,7 @@ export const addService = async ({
   };
 
   const prTitle = `Add ${name} ${documentType}`;
+  const branchName = snakeCase(prTitle);
   const id = deriveIdFromName(name);
   const filePath = `declarations/${id}.json`;
   const { origin } = new URL(url);
@@ -68,13 +69,34 @@ If there seems to be no appropriate document type for this document yet it is re
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 👏💪
 `;
 
-  return createPullRequest({
-    ...commonParams,
-    targetBranch: 'main',
-    newBranch: snakeCase(prTitle),
-    title: prTitle,
-    content: json,
-    filePath,
-    body,
-  });
+  try {
+    return await createPullRequest({
+      ...commonParams,
+      targetBranch: 'main',
+      newBranch: branchName,
+      title: prTitle,
+      content: json,
+      filePath,
+      body,
+    });
+  } catch (e: any) {
+    if (e?.response?.data?.message === 'Reference already exists') {
+      const updateBody = `A new suggestion has been made through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/). You can see this declaration suggestion [online](${url}) or [on your local instance](${localUrl}) if you have one set up.
+      
+As a human reviewer, here are the things you should check:
+
+${checkBoxes.join('\n')}
+`;
+      // a branch already exists wit this name, add a commit to it
+      return await updateDocumentInBranch({
+        ...commonParams,
+        branch: branchName,
+        content: json,
+        filePath,
+        message: 'Update declaration from contribution tool',
+        body: updateBody,
+      });
+    }
+    throw e;
+  }
 };

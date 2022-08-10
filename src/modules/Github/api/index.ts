@@ -48,7 +48,7 @@ export const createPullRequest = async ({
   targetBranch: string;
   newBranch: string;
   title: string;
-  content: string;
+  content: any;
   owner: string;
   body: string;
   repo: string;
@@ -106,6 +106,66 @@ export const createPullRequest = async ({
   });
 
   return data;
+};
+
+export const updateDocumentInBranch = async ({
+  filePath,
+  branch,
+  message,
+  body,
+  content,
+  ...params
+}: {
+  filePath: string;
+  branch: string;
+  content: any;
+  owner: string;
+  message: string;
+  body: string;
+  repo: string;
+}) => {
+  const { data: fileData } = await octokit.rest.repos.getContent({
+    ...params,
+    path: filePath,
+    ref: `refs/heads/${branch}`,
+  });
+
+  // @ts-ignore sha is detected as not existent even though is is
+  const existingSha = fileData.sha;
+  // @ts-ignore content is detected as not existent even though is is
+  const existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
+
+  const newContent = merge(existingContent, content);
+  // merge everything except the current submitted document
+  newContent.documents = {
+    ...existingContent.documents,
+    ...content.documents,
+  };
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch,
+    path: filePath,
+    message,
+    content: Buffer.from(`${JSON.stringify(newContent, null, 2)}\n`).toString('base64'),
+    sha: existingSha,
+  });
+
+  const { data: existingPrs } = await octokit.rest.pulls.list({
+    ...params,
+    state: 'open',
+    head: `${params.owner}:${branch}`,
+  });
+
+  const existingPr = existingPrs[0];
+
+  await octokit.rest.issues.createComment({
+    ...params,
+    body,
+    issue_number: existingPr.number,
+  });
+
+  return existingPrs[0];
 };
 
 export const getLatestCommit = async (params: { repo: string; path: string }) => {
