@@ -542,7 +542,7 @@ Thank you very much`;
 
             <nav className={s.formActions}>
               <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
-                {loading ? '...' : t('service:verify')}
+                {t('service:verify')}
               </Button>
               <Button disabled={submitDisabled} onClick={onValidate}>
                 {loading ? '...' : t('service:submit')}
