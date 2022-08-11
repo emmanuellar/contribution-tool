@@ -1,6 +1,12 @@
 import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
 import filter from 'open-terms-archive/filter';
 
+export interface OTAJson {
+  name: string;
+  documents: {
+    [key: string]: OTADocumentDeclaration;
+  };
+}
 interface OTASnapshot {
   content: string;
   mimeType: string;

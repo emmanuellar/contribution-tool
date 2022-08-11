@@ -3,10 +3,10 @@ import { GetServiceVerifyResponse } from 'modules/Common/interfaces';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import { getVersion } from 'modules/Common/services/open-terms-archive';
+import { getVersion, OTAJson } from 'modules/Common/services/open-terms-archive';
 
 const get =
-  (json: any, acceptLanguage: string = 'en') =>
+  (json: OTAJson, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetServiceVerifyResponse>) => {
     try {
       const data = await getVersion(Object.values(json.documents)[0], { language: acceptLanguage });
