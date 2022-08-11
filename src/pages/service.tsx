@@ -1,4 +1,4 @@
-import { FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
@@ -10,6 +10,7 @@ import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
 import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
+import SelectorButton from 'components/IframeSelector/SelectorButton';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
 import React from 'react';
@@ -377,21 +378,13 @@ Thank you very much`;
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
                       {significantCss.map((selected, i) => (
-                        <div key={selected} className={s.selectionItem}>
-                          <input
-                            defaultValue={selected}
-                            onChange={onChangeCssRule(significantCssClass, i)}
-                          />
-
-                          <Button
-                            onClick={onRemoveCssRule(significantCssClass, i)}
-                            type="secondary"
-                            size="sm"
-                            onlyIcon={true}
-                          >
-                            <FiTrash2></FiTrash2>
-                          </Button>
-                        </div>
+                        <SelectorButton
+                          className={s.selectionItem}
+                          key={selected}
+                          defaultValue={selected}
+                          onChange={onChangeCssRule(significantCssClass, i)}
+                          onRemove={onRemoveCssRule(significantCssClass, i)}
+                        />
                       ))}
                       <Button
                         onClick={selectInIframe(significantCssClass)}
@@ -408,21 +401,13 @@ Thank you very much`;
                         <label>{t('service:form.insignificantPart')}</label>
 
                         {insignificantCss.map((selected, i) => (
-                          <div key={selected} className={s.selectionItem}>
-                            <input
-                              defaultValue={selected}
-                              onChange={onChangeCssRule(insignificantCssClass, i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule(insignificantCssClass, i)}
-                              type="secondary"
-                              size="sm"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
+                          <SelectorButton
+                            className={s.selectionItem}
+                            key={selected}
+                            defaultValue={selected}
+                            onChange={onChangeCssRule(insignificantCssClass, i)}
+                            onRemove={onRemoveCssRule(insignificantCssClass, i)}
+                          />
                         ))}
                         <Button
                           onClick={selectInIframe(insignificantCssClass)}
@@ -467,21 +452,13 @@ Thank you very much`;
                         <label>{t('service:form.hiddenPart')}</label>
                         <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
                         {hiddenCss.map((hidden, i) => (
-                          <div key={hidden} className={s.selectionItem}>
-                            <input
-                              defaultValue={hidden}
-                              onChange={onChangeCssRule(hiddenCssClass, i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule(hiddenCssClass, i)}
-                              type="secondary"
-                              size="sm"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
+                          <SelectorButton
+                            className={s.selectionItem}
+                            key={hidden}
+                            defaultValue={hidden}
+                            onChange={onChangeCssRule(hiddenCssClass, i)}
+                            onRemove={onRemoveCssRule(hiddenCssClass, i)}
+                          />
                         ))}
                         <Button
                           onClick={selectInIframe(hiddenCssClass)}
