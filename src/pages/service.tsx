@@ -170,8 +170,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     [url, hiddenCss, insignificantCss, significantCss, pushQueryParam, selectable, toggleSelectable]
   );
 
-  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (e: any) => {
-    const value = e.target?.value;
+  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (valueOrEvent: any) => {
+    const value = valueOrEvent.target?.value || valueOrEvent;
+
     if (!value) {
       onRemoveCssRule(queryparam, index)();
       return;
@@ -381,7 +382,7 @@ Thank you very much`;
                         <SelectorButton
                           className={s.selectionItem}
                           key={selected}
-                          defaultValue={selected}
+                          value={selected}
                           onChange={onChangeCssRule(significantCssClass, i)}
                           onRemove={onRemoveCssRule(significantCssClass, i)}
                         />
@@ -404,7 +405,7 @@ Thank you very much`;
                           <SelectorButton
                             className={s.selectionItem}
                             key={selected}
-                            defaultValue={selected}
+                            value={selected}
                             onChange={onChangeCssRule(insignificantCssClass, i)}
                             onRemove={onRemoveCssRule(insignificantCssClass, i)}
                           />
@@ -455,7 +456,7 @@ Thank you very much`;
                           <SelectorButton
                             className={s.selectionItem}
                             key={hidden}
-                            defaultValue={hidden}
+                            value={hidden}
                             onChange={onChangeCssRule(hiddenCssClass, i)}
                             onRemove={onRemoveCssRule(hiddenCssClass, i)}
                           />
