@@ -47,6 +47,103 @@ ${preventFadeInRule}
 ${forceScrollRule}
 `;
 
+const generateColorizedCSS = (cssSelectors: string[], { bgColor, borderColor }: any) => {
+  const selectors = cssSelectors.join(',');
+  const childSelectors = cssSelectors.map((selector) => `${selector} *`).join(',');
+
+  return cssSelectors.length > 0
+    ? `
+${selectors} { background: ${bgColor}!important; box-shadow: 0 0 0 2px ${borderColor}!important; }
+${childSelectors} { background: ${bgColor}!important; }
+`
+    : '';
+};
+
+const generateHiddenCSS = (cssSelectors: string[]) => {
+  const selectors = cssSelectors.join(',');
+
+  return cssSelectors.length > 0
+    ? `
+${selectors} { display: none!important; }
+`
+    : '';
+};
+
+const generateBeforeAfterCSS = (
+  cssSelectors: string[],
+  {
+    type,
+    color,
+    direction,
+  }: { type: 'before' | 'after'; color: string; direction: 'bottom' | 'top' }
+) => {
+  const selectors = cssSelectors.join(',');
+  const pseudoSelectors = cssSelectors.map((n) => `${n}:${type}`).join(',');
+
+  const position =
+    type === 'before' && direction === 'top'
+      ? 'top:-25px;'
+      : type === 'before' && direction === 'bottom'
+      ? 'top:0;'
+      : type === 'after' && direction === 'bottom'
+      ? 'bottom:-25px;'
+      : type === 'after' && direction === 'top'
+      ? 'bottom:0;'
+      : '';
+
+  return cssSelectors.length > 0
+    ? `
+    ${selectors} { border: 2px solid ${color}; min-width: 150px; }
+    ${pseudoSelectors} { 
+      content: "";
+      position: absolute;
+      min-width: 150px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 0;
+      height: 0;
+      ${position}
+      border-${direction === 'top' ? 'bottom' : 'top'}: 25px solid ${color};
+      border-left: 100px solid transparent;
+      border-right: 100px solid transparent;
+    }
+`
+    : '';
+};
+
+interface FormattedSelectors {
+  select: string[];
+  startBefore: string[];
+  endBefore: string[];
+  startAfter: string[];
+  endAfter: string[];
+}
+
+const getSelectorsAsArrays = (cssSelectors: string[]) => {
+  return cssSelectors
+    .filter((selector) => !!selector)
+    .reduce(
+      (acc: FormattedSelectors, value) => {
+        try {
+          const { startBefore, endBefore, startAfter, endAfter } = JSON.parse(value);
+
+          return {
+            ...acc,
+            startBefore: [...acc.startBefore, ...(startBefore ? [startBefore] : [])],
+            endBefore: [...acc.endBefore, ...(endBefore ? [endBefore] : [])],
+            startAfter: [...acc.startAfter, ...(startAfter ? [startAfter] : [])],
+            endAfter: [...acc.endAfter, ...(endAfter ? [endAfter] : [])],
+          };
+        } catch (e) {
+          // value is a plain selector and not an object with startBefore, endBefore, startAfter, endAfter
+          return { ...acc, select: [...acc.select, value] };
+        }
+      },
+      { select: [], startBefore: [], endBefore: [], startAfter: [], endAfter: [] }
+    );
+};
+
 const IframeSelector = ({
   url,
   selectable,
@@ -74,35 +171,64 @@ const IframeSelector = ({
       return;
     }
 
-    const hiddenCssSelectors = hidden.filter((m) => !!m).join(',');
-    const selectedCssSelectors = selected.filter((m) => !!m).join(',');
-    const selectedChildrenCssSelectors = selected.map((s) => `${s} *`).join(',');
-    const removedCssSelectors = removed.filter((m) => !!m).join(',');
-    const removedChildrenCssSelectors = removed.map((s) => `${s} *`).join(',');
+    const selectedCssSelectors = getSelectorsAsArrays(selected);
+    const removedCssSelectors = getSelectorsAsArrays(removed);
+    const hiddenCssSelectors = getSelectorsAsArrays(hidden);
 
     // @ts-ignore
     iframeDocument.querySelector(`#${CUSTOM_STYLE_TAG_ID}`).innerHTML = `
-      ${
-        selectedCssSelectors
-          ? `
-          ${selectedCssSelectors} { background: #8acfb1!important; box-shadow: 0 0 0 2px #169b62!important; }
-          ${selectedChildrenCssSelectors} { background: #8acfb1!important; }
-          `
-          : ''
-      }
-      ${
-        removedCssSelectors
-          ? `
-          ${removedCssSelectors} { background: #e39694!important; box-shadow: 0 0 0 2px #e10600!important; }
-          ${removedChildrenCssSelectors} { background: #e39694!important; }`
-          : ''
-      }
-      ${
-        hiddenCssSelectors
-          ? `
-          ${hiddenCssSelectors} { display: none!important; }`
-          : ''
-      }
+      /* normal selection */
+      ${generateColorizedCSS(selectedCssSelectors.select, {
+        bgColor: '#8acfb1',
+        borderColor: '#169b62',
+      })}
+      ${generateColorizedCSS(removedCssSelectors.select, {
+        bgColor: '#e39694',
+        borderColor: '#e10600',
+      })}
+      ${generateHiddenCSS(hiddenCssSelectors.select)}
+      
+      ${generateBeforeAfterCSS(selectedCssSelectors.startBefore, {
+        type: 'before',
+        direction: 'bottom',
+        color: '#10c434',
+      })}
+      ${generateBeforeAfterCSS(selectedCssSelectors.startAfter, {
+        type: 'after',
+        direction: 'bottom',
+        color: '#10c434',
+      })}
+      ${generateBeforeAfterCSS(selectedCssSelectors.endBefore, {
+        type: 'before',
+        direction: 'top',
+        color: '#10c434',
+      })}
+      ${generateBeforeAfterCSS(selectedCssSelectors.endAfter, {
+        type: 'after',
+        direction: 'top',
+        color: '#10c434',
+      })}
+      
+      ${generateBeforeAfterCSS(removedCssSelectors.startBefore, {
+        type: 'before',
+        direction: 'bottom',
+        color: '#f01648',
+      })}
+      ${generateBeforeAfterCSS(removedCssSelectors.startAfter, {
+        type: 'after',
+        direction: 'bottom',
+        color: '#f01648',
+      })}
+      ${generateBeforeAfterCSS(removedCssSelectors.endBefore, {
+        type: 'before',
+        direction: 'top',
+        color: '#f01648',
+      })}
+      ${generateBeforeAfterCSS(removedCssSelectors.endAfter, {
+        type: 'after',
+        direction: 'top',
+        color: '#f01648',
+      })}
     `;
   }, [selected, removed, hidden]);
 
