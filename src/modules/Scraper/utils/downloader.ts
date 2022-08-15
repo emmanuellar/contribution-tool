@@ -152,12 +152,15 @@ export const downloadUrl = async (
     const buffer = await response.buffer();
     let targetPathname = pathname;
     if (resourceType === 'stylesheet' && !pathname.endsWith('.css')) {
-      targetPathname = `${pathname}.css`;
+      // add random string in case url is of type /static/?e=something
+      // initially done for https://unternehmen.geizhals.at/allgemeine-geschaeftsbedingungen/
+      targetPathname = `${pathname}_${Math.random()
+        .toString(36)
+        .replace(/[^a-z]+/g, '')}.css`;
     }
     const existingUrl = `${pathname}${search}`;
     let rewrittenUrl = `${newUrlPath}${targetPathname}`;
     const relativeUrl = existingUrl.replace(parsedUrl.pathname, '');
-
     try {
       fse.outputFileSync(`${folderPath}${targetPathname}`, buffer, 'base64');
     } catch (e: any) {
