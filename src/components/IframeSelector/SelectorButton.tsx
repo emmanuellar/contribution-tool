@@ -7,6 +7,7 @@ type SelectorButtonProps = {
   onChange: any;
   onRemove?: any;
   value: string;
+  withSwitch?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 interface RangeSelector {
@@ -23,6 +24,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   onRemove,
   value,
   className,
+  withSwitch = true,
   ...props
 }) => {
   let selectorValue: InputValue;
@@ -131,9 +133,11 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
         </table>
       )}
 
-      <Button onClick={onSwitch} size="sm" onlyIcon={true}>
-        <SwitchIcon />
-      </Button>
+      {withSwitch && (
+        <Button onClick={onSwitch} size="sm" onlyIcon={true}>
+          <SwitchIcon />
+        </Button>
+      )}
       <Button onClick={onRemove} type="secondary" color="red" size="sm" onlyIcon={true}>
         <RemoveIcon />
       </Button>

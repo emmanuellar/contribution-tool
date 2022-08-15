@@ -459,6 +459,7 @@ Thank you very much`;
                             value={hidden}
                             onChange={onChangeCssRule(hiddenCssClass, i)}
                             onRemove={onRemoveCssRule(hiddenCssClass, i)}
+                            withSwitch={false}
                           />
                         ))}
                         <Button
