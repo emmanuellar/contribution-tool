@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from 'modules/Common/components/Button';
-import { useDebounce } from 'react-use';
+import { useDebounce, useLocalStorage } from 'react-use';
 import { FiTrash2 as RemoveIcon, FiRepeat as SwitchIcon } from 'react-icons/fi';
 
 type SelectorButtonProps = {
@@ -28,6 +28,10 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   ...props
 }) => {
   let selectorValue: InputValue;
+  const [alertViewed, setAlertViewed] = useLocalStorage<boolean>(
+    'sc-startBefore-experiment-viewed',
+    false
+  );
 
   try {
     selectorValue = JSON.parse(value) as RangeSelector;
@@ -86,62 +90,72 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   );
 
   return (
-    <div key={value} className={className} {...props}>
-      {!isRangeObject && <input defaultValue={selector} onInput={onChange} />}
-      {isRangeObject && (
-        <table>
-          <tr>
-            <td>startBefore</td>
-            <td>
-              <input
-                defaultValue={selector?.startBefore}
-                onInput={onObjectChange('startBefore')}
-                disabled={!!selector?.startAfter}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>startAfter</td>
-            <td>
-              <input
-                defaultValue={selector?.startAfter}
-                onInput={onObjectChange('startAfter')}
-                disabled={!!selector?.startBefore}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>endBefore</td>
-            <td>
-              <input
-                defaultValue={selector?.endBefore}
-                onInput={onObjectChange('endBefore')}
-                disabled={!!selector?.endAfter}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>endAfter</td>
-            <td>
-              <input
-                defaultValue={selector?.endAfter}
-                onInput={onObjectChange('endAfter')}
-                disabled={!!selector?.endBefore}
-              />
-            </td>
-          </tr>
-        </table>
+    <>
+      {withSwitch && isRangeObject && !alertViewed && (
+        <button onClick={() => setAlertViewed(true)}>
+          This feature is experimental, please make sure you know what you're doing.
+          <br />
+          <br />
+          Click to dismiss.
+        </button>
       )}
+      <div key={value} className={className} {...props}>
+        {!isRangeObject && <input defaultValue={selector} onInput={onChange} />}
+        {isRangeObject && (
+          <table>
+            <tr>
+              <td>startBefore</td>
+              <td>
+                <input
+                  defaultValue={selector?.startBefore}
+                  onInput={onObjectChange('startBefore')}
+                  disabled={!!selector?.startAfter}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>startAfter</td>
+              <td>
+                <input
+                  defaultValue={selector?.startAfter}
+                  onInput={onObjectChange('startAfter')}
+                  disabled={!!selector?.startBefore}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>endBefore</td>
+              <td>
+                <input
+                  defaultValue={selector?.endBefore}
+                  onInput={onObjectChange('endBefore')}
+                  disabled={!!selector?.endAfter}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>endAfter</td>
+              <td>
+                <input
+                  defaultValue={selector?.endAfter}
+                  onInput={onObjectChange('endAfter')}
+                  disabled={!!selector?.endBefore}
+                />
+              </td>
+            </tr>
+          </table>
+        )}
 
-      {withSwitch && (
-        <Button onClick={onSwitch} size="sm" onlyIcon={true}>
-          <SwitchIcon />
+        {withSwitch && (
+          <Button onClick={onSwitch} size="sm" onlyIcon={true}>
+            <SwitchIcon />
+          </Button>
+        )}
+        <Button onClick={onRemove} type="secondary" color="red" size="sm" onlyIcon={true}>
+          <RemoveIcon />
         </Button>
-      )}
-      <Button onClick={onRemove} type="secondary" color="red" size="sm" onlyIcon={true}>
-        <RemoveIcon />
-      </Button>
-    </div>
+      </div>
+    </>
   );
 };
 
