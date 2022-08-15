@@ -79,14 +79,17 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     // This is here as previously created issues still point at a url that has no `destination` param
     pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
   }
-
   const json = {
     name: initialName || '???',
     documents: {
       [initialDocumentType || '???']: {
         fetch: url,
-        select: initialSignificantCss,
-        remove: initialInsignificantCss,
+        select: initialSignificantCss?.map((css: any) =>
+          css.startsWith('{') ? JSON.parse(css) : css
+        ),
+        remove: initialInsignificantCss?.map((css: any) =>
+          css.startsWith('{') ? JSON.parse(css) : css
+        ),
         ...(executeClientScripts ? { executeClientScripts: true } : {}),
       },
     },
