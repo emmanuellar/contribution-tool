@@ -91,8 +91,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     },
   };
 
-  const [isPdf, toggleIsPdf] = useToggle(/\.pdf$/gi.test(url));
-
   const [selectable, toggleSelectable] = React.useState('');
   const [iframeReady, toggleIframeReady] = useToggle(false);
   const [loading, toggleLoading] = useToggle(false);
@@ -122,19 +120,27 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const shouldNotRefetchDocument = isPdf || !documentDeclaration.fetch;
+  const shouldNotFetchDocument = !documentDeclaration.fetch;
   const apiUrl = `/api/services?${apiUrlParams}`;
 
-  const { data } = useSWR<GetContributeServiceResponse>(shouldNotRefetchDocument ? null : apiUrl, {
-    revalidateOnMount: true,
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
+    shouldNotFetchDocument ? null : apiUrl,
+    {
+      revalidateOnMount: true,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
   if (!url) {
     return null;
   }
+
+  const isPDF = data?.isPDF;
+  const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
+  const isLoadingIframe = !data && !apiError;
+  const error = data?.error || apiError?.toString();
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
@@ -285,7 +291,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 I need you to track "${initialDocumentType}" of "${initialName}" for me but I had a failure with.
 
 -----
-${data?.error}
+${error}
 -----
 
 Here is the url ${window.location.href}&expertMode=true
@@ -306,15 +312,11 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
-  const isLoadingIframe = !data && !isPdf;
-
   React.useEffect(() => {
-    if (!!data?.isPdf) {
-      toggleIsPdf(true);
+    if (!!isPDF) {
       removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
     }
-  }, [data?.isPdf, removeQueryParams]);
+  }, [isPDF, removeQueryParams]);
 
   React.useEffect(() => {
     if (data?.url !== url) {
@@ -370,7 +372,7 @@ Thank you very much`;
                   <label>{t('service:form.serviceName')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
                 </div>
-                {!isPdf && (
+                {!isPDF && (
                   <>
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
@@ -456,11 +458,11 @@ Thank you very much`;
                           type="checkbox"
                           defaultChecked={!!executeClientScripts}
                           onChange={onCheckboxChange('executeClientScripts')}
-                          disabled={isPdf}
+                          disabled={isPDF}
                         />
                       </div>
                     </div>
-                    {!isPdf && (
+                    {!isPDF && (
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.hiddenPart')}</label>
                         <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
@@ -525,7 +527,7 @@ Thank you very much`;
           </div>
 
           <div className={s.formBottom}>
-            {!executeClientScripts && iframeReady && !isPdf && (
+            {!executeClientScripts && iframeReady && !isPDF && (
               <div
                 className={classNames(s.formInfos, 'text__light', 'text__error', 'text__center')}
               >
@@ -559,10 +561,10 @@ Thank you very much`;
             <Loading />
           </div>
         )}
-        {!isLoadingIframe && data?.error && (
+        {!isLoadingIframe && error && (
           <div className={s.fullPage}>
             <h1>{t('service:error.title')}</h1>
-            <p>{data?.error}</p>
+            <p>{error}</p>
             <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
           </div>
         )}
@@ -574,13 +576,13 @@ Thank you very much`;
             </button>
           </div>
         )}
-        {!isLoadingIframe && !data?.error && isPdf && (
-          <iframe src={url} width="100%" style={{ height: '100vh' }} />
+        {!isLoadingIframe && !error && data?.url && isPDF && (
+          <iframe src={data?.url} width="100%" style={{ height: '100vh' }} />
         )}
-        {!isLoadingIframe && !data?.error && !isPdf && (
+        {!isLoadingIframe && !error && data?.url && !isPDF && (
           <IframeSelector
             selectable={!!selectable}
-            url={isPdf ? url : data?.url}
+            url={data?.url}
             selected={significantCss}
             removed={insignificantCss}
             hidden={hiddenCss}

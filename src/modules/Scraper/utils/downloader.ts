@@ -12,7 +12,12 @@ import fse from 'fs-extra';
 import type { Page, Browser } from 'puppeteer'; // from open-terms-archive
 import puppeteer from 'puppeteer-extra'; // from open-terms-archive
 const logDebug = debug('ota.org:debug');
-import { getVersion, stopBrowser, launchBrowser } from 'modules/Common/services/open-terms-archive';
+import {
+  getSnapshot,
+  Snapshot,
+  stopBrowser,
+  launchBrowser,
+} from 'modules/Common/services/open-terms-archive';
 
 puppeteer.use(RecaptchaPlugin());
 
@@ -83,6 +88,11 @@ const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
   return filteredHtml;
 };
 
+type DownloadResult = {
+  url: string;
+  isPDF?: boolean;
+};
+
 export const downloadUrl = async (
   json: any,
   {
@@ -90,12 +100,28 @@ export const downloadUrl = async (
     newUrlPath,
     acceptLanguage = 'en',
   }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
-) => {
+): Promise<DownloadResult> => {
   const url = json.fetch;
   const snapshotFilePath = `${folderPath}/snapshot.html`;
   const indexFilePath = `${folderPath}/index.html`;
+  const newUrl = `${newUrlPath}/index.html`;
 
-  fse.ensureFileSync(indexFilePath);
+  const snapshotPDFFilePath = `${folderPath}/snapshot.pdf`;
+  const newPDFUrl = `${newUrlPath}/snapshot.pdf`;
+
+  if (fse.existsSync(folderPath)) {
+    const existingFiles = fse.readdirSync(folderPath);
+    if (existingFiles.includes('snapshot.pdf')) {
+      return { url: newPDFUrl, isPDF: true };
+    }
+    return { url: newUrl };
+  }
+
+  fse.ensureDirSync(folderPath);
+  const timerLabel = `downloading ${url} into ${folderPath}`;
+  console.log(timerLabel);
+  console.time(timerLabel);
+
   const parsedUrl = new URL(url);
   // extract domain name from subdomain
   const [extension, domain] = parsedUrl.hostname.split('.').reverse();
@@ -106,17 +132,24 @@ export const downloadUrl = async (
     json.select = ['html'];
   }
 
-  let data;
+  let snapshot: Snapshot;
 
   try {
-    data = await getVersion(json, { language: acceptLanguage });
+    snapshot = await getSnapshot(json, { language: acceptLanguage });
   } catch (e: any) {
     console.error(e.toString());
     fse.removeSync(folderPath);
-    return { status: 'ko', error: e.toString() };
+    throw e;
   }
 
-  fse.writeFileSync(snapshotFilePath, data.snapshot);
+  if (snapshot.mimeType === 'application/pdf') {
+    fse.ensureFileSync(snapshotPDFFilePath);
+    fse.writeFileSync(snapshotPDFFilePath, snapshot.content);
+    return { isPDF: true, url: newPDFUrl };
+  }
+
+  fse.ensureFileSync(indexFilePath);
+  fse.writeFileSync(snapshotFilePath, snapshot.content);
   const browser: Browser = await launchBrowser();
 
   const page = await browser.newPage();
@@ -186,7 +219,6 @@ export const downloadUrl = async (
     assets.push({ from: response.url(), to: `${rewrittenUrl}` });
   });
 
-  let message: any;
   try {
     // Needed because setContent does not wait for resource to be loaded
     // https://github.com/puppeteer/puppeteer/issues/728#issuecomment-524884442
@@ -195,7 +227,7 @@ export const downloadUrl = async (
       waitUntil: 'networkidle0', // same as in OTA Core
       timeout: 30000,
     });
-    await page.setContent(data.snapshot);
+    await page.setContent(snapshot.content);
 
     await addMissingStyledComponents(page);
     await removeBaseTag(page);
@@ -205,17 +237,16 @@ export const downloadUrl = async (
     const html = await page.content();
 
     fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
-
-    message = { status: 'ok' };
   } catch (e: any) {
     console.error(e.toString());
     fse.removeSync(folderPath);
-    message = { status: 'ko', error: e.toString() };
+    throw e;
   }
 
   await page.close();
 
   await stopBrowser();
 
-  return message;
+  console.timeEnd(timerLabel);
+  return { url: newUrl };
 };

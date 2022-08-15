@@ -7,7 +7,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
 import { addService } from '../../../modules/Contribute/managers/ServiceManager';
-import axios from 'axios';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
@@ -19,29 +18,10 @@ const { serverRuntimeConfig } = getConfig();
 
 const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
 
-const isPdf = async (url: string) => {
-  try {
-    const response = await axios.head(url, { timeout: 3000 });
-    return response.headers['content-type'] === 'application/pdf';
-  } catch (e) {
-    return false;
-  }
-};
-
 const get =
   (json: any, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
     const url = json.fetch;
-
-    if (await isPdf(url)) {
-      res.json({
-        status: 'ok',
-        message: 'OK',
-        url,
-        isPdf: true,
-      });
-      return res;
-    }
 
     // In case executeClientScripts is true, ota snapshot fetcher will wait
     // for selector to be found on the page, so resulting snapshot will be
@@ -63,47 +43,26 @@ const get =
       serverRuntimeConfig.scrapedIframeUrl
     }/${folderName}`;
 
-    const newUrl = `${newUrlPath}/index.html`;
-
-    if (fs.existsSync(folderPath)) {
-      console.log(`Folder ${folderPath} exists`);
-      res.statusCode = HttpStatusCode.OK;
-      res.json({
-        status: 'ok',
-        message: 'OK',
-        url: newUrl,
-      });
-      return res;
-    }
-
     try {
-      console.log(`Folder ${folderPath} does not exist`);
-      console.log(`downloading ${url}`);
-      console.time('downloading');
-      const { error } = await downloadUrl(json, { folderPath, newUrlPath, acceptLanguage });
-      console.timeEnd('downloading');
+      const downloadResult = await downloadUrl(json, {
+        folderPath,
+        newUrlPath,
+        acceptLanguage,
+      });
 
-      if (error) {
-        res.statusCode = HttpStatusCode.OK;
-        res.json({
-          status: 'ko',
-          message: 'Could not download url',
-          url: '',
-          error,
-        });
-        return res;
-      }
+      const { url: newUrl, isPDF } = downloadResult;
 
       res.statusCode = HttpStatusCode.OK;
       res.json({
         status: 'ok',
         message: 'OK',
         url: newUrl,
+        isPDF,
       });
       return res;
     } catch (e: any) {
       console.error(e);
-      res.statusCode = HttpStatusCode.METHOD_FAILURE;
+      res.statusCode = HttpStatusCode.OK;
       res.json({
         status: 'ko',
         message: 'Could not download url',
