@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from 'modules/Common/components/Button';
+import { useDebounce } from 'react-use';
 import { FiTrash2 as RemoveIcon, FiRepeat as SwitchIcon } from 'react-icons/fi';
 
 type SelectorButtonProps = {
@@ -33,14 +34,27 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   }
 
   const [selector, setSelector] = React.useState<InputValue>(selectorValue);
+  const [debouncedSelector, setDebouncedSelector] = React.useState<string>();
   const isRangeObject = typeof selector === 'object';
 
   const updateSelector = React.useCallback(
     (newSelector: InputValue) => {
       setSelector(newSelector);
-      onChange(typeof newSelector === 'object' ? JSON.stringify(newSelector) : newSelector);
+      setDebouncedSelector(
+        typeof newSelector === 'object' ? JSON.stringify(newSelector) : newSelector
+      );
     },
     [isRangeObject]
+  );
+
+  useDebounce(
+    () => {
+      if (debouncedSelector) {
+        onChange(debouncedSelector);
+      }
+    },
+    500,
+    [debouncedSelector]
   );
 
   const onSwitch = () => {
