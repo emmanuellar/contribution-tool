@@ -79,21 +79,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     // This is here as previously created issues still point at a url that has no `destination` param
     pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
   }
-  const json = {
-    name: initialName || '???',
-    documents: {
-      [initialDocumentType || '???']: {
-        fetch: url,
-        select: initialSignificantCss?.map((css: any) =>
-          css.startsWith('{') ? JSON.parse(css) : css
-        ),
-        remove: initialInsignificantCss?.map((css: any) =>
-          css.startsWith('{') ? JSON.parse(css) : css
-        ),
-        ...(executeClientScripts ? { executeClientScripts: true } : {}),
-      },
-    },
-  };
 
   const [selectable, toggleSelectable] = React.useState('');
   const [iframeReady, toggleIframeReady] = useToggle(false);
@@ -116,6 +101,24 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     : Array.isArray(initialHiddenCss)
     ? initialHiddenCss
     : [initialHiddenCss];
+
+  const json = {
+    name: initialName || '???',
+    documents: {
+      [initialDocumentType || '???']: {
+        fetch: url,
+        select:
+          significantCss.length > 0
+            ? significantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
+            : undefined,
+        remove:
+          insignificantCss.length > 0
+            ? insignificantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
+            : undefined,
+        ...(executeClientScripts ? { executeClientScripts: true } : {}),
+      },
+    },
+  };
 
   const documentDeclaration = Object.values(json.documents)[0];
   let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(documentDeclaration))}`;
