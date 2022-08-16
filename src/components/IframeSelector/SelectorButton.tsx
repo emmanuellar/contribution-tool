@@ -100,7 +100,12 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
         </button>
       )}
       <div key={value} className={className} {...props}>
-        {!isRangeObject && <input defaultValue={selector} onInput={onChange} />}
+        {!isRangeObject && (
+          <input
+            defaultValue={selector}
+            onInput={(e: any) => setDebouncedSelector(e.target.value)}
+          />
+        )}
         {isRangeObject && (
           <table>
             <tr>
