@@ -59,7 +59,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
         onChange(debouncedSelector);
       }
     },
-    500,
+    1500,
     [debouncedSelector]
   );
 
