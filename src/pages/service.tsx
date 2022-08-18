@@ -1,4 +1,4 @@
-import { FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
@@ -10,6 +10,7 @@ import Button from 'modules/Common/components/Button';
 import Drawer from 'components/Drawer';
 import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
 import IframeSelector from 'components/IframeSelector';
+import SelectorButton from 'components/IframeSelector/SelectorButton';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
 import React from 'react';
@@ -79,20 +80,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
   }
 
-  const json = {
-    name: initialName || '???',
-    documents: {
-      [initialDocumentType || '???']: {
-        fetch: url,
-        select: initialSignificantCss,
-        remove: initialInsignificantCss,
-        ...(executeClientScripts ? { executeClientScripts: true } : {}),
-      },
-    },
-  };
-
-  const [isPdf, toggleIsPdf] = useToggle(/\.pdf$/gi.test(url));
-
   const [selectable, toggleSelectable] = React.useState('');
   const [iframeReady, toggleIframeReady] = useToggle(false);
   const [loading, toggleLoading] = useToggle(false);
@@ -115,6 +102,24 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     ? initialHiddenCss
     : [initialHiddenCss];
 
+  const json = {
+    name: initialName || '???',
+    documents: {
+      [initialDocumentType || '???']: {
+        fetch: url,
+        select:
+          significantCss.length > 0
+            ? significantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
+            : undefined,
+        remove:
+          insignificantCss.length > 0
+            ? insignificantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
+            : undefined,
+        ...(executeClientScripts ? { executeClientScripts: true } : {}),
+      },
+    },
+  };
+
   const documentDeclaration = Object.values(json.documents)[0];
   let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(documentDeclaration))}`;
 
@@ -122,19 +127,27 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const shouldNotRefetchDocument = isPdf || !documentDeclaration.fetch;
+  const shouldNotFetchDocument = !documentDeclaration.fetch;
   const apiUrl = `/api/services?${apiUrlParams}`;
 
-  const { data } = useSWR<GetContributeServiceResponse>(shouldNotRefetchDocument ? null : apiUrl, {
-    revalidateOnMount: true,
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
+    shouldNotFetchDocument ? null : apiUrl,
+    {
+      revalidateOnMount: true,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
   if (!url) {
     return null;
   }
+
+  const isPDF = data?.isPDF;
+  const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
+  const isLoadingIframe = !data && !apiError;
+  const error = data?.error || apiError?.toString();
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
@@ -163,8 +176,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
     [url, hiddenCss, insignificantCss, significantCss, pushQueryParam, selectable, toggleSelectable]
   );
 
-  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (e: any) => {
-    const value = e.target?.value;
+  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (valueOrEvent: any) => {
+    const value = valueOrEvent.target?.value || valueOrEvent;
+
     if (!value) {
       onRemoveCssRule(queryparam, index)();
       return;
@@ -285,7 +299,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
 I need you to track "${initialDocumentType}" of "${initialName}" for me but I had a failure with.
 
 -----
-${data?.error}
+${error}
 -----
 
 Here is the url ${window.location.href}&expertMode=true
@@ -306,15 +320,11 @@ Thank you very much`;
     });
   };
 
-  const submitDisabled = (!initialSignificantCss && !isPdf) || (!iframeReady && !isPdf) || loading;
-  const isLoadingIframe = !data && !isPdf;
-
   React.useEffect(() => {
-    if (!!data?.isPdf) {
-      toggleIsPdf(true);
+    if (!!isPDF) {
       removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
     }
-  }, [data?.isPdf, removeQueryParams]);
+  }, [isPDF, removeQueryParams]);
 
   React.useEffect(() => {
     if (data?.url !== url) {
@@ -370,26 +380,18 @@ Thank you very much`;
                   <label>{t('service:form.serviceName')}</label>
                   <input defaultValue={initialName} onChange={onInputChange('name')} />
                 </div>
-                {!isPdf && (
+                {!isPDF && (
                   <>
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
                       {significantCss.map((selected, i) => (
-                        <div key={selected} className={s.selectionItem}>
-                          <input
-                            defaultValue={selected}
-                            onChange={onChangeCssRule(significantCssClass, i)}
-                          />
-
-                          <Button
-                            onClick={onRemoveCssRule(significantCssClass, i)}
-                            type="secondary"
-                            size="sm"
-                            onlyIcon={true}
-                          >
-                            <FiTrash2></FiTrash2>
-                          </Button>
-                        </div>
+                        <SelectorButton
+                          className={s.selectionItem}
+                          key={selected}
+                          value={selected}
+                          onChange={onChangeCssRule(significantCssClass, i)}
+                          onRemove={onRemoveCssRule(significantCssClass, i)}
+                        />
                       ))}
                       <Button
                         onClick={selectInIframe(significantCssClass)}
@@ -406,21 +408,13 @@ Thank you very much`;
                         <label>{t('service:form.insignificantPart')}</label>
 
                         {insignificantCss.map((selected, i) => (
-                          <div key={selected} className={s.selectionItem}>
-                            <input
-                              defaultValue={selected}
-                              onChange={onChangeCssRule(insignificantCssClass, i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule(insignificantCssClass, i)}
-                              type="secondary"
-                              size="sm"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
+                          <SelectorButton
+                            className={s.selectionItem}
+                            key={selected}
+                            value={selected}
+                            onChange={onChangeCssRule(insignificantCssClass, i)}
+                            onRemove={onRemoveCssRule(insignificantCssClass, i)}
+                          />
                         ))}
                         <Button
                           onClick={selectInIframe(insignificantCssClass)}
@@ -456,30 +450,23 @@ Thank you very much`;
                           type="checkbox"
                           defaultChecked={!!executeClientScripts}
                           onChange={onCheckboxChange('executeClientScripts')}
-                          disabled={isPdf}
+                          disabled={isPDF}
                         />
                       </div>
                     </div>
-                    {!isPdf && (
+                    {!isPDF && (
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.hiddenPart')}</label>
                         <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
                         {hiddenCss.map((hidden, i) => (
-                          <div key={hidden} className={s.selectionItem}>
-                            <input
-                              defaultValue={hidden}
-                              onChange={onChangeCssRule(hiddenCssClass, i)}
-                            />
-
-                            <Button
-                              onClick={onRemoveCssRule(hiddenCssClass, i)}
-                              type="secondary"
-                              size="sm"
-                              onlyIcon={true}
-                            >
-                              <FiTrash2></FiTrash2>
-                            </Button>
-                          </div>
+                          <SelectorButton
+                            className={s.selectionItem}
+                            key={hidden}
+                            value={hidden}
+                            onChange={onChangeCssRule(hiddenCssClass, i)}
+                            onRemove={onRemoveCssRule(hiddenCssClass, i)}
+                            withSwitch={false}
+                          />
                         ))}
                         <Button
                           onClick={selectInIframe(hiddenCssClass)}
@@ -525,7 +512,7 @@ Thank you very much`;
           </div>
 
           <div className={s.formBottom}>
-            {!executeClientScripts && iframeReady && !isPdf && (
+            {!executeClientScripts && iframeReady && !isPDF && (
               <div
                 className={classNames(s.formInfos, 'text__light', 'text__error', 'text__center')}
               >
@@ -559,10 +546,10 @@ Thank you very much`;
             <Loading />
           </div>
         )}
-        {!isLoadingIframe && data?.error && (
+        {!isLoadingIframe && error && (
           <div className={s.fullPage}>
             <h1>{t('service:error.title')}</h1>
-            <p>{data?.error}</p>
+            <p>{error}</p>
             <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
           </div>
         )}
@@ -574,13 +561,13 @@ Thank you very much`;
             </button>
           </div>
         )}
-        {!isLoadingIframe && !data?.error && isPdf && (
-          <iframe src={url} width="100%" style={{ height: '100vh' }} />
+        {!isLoadingIframe && !error && data?.url && isPDF && (
+          <iframe src={data?.url} width="100%" style={{ height: '100vh' }} />
         )}
-        {!isLoadingIframe && !data?.error && !isPdf && (
+        {!isLoadingIframe && !error && data?.url && !isPDF && (
           <IframeSelector
             selectable={!!selectable}
-            url={isPdf ? url : data?.url}
+            url={data?.url}
             selected={significantCss}
             removed={insignificantCss}
             hidden={hiddenCss}
