@@ -81,7 +81,7 @@
 }
 
 .formActions {
-  border-top: 1px solid var(--colorBlack200);
+  border-top: 1px solid var(--colorBlack400);
   padding-top: var(--mM);
   display: flex;
   justify-content: flex-end;
@@ -107,8 +107,15 @@
 
 .selectionItem {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: var(--mXS);
+  align-items: center;
+  padding: var(--mXS) 0;
+  margin: 0;
+  border-top: 1px solid var(--colorBlack200);
+
+  & table {
+    flex: 1;
+    border-spacing: 0px var(--3mXS);
+  }
 
   & > button {
     margin-left: var(--mS);
