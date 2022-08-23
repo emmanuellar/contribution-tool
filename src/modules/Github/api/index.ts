@@ -180,6 +180,95 @@ export const updateDocumentInBranch = async ({
 };
 
 export const getLatestCommit = async (params: { repo: string; path: string }) => {
+export const searchIssues = async ({ title, ...searchParams }: any) => {
+  try {
+    const request = {
+      per_page: 100,
+      ...searchParams,
+    };
+
+    const issues = await octokit.paginate(
+      octokit.rest.issues.listForRepo,
+      request,
+      (response) => response.data
+    );
+
+    const issuesWithSameTitle = issues.filter((item) => item.title === title);
+
+    return issuesWithSameTitle;
+  } catch (e) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
+  }
+};
+
+export const getLatestFailDate = async ({ serviceName, documentType, ...commonParams }: any) => {
+  try {
+    const issues = await searchIssues({
+      ...commonParams,
+      state: 'open',
+      title: `Fix ${serviceName} - ${documentType}`,
+    });
+    const issue = issues[0];
+
+    const firstComment = {
+      createdAt: issue.created_at,
+      body: issue.body,
+    };
+
+    const comments = await getIssueComments({
+      ...commonParams,
+      issue_number: issue.number,
+    });
+
+    const automatedComments = comments
+      .filter((comment) => comment?.user?.login === 'OTA-Bot')
+      .map((comment) => ({
+        createdAt: comment.created_at,
+        body: comment.body,
+      }));
+
+    const allComments = [firstComment, ...automatedComments];
+
+    const failingComments = allComments.filter(
+      ({ body }) =>
+        body &&
+        (body.startsWith('🤖 Reopened') ||
+          body.includes('no longer properly tracked') ||
+          body.includes('not available anymore'))
+    );
+
+    const mostRecentFailingComment = failingComments[failingComments.length - 1];
+    return mostRecentFailingComment.createdAt;
+  } catch (e) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
+  }
+};
+
+export const getIssueComments = async ({ issue_number, ...searchParams }: any) => {
+  try {
+    const request = {
+      per_page: 100,
+      issue_number,
+      ...searchParams,
+    };
+
+    const comments = await octokit.paginate(
+      octokit.rest.issues.listComments,
+      request,
+      (response) => response.data
+    );
+    return comments;
+  } catch (e) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
+  }
+};
+
   const repoUrl = `https://api.github.com/repos/${params.repo}/commits`;
 
   try {
