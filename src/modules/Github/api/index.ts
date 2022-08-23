@@ -179,7 +179,6 @@ export const updateDocumentInBranch = async ({
   return existingPrs[0];
 };
 
-export const getLatestCommit = async (params: { repo: string; path: string }) => {
 export const searchIssues = async ({ title, ...searchParams }: any) => {
   try {
     const request = {
@@ -266,23 +265,5 @@ export const getIssueComments = async ({ issue_number, ...searchParams }: any) =
     console.error('Could not search issue');
     console.error(e.toString());
     throw e;
-  }
-};
-
-  const repoUrl = `https://api.github.com/repos/${params.repo}/commits`;
-
-  try {
-    const { data }: { data: Commits } = await octokit.request(
-      `GET ${repoUrl}?path=${params.path}`,
-      {
-        page: 1,
-        per_page: 1,
-      }
-    );
-
-    return data[0] as Commit;
-  } catch (e) {
-    console.error(e);
-    return {} as Commit;
   }
 };

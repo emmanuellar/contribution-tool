@@ -73,18 +73,6 @@ See below examples:
 
 This way, a `Save on local` button will appear on the contribution interface. By clicking on it, it will add or modify the service declaration (saved as a `.json` file) in the corresponding directory.
 
-### Automatically generating history file
-
-As we want to ensure we can retrace the whole history of selectors we used to retrieve the corresponding documents, a history file should be created **every time you change the service declaration** (See the corresponding [decision record](./decision-record/0002-service-history.md).
-As this is a very time consuming thing to do (retrieve the last version date, format it in ISO format and pasting it in a history file), you can use a new url parameter called `versionsRepo` which will fetch the date of the last commit successfully retrieved from Github and populate the history file accordingly and automatically.
-
-**CAUTION**: You need to have a `localPath` query param (described in the previous paragraph) in the url for this to happen.
-
-```
-/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/contrib-declarations/declarations&versionsRepo=OpenTermsArchive/contrib-versions
-/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/dating-declarations/declarations&versionsRepo=OpenTermsArchive/dating-versions
-```
-
 ## Contributing
 
 See our [contributing guide](CONTRIBUTING.md).

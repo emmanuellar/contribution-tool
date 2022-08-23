@@ -54,7 +54,6 @@ const get =
 const saveHistoryFile = async ({
   historyFullPath,
   serviceName,
-  versionsRepo,
   declarationsRepo,
   documentType,
   existingJson,
@@ -62,7 +61,6 @@ const saveHistoryFile = async ({
   historyFullPath: string;
   serviceName: string;
   existingJson: any;
-  versionsRepo: string;
   declarationsRepo: string;
   documentType: string;
 }) => {
@@ -100,7 +98,7 @@ const saveHistoryFile = async ({
 };
 
 const saveOnLocal =
-  (data: string, path: string, versionsRepo: string, declarationsRepo: string) =>
+  (data: string, path: string, declarationsRepo: string) =>
   async (_: NextApiRequest, res: NextApiResponse<any>) => {
     try {
       let json = JSON.parse(data);
@@ -112,16 +110,13 @@ const saveOnLocal =
 
       if (fs.existsSync(fullPath)) {
         const existingJson = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
-        if (versionsRepo) {
-          await saveHistoryFile({
-            declarationsRepo,
-            serviceName: sanitizedName,
-            versionsRepo,
-            documentType,
-            historyFullPath,
-            existingJson,
-          });
-        }
+        await saveHistoryFile({
+          declarationsRepo,
+          serviceName: sanitizedName,
+          documentType,
+          historyFullPath,
+          existingJson,
+        });
         json = {
           ...existingJson,
           documents: { ...existingJson.documents, [documentType]: json.documents[documentType] },
@@ -209,7 +204,6 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
     return saveOnLocal(
       body?.data as string,
       body?.path as string,
-      body?.versionsRepo as string,
       body?.destination as string
     )(req, res);
   }

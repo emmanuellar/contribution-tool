@@ -50,7 +50,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     queryParams: {
       destination,
       localPath,
-      versionsRepo,
       url,
       [significantCssClass]: initialSignificantCss,
       [insignificantCssClass]: initialInsignificantCss,
@@ -66,9 +65,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     removeQueryParam,
   } = useUrl();
 
-  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
-    versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
-  }`;
+  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
   useEvent('touchstart', () => {
     router.push(`/sorry?${commonUrlParams}`);
   });
@@ -316,7 +313,6 @@ Thank you very much`;
   const saveOnLocal = async () => {
     await api.post('/api/services', {
       destination,
-      versionsRepo,
       path: localPath,
       data: JSON.stringify(json),
     });
