@@ -315,6 +315,7 @@ Thank you very much`;
 
   const saveOnLocal = async () => {
     await api.post('/api/services', {
+      destination,
       versionsRepo,
       path: localPath,
       data: JSON.stringify(json),

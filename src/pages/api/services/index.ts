@@ -11,7 +11,8 @@ import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
 import getConfig from 'next/config';
-import { getLatestCommit } from 'modules/Github/api';
+import { getLatestFailDate } from 'modules/Github/api';
+import path from 'path';
 
 const { serverRuntimeConfig } = getConfig();
 
@@ -54,6 +55,7 @@ const saveHistoryFile = async ({
   historyFullPath,
   serviceName,
   versionsRepo,
+  declarationsRepo,
   documentType,
   existingJson,
 }: {
@@ -61,6 +63,7 @@ const saveHistoryFile = async ({
   serviceName: string;
   existingJson: any;
   versionsRepo: string;
+  declarationsRepo: string;
   documentType: string;
 }) => {
   if (!fs.existsSync(historyFullPath)) {
@@ -69,19 +72,26 @@ const saveHistoryFile = async ({
 
   let historyJson = JSON.parse(fs.readFileSync(historyFullPath, 'utf8'));
 
-  const latestCommit = await getLatestCommit({
-    repo: versionsRepo,
-    path: `${encodeURIComponent(serviceName)}/${encodeURIComponent(documentType)}.md`,
-  });
+  const [githubOrganization, githubRepository] = (declarationsRepo || '')?.split('/');
 
-  const lastCommitDate = latestCommit?.commit?.author.date;
+  const commonParams = {
+    owner: githubOrganization,
+    repo: githubRepository,
+    accept: 'application/vnd.github.v3+json',
+  };
+
+  const lastFailingDate = await getLatestFailDate({
+    ...commonParams,
+    serviceName,
+    documentType,
+  });
 
   const newHistoryJson = {
     ...historyJson,
     [documentType]: [
       {
         ...existingJson.documents[documentType],
-        validUntil: dayjs(lastCommitDate || new Date()).format(),
+        validUntil: dayjs(lastFailingDate || new Date()).format(),
       },
       ...(historyJson[documentType] || []),
     ],
@@ -90,7 +100,7 @@ const saveHistoryFile = async ({
 };
 
 const saveOnLocal =
-  (data: string, path: string, versionsRepo: string) =>
+  (data: string, path: string, versionsRepo: string, declarationsRepo: string) =>
   async (_: NextApiRequest, res: NextApiResponse<any>) => {
     try {
       let json = JSON.parse(data);
@@ -104,6 +114,7 @@ const saveOnLocal =
         const existingJson = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
         if (versionsRepo) {
           await saveHistoryFile({
+            declarationsRepo,
             serviceName: sanitizedName,
             versionsRepo,
             documentType,
@@ -198,7 +209,8 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
     return saveOnLocal(
       body?.data as string,
       body?.path as string,
-      body?.versionsRepo as string
+      body?.versionsRepo as string,
+      body?.destination as string
     )(req, res);
   }
 
