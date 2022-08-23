@@ -211,6 +211,12 @@ export const getLatestFailDate = async ({ serviceName, documentType, ...commonPa
     });
     const issue = issues[0];
 
+    if (!issue) {
+      throw new Error(
+        `There does not seem to be any open issue for ${serviceName} - ${documentType}`
+      );
+    }
+
     const firstComment = {
       createdAt: issue.created_at,
       body: issue.body,
