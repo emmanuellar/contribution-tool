@@ -34,7 +34,7 @@ body > * *:not(#${STYLE_HIGHLIGHT_ID}):not(.modal) {
 }`;
 
 // Initially done to force page to scroll after removing newsletter popups
-// exemple https://www.comptoirdescotonniers.com/cgv-c4.html
+// example https://www.comptoirdescotonniers.com/cgv-c4.html
 const forceScrollRule = `
 html, body {
   overflow: auto!important;
@@ -42,9 +42,19 @@ html, body {
   position: relative!important;
 }`;
 
+// Initially done to remove anti flickering from Google Opimize
+// that causes blank page
+// example https://www.allovoisins.com/page/conditions-generales-de-vente-et-d-utilisation
+const removeGoogleOptimizeAntiFlickr = `
+html.async-hide {
+  opacity: inherit !important;
+}
+`;
+
 const globalRules = `
 ${preventFadeInRule}
 ${forceScrollRule}
+${removeGoogleOptimizeAntiFlickr}
 `;
 
 const generateColorizedCSS = (cssSelectors: string[], { bgColor, borderColor }: any) => {
