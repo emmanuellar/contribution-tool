@@ -25,13 +25,23 @@ export interface Commit {
 
 export type Commits = Commit[];
 
-export const getDocumentTypes: any = async () => {
+export interface DocumentTypes {
+  [key: string]: {
+    commitment: {
+      writer: string;
+      audience: string;
+      object: string;
+    };
+  };
+}
+
+export const getDocumentTypes = async () => {
   try {
-    const { data: documentTypes } = await axios.get(DOCUMENT_TYPES_URL);
-    return [...new Set(Object.keys(documentTypes))].sort();
+    const { data: documentTypes } = await axios.get<DocumentTypes>(DOCUMENT_TYPES_URL);
+    return documentTypes;
   } catch (e) {
     console.error(e);
-    return [];
+    return {};
   }
 };
 
