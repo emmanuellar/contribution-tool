@@ -1,0 +1,21 @@
+dl {
+  display: flex;
+  flex-flow: row wrap;
+  border: solid var(--colorBlack400);
+  border-width: 1px 1px 0 0;
+}
+dt {
+  flex-basis: 25%;
+  padding: 2px 4px;
+  background: var(--colorBlack800);
+  text-align: right;
+  color: var(--colorBlack200);
+  border-bottom: 1px solid var(--colorBlack400);
+}
+dd {
+  flex-basis: 70%;
+  flex-grow: 1;
+  margin: 0;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--colorBlack400);
+}
