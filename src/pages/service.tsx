@@ -148,6 +148,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
+  const documentTypeCommitment = documentTypes[initialDocumentType]?.commitment;
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
@@ -376,6 +377,18 @@ Thank you very much`;
                         ))}
                     </select>
                     <FiChevronDown color="333333"></FiChevronDown>
+                    {initialDocumentType && (
+                      <dl>
+                        {Object.entries(documentTypeCommitment).map(
+                          ([tryptichKey, tryptichValue]) => (
+                            <>
+                              <dt>{tryptichKey}</dt>
+                              <dd>{tryptichValue}</dd>
+                            </>
+                          )
+                        )}
+                      </dl>
+                    )}
                   </div>
                 </div>
                 <div className={classNames('formfield')}>
