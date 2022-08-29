@@ -6,6 +6,7 @@
   "dialog.help.p2": "Pour y parvenir, vous devrez sélectionner la partie document qui vous semble pertinente et supprimer les parties insignifiantes.",
   "dialog.help.title": "Quelques points d'attention",
   "error.cta": "Faites-nous savoir !",
+  "error.cta.refresh": "ou essayez de recharger la page",
   "error.title": "Nous sommes désolés, une erreur est survenue",
   "pageNotAccurate.desc": "Un problème avec le chargement de la page ?",
   "pageNotAccurate.cta": "Essayer une autre méthode",
