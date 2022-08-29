@@ -1,5 +1,6 @@
 import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
 import filter from 'open-terms-archive/filter';
+import DocumentDeclaration from 'open-terms-archive/document-declaration';
 
 export interface OTAJson {
   name: string;
@@ -34,7 +35,10 @@ export const getSnapshot = async (
   const { content, mimeType }: OTASnapshot = await fetch({
     url: documentDeclaration.fetch,
     executeClientScripts: documentDeclaration.executeClientScripts,
-    cssSelectors: documentDeclaration.select,
+    cssSelectors: [
+      ...DocumentDeclaration.extractCssSelectorsFromProperty(documentDeclaration.select),
+      ...DocumentDeclaration.extractCssSelectorsFromProperty(documentDeclaration.remove),
+    ].filter(Boolean),
     config,
   });
   await stopHeadlessBrowser();
