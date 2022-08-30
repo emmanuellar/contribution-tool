@@ -124,11 +124,23 @@ export const updateDocumentInBranch = async ({
   body: string;
   repo: string;
 }) => {
-  const { data: fileData } = await octokit.rest.repos.getContent({
+  // first, see if a file exists in main branch
+  let fileContent = await octokit.rest.repos.getContent({
     ...params,
     path: filePath,
-    ref: `refs/heads/${branch}`,
+    ref: `refs/heads/main`,
   });
+
+  // @ts-ignore sha is detected as not existent even though is is
+  if (!fileContent?.data?.sha) {
+    // if it does not, try to update the one from the target branch
+    fileContent = await octokit.rest.repos.getContent({
+      ...params,
+      path: filePath,
+      ref: `refs/heads/${branch}`,
+    });
+  }
+  const { data: fileData } = fileContent;
 
   // @ts-ignore sha is detected as not existent even though is is
   const existingSha = fileData.sha;
