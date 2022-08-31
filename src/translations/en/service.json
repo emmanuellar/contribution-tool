@@ -6,6 +6,7 @@
   "dialog.help.p2": "In order to achieve that, you will have to select those specific parts and remove the insignificant ones.",
   "dialog.help.title": "Some points of attention",
   "error.cta": "Let us know!",
+  "error.cta.refresh": "or try to refresh",
   "error.title": "We're sorry, an error occured",
   "pageNotAccurate.desc": "A problem with page loading?",
   "pageNotAccurate.cta": "Try another method",

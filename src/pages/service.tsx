@@ -551,6 +551,7 @@ Thank you very much`;
             <h1>{t('service:error.title')}</h1>
             <p>{error}</p>
             <Button onClick={onErrorClick}>{t('service:error.cta')}</Button>
+            <a onClick={() => window.location.reload()}>{t('service:error.cta.refresh')}</a>
           </div>
         )}
         {isServiceVerifyDisplayed && (
