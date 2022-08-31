@@ -1,0 +1,22 @@
+dl {
+  display: flex;
+  flex-flow: row wrap;
+  border: solid var(--colorBlack400);
+  border-width: 0px 1px 0 1px;
+  font-size: 1.4rem;
+  background: var(--colorBlack200);
+}
+dt {
+  flex-basis: 25%;
+  padding: 2px 4px;
+  text-align: right;
+  border-bottom: 1px solid var(--colorBlack400);
+  border-right: 1px solid var(--colorBlack400);
+}
+dd {
+  flex-basis: 70%;
+  flex-grow: 1;
+  margin: 0;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--colorBlack600);
+}

@@ -17,7 +17,7 @@ import React from 'react';
 import api from 'utils/api';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
-import { getDocumentTypes } from 'modules/Github/api';
+import { getDocumentTypes, DocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
@@ -36,7 +36,7 @@ const insignificantCssClass = 'removedCss';
 const hiddenCssClass = 'hiddenCss';
 type CssRuleChange = 'selectedCss' | 'removedCss' | 'hiddenCss';
 
-const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
+const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   let [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
     'serviceHelpDialogViewed',
     false
@@ -148,6 +148,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: string[] }) => {
   const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
+  const documentTypeCommitment = documentTypes[initialDocumentType]?.commitment;
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
@@ -367,13 +368,27 @@ Thank you very much`;
                       defaultValue={initialDocumentType}
                     >
                       <option value="">{t('service:form.select')}</option>
-                      {documentTypes.map((documentType) => (
-                        <option key={documentType} value={documentType}>
-                          {documentType}
-                        </option>
-                      ))}
+                      {Object.keys(documentTypes)
+                        .sort()
+                        .map((documentType) => (
+                          <option key={documentType} value={documentType}>
+                            {documentType}
+                          </option>
+                        ))}
                     </select>
                     <FiChevronDown color="333333"></FiChevronDown>
+                    {initialDocumentType && (
+                      <dl>
+                        {Object.entries(documentTypeCommitment).map(
+                          ([tryptichKey, tryptichValue]) => (
+                            <>
+                              <dt>{tryptichKey}</dt>
+                              <dd>{tryptichValue}</dd>
+                            </>
+                          )
+                        )}
+                      </dl>
+                    )}
                   </div>
                 </div>
                 <div className={classNames('formfield')}>
