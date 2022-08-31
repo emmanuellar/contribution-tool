@@ -148,7 +148,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
-  const documentTypeCommitment = documentTypes[initialDocumentType]?.commitment;
+  const documentTypeCommitment = documentTypes[initialDocumentType]?.commitment || {};
 
   const selectInIframe = (queryparam: CssRuleChange) => () => {
     toggleSelectable(queryparam);
