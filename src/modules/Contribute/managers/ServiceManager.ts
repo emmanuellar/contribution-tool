@@ -42,26 +42,28 @@ export const addService = async ({
   const hasSelector = !!json?.documents[documentType]?.select;
   const selectorsCheckBoxes = hasSelector
     ? [
-        '- [ ] **Selectors are ok**',
-        '  - **The selectors seem to be stable**: as much as possible, the CSS selectors are meaningful and specific (e.g. `.tos-content` rather than `.ab23 .cK_drop > div`).',
-        '  - **The selectors are as simple as they can be**: the CSS selectors do not have unnecessary specificity (e.g. if there is an ID, do not add a class).',
+        '- [ ] **Selectors are:**',
+        '  - **stable**: as much as possible, the CSS selectors are meaningful and specific (e.g. `.tos-content` rather than `.ab23 .cK_drop > div`).',
+        '  - **simple**: the CSS selectors do not have unnecessary specificity (e.g. if there is an ID, do not add a class or a tag).',
       ]
     : [];
 
   const checkBoxes = [
-    '- [ ] **The suggested document matches the scope of this instance**: it targets a service in the language, jurisdiction, and industry that are part of those [described](../#scope) for this instance.',
+    '- [ ] The suggested document **matches the scope of this instance**: it targets a service in the language, jurisdiction, and industry that are part of those [described](../#scope) for this instance.',
     `- [ ] **The service name \`${name}\` matches what you see on the web page**, and it complies with the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-name).`,
     `- [ ] **The service ID \`${id}\` (i.e. the name of the file) is derived from the service name** according to the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-id).`,
     `- [ ] The document type \`${documentType}\` is appropriate for this document: if you read out loud the [document type tryptich](https://github.com/ambanum/OpenTermsArchive/blob/main/src/archivist/services/documentTypes.json), you can say that **“this document describes how the \`writer\` commits to handle the \`object\` for its \`audience\`”**.`,
     ...selectorsCheckBoxes,
-    '- [ ] **Version** is correct',
-    '  - **The document content is relevant**: it is not just a series of links, for example.',
-    '  - **The generated version is readable**: it is complete and not mangled.',
-    '  - **The generated version is clean**: it does not contain navigation links, unnecessary images, or extra content.',
+    '- [ ] **Generated version** is:',
+    '  - **relevant**: it is not just a series of links, for example.',
+    '  - **readable**: it is complete and not mangled.',
+    '  - **clean**: it does not contain navigation links, unnecessary images, or extra content.',
   ];
 
-  const body = `This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can see this declaration suggestion [online](${url}) or [on your local instance](${localUrl}) if you have one set up.
-  
+  const body = `### [🔎 Inspect this declaration suggestion](${url})
+
+- - -
+
 Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
 
 ${checkBoxes.join('\n')}
@@ -69,6 +71,11 @@ ${checkBoxes.join('\n')}
 If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/ambanum/OpenTermsArchive/discussions) about such a type and reference your case there, or open a new discussion if not.
 
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
+
+- - -
+
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
+You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
 
   try {
