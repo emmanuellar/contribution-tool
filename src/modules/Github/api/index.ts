@@ -1,4 +1,5 @@
-const DOCUMENT_TYPES_URL = 'https://api.opentermsarchive.org/data/api/list_documentTypes/v1/';
+const DOCUMENT_TYPES_URL =
+  'https://raw.githubusercontent.com/ambanum/OpenTermsArchive/main/src/archivist/services/documentTypes.json';
 
 import { Octokit } from 'octokit';
 import axios from 'axios';
