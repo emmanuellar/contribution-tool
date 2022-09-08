@@ -91,7 +91,12 @@ function onMouseLeave(e) {
 }
 
 function onClick(e) {
-  var cssPath = finder(e.target);
+  let cssPath;
+  try {
+    cssPath = finder(e.target);
+  } catch (e) {
+    console.error(e);
+  }
   var event = new CustomEvent(EVENT_NAME, { detail: { cssPath } });
   window.parent.document.dispatchEvent(event);
   disablePicker();
