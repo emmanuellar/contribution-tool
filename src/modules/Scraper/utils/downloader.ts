@@ -52,6 +52,15 @@ const removeBaseTag = async (page: Page) => {
     document.querySelector('base')?.remove();
   });
 };
+/*
+ * Some sites have a protection against headless browsers
+ * The only fact to put a user agent will bypass this protection
+ *
+ * Initially done for https://napoveda.seznam.cz/cz/sreality/pravidla-sreality/smluvni-podminky-sluzby-sreality.cz/smluvni-podminky-pro-vkladani-inzerce-do-databaze-serveru-sreality.ct-platne-13.12.2021
+ */
+const setCustomUserAgent = async (page: Page) => {
+  await page.setUserAgent('OpenTermsArchive/contribution-tool');
+};
 
 const outputPageLogs = (page: Page) => {
   if (process.env.NODE_ENV !== 'production') {
@@ -153,6 +162,8 @@ export const downloadUrl = async (
   const browser: Browser = await launchBrowser();
 
   const page = await browser.newPage();
+
+  await setCustomUserAgent(page);
 
   await page.setRequestInterception(true);
   outputPageLogs(page);
