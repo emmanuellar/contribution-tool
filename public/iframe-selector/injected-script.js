@@ -95,7 +95,8 @@ function onClick(e) {
   try {
     cssPath = finder(e.target);
   } catch (e) {
-    console.error(e);
+    console.log('Selector could not be found');
+    console.log(e);
   }
   var event = new CustomEvent(EVENT_NAME, { detail: { cssPath } });
   window.parent.document.dispatchEvent(event);
