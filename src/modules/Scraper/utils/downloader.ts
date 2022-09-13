@@ -8,6 +8,7 @@ import {
 
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import debug from 'debug';
+import path from 'path';
 import fse from 'fs-extra';
 import type { Page, Browser } from 'puppeteer'; // from open-terms-archive
 import puppeteer from 'puppeteer-extra'; // from open-terms-archive
@@ -17,6 +18,7 @@ import {
   Snapshot,
   stopBrowser,
   launchBrowser,
+  generateFolderName,
 } from 'modules/Common/services/open-terms-archive';
 
 puppeteer.use(RecaptchaPlugin());
@@ -105,11 +107,15 @@ type DownloadResult = {
 export const downloadUrl = async (
   json: any,
   {
-    folderPath,
-    newUrlPath,
+    folderDirPath,
+    newUrlDirPath,
     acceptLanguage = 'en',
-  }: { folderPath: string; newUrlPath: string; acceptLanguage?: string }
+  }: { folderDirPath: string; newUrlDirPath: string; acceptLanguage?: string }
 ): Promise<DownloadResult> => {
+  const folderName = generateFolderName(json, acceptLanguage);
+  const folderPath = path.join(folderDirPath, folderName);
+  const newUrlPath = path.join(newUrlDirPath, folderName);
+
   const url = json.fetch;
   const snapshotFilePath = `${folderPath}/snapshot.html`;
   const indexFilePath = `${folderPath}/index.html`;

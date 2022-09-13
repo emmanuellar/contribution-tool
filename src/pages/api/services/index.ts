@@ -12,41 +12,18 @@ import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
 import getConfig from 'next/config';
 import { getLatestCommit } from 'modules/Github/api';
-import path from 'path';
 
 const { serverRuntimeConfig } = getConfig();
-
-const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
 
 const get =
   (json: any, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
-    const url = json.fetch;
-
-    // In case executeClientScripts is true, ota snapshot fetcher will wait
-    // for selector to be found on the page, so resulting snapshot will be
-    // different each time a new selector is added
-    // same if language changes
-    const folderName = cleanStringForFileSystem(
-      `${url}_${acceptLanguage}${
-        json.executeClientScripts
-          ? `_${json.executeClientScripts}_${
-              json.select ? (Array.isArray(json.select) ? json.select.join(',') : json.select) : ''
-            }`
-          : ''
-      }`
-    );
-
-    const folderPath = path.join(serverRuntimeConfig.scrapedFilesFolder, folderName);
-
-    const newUrlPath = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${
-      serverRuntimeConfig.scrapedIframeUrl
-    }/${folderName}`;
-
     try {
       const downloadResult = await downloadUrl(json, {
-        folderPath,
-        newUrlPath,
+        folderDirPath: serverRuntimeConfig.scrapedFilesFolder,
+        newUrlDirPath: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${
+          serverRuntimeConfig.scrapedIframeUrl
+        }`,
         acceptLanguage,
       });
 

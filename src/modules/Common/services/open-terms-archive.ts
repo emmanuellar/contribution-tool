@@ -78,5 +78,33 @@ export const getVersion = async (documentDeclaration: OTADocumentDeclaration, co
   return getVersionFromSnapshot(snapshot);
 };
 
+const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
+
+// In case executeClientScripts is true, ota snapshot fetcher will wait
+// for selector to be found on the page. The resulting snapshot will be
+// different each time a new selector is added.
+// This is the same if language changes
+export const generateFolderName = (
+  { fetch, select, executeClientScripts }: OTADocumentDeclaration,
+  additionalParameter?: string
+) => {
+  const MAX_FOLDER_CHARACTERS = 256;
+  const urlString = cleanStringForFileSystem(fetch.replace(/http?s:\/\//, ''));
+  const selectString = select
+    ? `_${DocumentDeclaration.extractCssSelectorsFromProperty(select).filter(Boolean)}`
+    : '';
+  const fullDomParameters = executeClientScripts ? `1_${selectString}` : '0';
+  const additionalParameters = additionalParameter || '';
+
+  const downloadParameters = `_${[fullDomParameters, additionalParameters]
+    .filter(Boolean)
+    .map(cleanStringForFileSystem)
+    .join('_')}`;
+
+  const leftCharactersForUrl = MAX_FOLDER_CHARACTERS - downloadParameters.length;
+
+  return `${urlString.substring(0, leftCharactersForUrl - 1)}${downloadParameters}`;
+};
+
 export const launchBrowser = launchHeadlessBrowser;
 export const stopBrowser = stopHeadlessBrowser;
