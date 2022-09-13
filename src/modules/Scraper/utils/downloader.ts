@@ -61,7 +61,9 @@ const removeBaseTag = async (page: Page) => {
  * Initially done for https://napoveda.seznam.cz/cz/sreality/pravidla-sreality/smluvni-podminky-sluzby-sreality.cz/smluvni-podminky-pro-vkladani-inzerce-do-databaze-serveru-sreality.ct-platne-13.12.2021
  */
 const setCustomUserAgent = async (page: Page) => {
-  await page.setUserAgent('OpenTermsArchive/contribution-tool');
+  await page.setUserAgent(
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36'
+  );
 };
 
 const outputPageLogs = (page: Page) => {
