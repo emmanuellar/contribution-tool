@@ -94,6 +94,10 @@ const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
 
   assets.forEach(({ from, to }) => {
     filteredHtml = filteredHtml.replaceAll(from, to);
+    // URL are sometimes encoded differently and thus we try to replace strings
+    // which do not exist in the document
+    // Initially done for https://www.realestate-slovenia.info/pogoji-uporabe.html
+    filteredHtml = filteredHtml.replaceAll(from.replaceAll('&', '&amp;'), to);
   });
 
   return filteredHtml;
