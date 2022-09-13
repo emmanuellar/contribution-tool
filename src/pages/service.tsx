@@ -155,7 +155,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   };
 
   const onSelect = React.useCallback(
-    (cssPath: string) => {
+    (cssPath: string = 'Unknown Selector') => {
       let cssRules = [];
       switch (true) {
         case selectable === significantCssClass:
