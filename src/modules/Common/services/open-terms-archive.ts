@@ -84,7 +84,7 @@ const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]
 // for selector to be found on the page. The resulting snapshot will be
 // different each time a new selector is added.
 // This is the same if language changes
-export const generateAlwaysValidFolderName = (
+export const generateFolderName = (
   { fetch, select, executeClientScripts }: OTADocumentDeclaration,
   additionalParameter?: string
 ) => {

@@ -18,7 +18,7 @@ import {
   Snapshot,
   stopBrowser,
   launchBrowser,
-  generateAlwaysValidFolderName,
+  generateFolderName,
 } from 'modules/Common/services/open-terms-archive';
 
 puppeteer.use(RecaptchaPlugin());
@@ -112,7 +112,7 @@ export const downloadUrl = async (
     acceptLanguage = 'en',
   }: { folderDirPath: string; newUrlDirPath: string; acceptLanguage?: string }
 ): Promise<DownloadResult> => {
-  const folderName = generateAlwaysValidFolderName(json, acceptLanguage);
+  const folderName = generateFolderName(json, acceptLanguage);
   const folderPath = path.join(folderDirPath, folderName);
   const newUrlPath = path.join(newUrlDirPath, folderName);
 
