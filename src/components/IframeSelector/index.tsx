@@ -35,8 +35,9 @@ body > * *:not(#${STYLE_HIGHLIGHT_ID}):not(.modal) {
 
 // Initially done to force page to scroll after removing newsletter popups
 // example https://www.comptoirdescotonniers.com/cgv-c4.html
+// added class as it was conflicting with https://support.google.com/business/answer/9292476?hl=en
 const forceScrollRule = `
-html, body {
+html[class*="modal"], body[class*="modal"] {
   overflow: auto!important;
   height: auto!important;
   position: relative!important;
