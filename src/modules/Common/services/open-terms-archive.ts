@@ -1,6 +1,6 @@
 import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
 import filter from 'open-terms-archive/filter';
-import DocumentDeclaration from 'open-terms-archive/document-declaration';
+import PageDeclaration from 'open-terms-archive/page-declaration';
 import { cleanStringForFileSystem } from 'utils/filesystem';
 
 export interface OTAJson {
@@ -37,8 +37,8 @@ export const getSnapshot = async (
     url: documentDeclaration.fetch,
     executeClientScripts: documentDeclaration.executeClientScripts,
     cssSelectors: [
-      ...DocumentDeclaration.extractCssSelectorsFromProperty(documentDeclaration.select),
-      ...DocumentDeclaration.extractCssSelectorsFromProperty(documentDeclaration.remove),
+      ...PageDeclaration.extractCssSelectorsFromProperty(documentDeclaration.select),
+      ...PageDeclaration.extractCssSelectorsFromProperty(documentDeclaration.remove),
     ].filter(Boolean),
     config,
   });
@@ -90,7 +90,7 @@ export const generateFolderName = (
   const MAX_FOLDER_CHARACTERS = 256;
   const urlString = cleanStringForFileSystem(fetch.replace(/http?s:\/\//, ''));
   const selectString = select
-    ? `_${DocumentDeclaration.extractCssSelectorsFromProperty(select).filter(Boolean)}`
+    ? `_${PageDeclaration.extractCssSelectorsFromProperty(select).filter(Boolean)}`
     : '';
   const fullDomParameters = executeClientScripts ? `1_${selectString}` : '0';
   const additionalParameters = additionalParameter || '';
