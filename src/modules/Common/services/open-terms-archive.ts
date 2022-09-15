@@ -6,14 +6,14 @@ import { cleanStringForFileSystem } from 'utils/filesystem';
 export interface OTAJson {
   name: string;
   documents: {
-    [key: string]: OTADocumentDeclaration;
+    [key: string]: OTAPageDeclaration;
   };
 }
 interface OTASnapshot {
   content: string;
   mimeType: string;
 }
-interface OTADocumentDeclaration {
+interface OTAPageDeclaration {
   fetch: string;
   select?: any;
   remove?: any;
@@ -25,20 +25,20 @@ type OTAVersion = string;
 export interface Snapshot {
   content: string;
   mimeType: string;
-  documentDeclaration: OTADocumentDeclaration;
+  pageDeclaration: OTAPageDeclaration;
 }
 
 export const getSnapshot = async (
-  documentDeclaration: OTADocumentDeclaration,
+  pageDeclaration: OTAPageDeclaration,
   config: any
 ): Promise<Snapshot> => {
   await launchHeadlessBrowser();
   const { content, mimeType }: OTASnapshot = await fetch({
-    url: documentDeclaration.fetch,
-    executeClientScripts: documentDeclaration.executeClientScripts,
+    url: pageDeclaration.fetch,
+    executeClientScripts: pageDeclaration.executeClientScripts,
     cssSelectors: [
-      ...PageDeclaration.extractCssSelectorsFromProperty(documentDeclaration.select),
-      ...PageDeclaration.extractCssSelectorsFromProperty(documentDeclaration.remove),
+      ...PageDeclaration.extractCssSelectorsFromProperty(pageDeclaration.select),
+      ...PageDeclaration.extractCssSelectorsFromProperty(pageDeclaration.remove),
     ].filter(Boolean),
     config,
   });
@@ -47,22 +47,18 @@ export const getSnapshot = async (
   return {
     content,
     mimeType,
-    documentDeclaration,
+    pageDeclaration,
   };
 };
 
-export const getVersionFromSnapshot = async ({
-  content,
-  mimeType,
-  documentDeclaration,
-}: Snapshot) => {
+export const getVersionFromSnapshot = async ({ content, mimeType, pageDeclaration }: Snapshot) => {
   const version: OTAVersion = await filter({
     content,
     mimeType,
-    documentDeclaration: {
-      location: documentDeclaration.fetch,
-      contentSelectors: documentDeclaration.select,
-      noiseSelectors: documentDeclaration.remove,
+    pageDeclaration: {
+      location: pageDeclaration.fetch,
+      contentSelectors: pageDeclaration.select,
+      noiseSelectors: pageDeclaration.remove,
     },
   });
 
@@ -73,8 +69,8 @@ export const getVersionFromSnapshot = async ({
   };
 };
 
-export const getVersion = async (documentDeclaration: OTADocumentDeclaration, config: any) => {
-  const snapshot = await getSnapshot(documentDeclaration, config);
+export const getVersion = async (pageDeclaration: OTAPageDeclaration, config: any) => {
+  const snapshot = await getSnapshot(pageDeclaration, config);
 
   return getVersionFromSnapshot(snapshot);
 };
@@ -84,7 +80,7 @@ export const getVersion = async (documentDeclaration: OTADocumentDeclaration, co
 // different each time a new selector is added.
 // This is the same if language changes
 export const generateFolderName = (
-  { fetch, select, executeClientScripts }: OTADocumentDeclaration,
+  { fetch, select, executeClientScripts }: OTAPageDeclaration,
   additionalParameter?: string
 ) => {
   const MAX_FOLDER_CHARACTERS = 256;

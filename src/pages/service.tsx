@@ -120,14 +120,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     },
   };
 
-  const documentDeclaration = Object.values(json.documents)[0];
-  let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(documentDeclaration))}`;
+  const pageDeclaration = Object.values(json.documents)[0];
+  let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(pageDeclaration))}`;
 
   if (acceptLanguage) {
     apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const shouldNotFetchDocument = !documentDeclaration.fetch;
+  const shouldNotFetchDocument = !pageDeclaration.fetch;
   const apiUrl = `/api/services?${apiUrlParams}`;
 
   const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
