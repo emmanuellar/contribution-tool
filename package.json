@@ -40,7 +40,7 @@
     "next-mdx-remote": "^3.0.2",
     "nprogress": "^0.2.0",
     "octokit": "^1.7.1",
-    "open-terms-archive": "github:ambanum/OpenTermsArchive",
+    "open-terms-archive": "github:ambanum/OpenTermsArchive#expose_page_declaration",
     "postcss": "^8.4.8",
     "postcss-animation": "^0.0.12",
     "postcss-calc": "^8.2.4",
