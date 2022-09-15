@@ -1,6 +1,7 @@
 import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
 import filter from 'open-terms-archive/filter';
 import DocumentDeclaration from 'open-terms-archive/document-declaration';
+import { cleanStringForFileSystem } from 'utils/filesystem';
 
 export interface OTAJson {
   name: string;
@@ -77,8 +78,6 @@ export const getVersion = async (documentDeclaration: OTADocumentDeclaration, co
 
   return getVersionFromSnapshot(snapshot);
 };
-
-const cleanStringForFileSystem = (string: string) => string.replace(/[^\p{L}\d_]/gimu, '_');
 
 // In case executeClientScripts is true, ota snapshot fetcher will wait
 // for selector to be found on the page. The resulting snapshot will be
