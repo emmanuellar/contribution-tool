@@ -206,10 +206,12 @@ export const downloadUrl = async (
       return;
     }
 
+    const { dir, name, ext } = path.parse(pathname);
+
     const buffer = await response.buffer();
     const existingUrl = `${pathname}${search}`;
 
-    let targetPath = `${pathname}${cleanStringForFileSystem(search)}`;
+    let targetPath = `${dir}${name}${cleanStringForFileSystem(search)}${ext}`;
     if (resourceType === 'stylesheet' && !pathname.endsWith('.css')) {
       // add random string in case url is of type /static/?e=something
       // initially done for https://unternehmen.geizhals.at/allgemeine-geschaeftsbedingungen/
