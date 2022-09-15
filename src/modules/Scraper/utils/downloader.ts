@@ -20,6 +20,7 @@ import {
   launchBrowser,
   generateFolderName,
 } from 'modules/Common/services/open-terms-archive';
+import { cleanStringForFileSystem } from 'utils/filesystem';
 
 puppeteer.use(RecaptchaPlugin());
 
@@ -206,19 +207,21 @@ export const downloadUrl = async (
     }
 
     const buffer = await response.buffer();
-    let targetPathname = pathname;
+    const existingUrl = `${pathname}${search}`;
+
+    let targetPath = `${pathname}${cleanStringForFileSystem(search)}`;
     if (resourceType === 'stylesheet' && !pathname.endsWith('.css')) {
       // add random string in case url is of type /static/?e=something
       // initially done for https://unternehmen.geizhals.at/allgemeine-geschaeftsbedingungen/
-      targetPathname = `${pathname}_${Math.random()
+      targetPath = `${pathname}_${Math.random()
         .toString(36)
         .replace(/[^a-z]+/g, '')}.css`;
     }
-    const existingUrl = `${pathname}${search}`;
-    let rewrittenUrl = `${newUrlPath}${targetPathname}`;
+
+    let rewrittenUrl = `${newUrlPath}${targetPath}`;
     const relativeUrl = existingUrl.replace(parsedUrl.pathname, '');
     try {
-      fse.outputFileSync(`${folderPath}${targetPathname}`, buffer, 'base64');
+      fse.outputFileSync(`${folderPath}${targetPath}`, buffer, 'base64');
     } catch (e: any) {
       if (e.code !== 'ENAMETOOLONG') {
         throw e;
