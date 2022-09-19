@@ -46,6 +46,57 @@ export const getDocumentTypes = async () => {
   }
 };
 
+const getFileContent = async ({
+  targetBranch,
+  newBranch,
+  filePath,
+  ...params
+}: {
+  filePath: string;
+  targetBranch: string;
+  newBranch: string;
+  owner: string;
+  repo: string;
+}) => {
+  const { data: refData } = await octokit.rest.git.getRef({
+    ...params,
+    ref: `heads/${targetBranch}`,
+  });
+  const commitSha = refData.object.sha;
+
+  await octokit.rest.git.createRef({
+    ...params,
+    ref: `refs/heads/${newBranch}`,
+    sha: commitSha,
+  });
+
+  let sha;
+  let branch = targetBranch;
+  let content = '';
+
+  try {
+    const { data: fileData } = await octokit.rest.repos.getContent({
+      ...params,
+      path: filePath,
+      ref: `refs/heads/${targetBranch}`,
+    });
+
+    // @ts-ignore sha is detected as not existent even though is is
+    sha = fileData.sha;
+    // @ts-ignore content is detected as not existent even though is is
+    content = Buffer.from(fileData.content, 'base64').toString();
+
+    branch = targetBranch;
+  } catch (e: any) {
+    if (e?.response?.data?.message !== 'Not Found') {
+      throw e;
+    }
+    // file does not exist on main branch, continue
+  }
+
+  return { sha, content, branch };
+};
+
 export const createDocumentPullRequest = async ({
   filePath,
   targetBranch,
@@ -64,47 +115,21 @@ export const createDocumentPullRequest = async ({
   body: string;
   repo: string;
 }) => {
-  const { data: refData } = await octokit.rest.git.getRef({
+  const { sha: existingSha, content: existingContent } = await getFileContent({
+    filePath,
+    targetBranch,
+    newBranch,
     ...params,
-    ref: `heads/${targetBranch}`,
   });
-  const commitSha = refData.object.sha;
-
-  await octokit.rest.git.createRef({
-    ...params,
-    ref: `refs/heads/${newBranch}`,
-    sha: commitSha,
-  });
-
-  let existingSha;
-  let existingContent = {};
-
-  try {
-    const { data: fileData } = await octokit.rest.repos.getContent({
-      ...params,
-      path: filePath,
-      ref: `refs/heads/${targetBranch}`,
-    });
-
-    // @ts-ignore sha is detected as not existent even though is is
-    existingSha = fileData.sha;
-    // @ts-ignore content is detected as not existent even though is is
-    existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
-  } catch (e: any) {
-    if (e?.response?.data?.message !== 'Not Found') {
-      throw e;
-    }
-    // file does not exist on main branch, continue
-  }
 
   await octokit.rest.repos.createOrUpdateFileContents({
     ...params,
     branch: newBranch,
     path: filePath,
     message: title,
-    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
-      'base64'
-    ),
+    content: Buffer.from(
+      `${JSON.stringify(merge(JSON.parse(existingContent), content), null, 2)}\n`
+    ).toString('base64'),
     ...(existingSha ? { sha: existingSha } : {}),
   });
 
