@@ -73,6 +73,13 @@ See below examples:
 
 This way, a `Save on local` button will appear on the contribution interface. By clicking on it, it will add or modify the service declaration (saved as a `.json` file) in the corresponding directory.
 
+### Automatically generating history file
+
+As we want to ensure we can retrace the whole history of selectors we used to retrieve the corresponding documents, a history file should be created **every time you change the service declaration** (See the corresponding [decision record](./decision-record/0002-service-history.md).
+As this is a very time consuming thing to do (retrieve the last version date, format it in ISO format and pasting it in a history file), an attempt to find this date has been implemented.
+When having the [Local creation of services from contribution interface](#local-creation-of-services-from-contribution-interface) feature enabled, if a service file already exists, the contribution tool will try to retrieve the first error referenced on GitHub concerning this document, will fetch its date and add the record to the history file.
+This will not always be accurate but we'll use this until the core of Open Terms Archive provides such a feature.
+
 ## Contributing
 
 See our [contributing guide](CONTRIBUTING.md).
