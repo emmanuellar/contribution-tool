@@ -195,7 +195,7 @@ export const searchIssues = async ({ title, ...searchParams }: any) => {
     const issuesWithSameTitle = issues.filter((item) => item.title === title);
 
     return issuesWithSameTitle;
-  } catch (e) {
+  } catch (e: any) {
     console.error('Could not search issue');
     console.error(e.toString());
     throw e;
@@ -246,7 +246,7 @@ export const getLatestFailDate = async ({ serviceName, documentType, ...commonPa
 
     const mostRecentFailingComment = failingComments[failingComments.length - 1];
     return mostRecentFailingComment.createdAt;
-  } catch (e) {
+  } catch (e: any) {
     console.error('Could not search issue');
     console.error(e.toString());
     throw e;
@@ -267,7 +267,7 @@ export const getIssueComments = async ({ issue_number, ...searchParams }: any) =
       (response) => response.data
     );
     return comments;
-  } catch (e) {
+  } catch (e: any) {
     console.error('Could not search issue');
     console.error(e.toString());
     throw e;

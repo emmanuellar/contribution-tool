@@ -12,7 +12,6 @@ import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
 import getConfig from 'next/config';
 import { getLatestFailDate } from 'modules/Github/api';
-import path from 'path';
 
 const { serverRuntimeConfig } = getConfig();
 
