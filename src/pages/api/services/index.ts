@@ -77,12 +77,17 @@ const saveHistoryFile = async ({
     repo: githubRepository,
     accept: 'application/vnd.github.v3+json',
   };
+  let lastFailingDate: string;
 
-  const lastFailingDate = await getLatestFailDate({
-    ...commonParams,
-    serviceName,
-    documentType,
-  });
+  try {
+    lastFailingDate = await getLatestFailDate({
+      ...commonParams,
+      serviceName,
+      documentType,
+    });
+  } catch (e) {
+    lastFailingDate = new Date().toISOString();
+  }
 
   const newHistoryJson = {
     ...historyJson,
