@@ -265,7 +265,21 @@ export const downloadUrl = async (
     await waitForHashIfExists(page, parsedUrl.hash);
     await removeCookieBanners(page, hostname);
 
-    const html = await page.content();
+    let html = await page.content();
+
+    const body = await page.evaluate(() => document.querySelector('body')?.innerText);
+
+    // snapshot is sometimes correct but passing it inside puppeteer will
+    //  result in a problematic or empty body
+    if (
+      !body ||
+      // https://www.videdressing.com/static/ranking.html
+      body === '[object Object]' ||
+      // https://www.facebook.com/legal/commerce_ranking
+      body === 'Sorry! Something went wrong :('
+    ) {
+      html = snapshot.content.toString();
+    }
 
     fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
   } catch (e: any) {
