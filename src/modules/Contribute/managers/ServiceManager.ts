@@ -90,11 +90,20 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     });
   } catch (e: any) {
     if (e?.response?.data?.message === 'Reference already exists') {
-      const updateBody = `A new suggestion has been made through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/). You can see this declaration suggestion [online](${url}) or [on your local instance](${localUrl}) if you have one set up.
+      const updateBody = `### [🔎 Inspect the updated declaration suggestion](${url})
+
+- - -
+
+A new suggestion has been made, voiding the previous ones.
       
 As a human reviewer, here are the things you should check:
 
 ${checkBoxes.join('\n')}
+
+- - -
+
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
+You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
       // a branch already exists wit this name, add a commit to it
       return await updateDocumentInBranch({
