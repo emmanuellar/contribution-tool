@@ -179,21 +179,97 @@ export const updateDocumentInBranch = async ({
   return existingPrs[0];
 };
 
-export const getLatestCommit = async (params: { repo: string; path: string }) => {
-  const repoUrl = `https://api.github.com/repos/${params.repo}/commits`;
-
+export const searchIssues = async ({ title, ...searchParams }: any) => {
   try {
-    const { data }: { data: Commits } = await octokit.request(
-      `GET ${repoUrl}?path=${params.path}`,
-      {
-        page: 1,
-        per_page: 1,
-      }
+    const request = {
+      per_page: 100,
+      ...searchParams,
+    };
+
+    const issues = await octokit.paginate(
+      octokit.rest.issues.listForRepo,
+      request,
+      (response) => response.data
     );
 
-    return data[0] as Commit;
-  } catch (e) {
-    console.error(e);
-    return {} as Commit;
+    const issuesWithSameTitle = issues.filter((item) => item.title === title);
+
+    return issuesWithSameTitle;
+  } catch (e: any) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
+  }
+};
+
+export const getLatestFailDate = async ({ serviceName, documentType, ...commonParams }: any) => {
+  try {
+    const issues = await searchIssues({
+      ...commonParams,
+      state: 'open',
+      title: `Fix ${serviceName} - ${documentType}`,
+    });
+    const issue = issues[0];
+
+    if (!issue) {
+      throw new Error(
+        `There does not seem to be any open issue for ${serviceName} - ${documentType}`
+      );
+    }
+
+    const firstComment = {
+      createdAt: issue.created_at,
+      body: issue.body,
+    };
+
+    const comments = await getIssueComments({
+      ...commonParams,
+      issue_number: issue.number,
+    });
+
+    const automatedComments = comments
+      .filter((comment) => comment?.user?.login === 'OTA-Bot')
+      .map((comment) => ({
+        createdAt: comment.created_at,
+        body: comment.body,
+      }));
+
+    const allComments = [firstComment, ...automatedComments];
+
+    const failingComments = allComments.filter(
+      ({ body }) =>
+        body &&
+        (body.startsWith('🤖 Reopened') ||
+          body.includes('no longer properly tracked') ||
+          body.includes('not available anymore'))
+    );
+
+    const mostRecentFailingComment = failingComments[failingComments.length - 1];
+    return mostRecentFailingComment.createdAt;
+  } catch (e: any) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
+  }
+};
+
+export const getIssueComments = async ({ issue_number, ...searchParams }: any) => {
+  try {
+    const request = {
+      per_page: 100,
+      issue_number,
+      ...searchParams,
+    };
+
+    const comments = await octokit.paginate(
+      octokit.rest.issues.listComments,
+      request,
+      (response) => response.data
+    );
+    return comments;
+  } catch (e: any) {
+    console.error('Could not search issue');
+    console.error(e.toString());
+    throw e;
   }
 };

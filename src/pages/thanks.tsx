@@ -15,11 +15,9 @@ import useUrl from 'hooks/useUrl';
 export default function ThanksPage({ mdxContent }: WithI18nResult) {
   const { t } = useTranslation();
   const {
-    queryParams: { url, destination, localPath, versionsRepo },
+    queryParams: { url, destination, localPath },
   } = useUrl();
-  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
-    versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
-  }`;
+  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
 
   return (
     <Layout title={t('thanks:seo.title')} desc={t('thanks:seo.desc')}>

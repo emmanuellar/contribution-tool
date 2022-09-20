@@ -15,10 +15,8 @@ import { useTranslation } from 'next-i18next';
 const HomePage = ({ mdxContent }: WithI18nResult) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { localPath, destination, versionsRepo } = router.query;
-  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}${
-    versionsRepo ? `&versionsRepo=${versionsRepo}` : ''
-  }`;
+  const { localPath, destination } = router.query;
+  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
 
   useEvent('touchstart', () => {
     router.push(`/sorry?${commonUrlParams}`);

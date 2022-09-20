@@ -76,14 +76,9 @@ This way, a `Save on local` button will appear on the contribution interface. By
 ### Automatically generating history file
 
 As we want to ensure we can retrace the whole history of selectors we used to retrieve the corresponding documents, a history file should be created **every time you change the service declaration** (See the corresponding [decision record](./decision-record/0002-service-history.md).
-As this is a very time consuming thing to do (retrieve the last version date, format it in ISO format and pasting it in a history file), you can use a new url parameter called `versionsRepo` which will fetch the date of the last commit successfully retrieved from Github and populate the history file accordingly and automatically.
-
-**CAUTION**: You need to have a `localPath` query param (described in the previous paragraph) in the url for this to happen.
-
-```
-/en?destination=OpenTermsArchive/contrib-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/contrib-declarations/declarations&versionsRepo=OpenTermsArchive/contrib-versions
-/en?destination=OpenTermsArchive/dating-declarations&localPath=/Users/username/Workspace/OpenTermsArchive/dating-declarations/declarations&versionsRepo=OpenTermsArchive/dating-versions
-```
+As this is a very time consuming thing to do (retrieve the last version date, format it in ISO format and pasting it in a history file), an attempt to find this date has been implemented.
+When having the [Local creation of services from contribution interface](#local-creation-of-services-from-contribution-interface) feature enabled, if a service file already exists, the contribution tool will try to retrieve the first error referenced on GitHub concerning this document, will fetch its date and add the record to the history file.
+This will not always be accurate but we'll use this until the core of Open Terms Archive provides such a feature.
 
 ## Contributing
 
