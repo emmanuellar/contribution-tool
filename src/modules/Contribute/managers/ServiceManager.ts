@@ -90,11 +90,11 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     });
   } catch (e: any) {
     if (e?.response?.data?.message === 'Reference already exists') {
-      const updateBody = `### [🔎 Inspect this declaration suggestion](${url})
+      const updateBody = `### [🔎 Inspect the updated declaration suggestion](${url})
 
 - - -
 
-A new suggestion has been made, voiding the above ones.
+A new suggestion has been made, voiding the previous ones.
       
 As a human reviewer, here are the things you should check:
 
