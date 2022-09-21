@@ -3,6 +3,14 @@ import filter from 'open-terms-archive/filter';
 import PageDeclaration from 'open-terms-archive/page-declaration';
 import { cleanStringForFileSystem } from 'utils/filesystem';
 
+export interface OTARangeSelector {
+  startBefore?: string;
+  endBefore?: string;
+  startAfter?: string;
+  endAfter?: string;
+}
+
+export type OTASelector = string | OTARangeSelector;
 export interface OTAJson {
   name: string;
   documents: {
@@ -15,9 +23,10 @@ interface OTASnapshot {
 }
 interface OTAPageDeclaration {
   fetch: string;
-  select?: any;
-  remove?: any;
+  select?: OTASelector[];
+  remove?: OTASelector[];
   executeClientScripts?: boolean;
+  filter?: string[];
 }
 
 type OTAVersion = string;
