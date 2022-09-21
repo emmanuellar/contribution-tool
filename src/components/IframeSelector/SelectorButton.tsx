@@ -2,6 +2,8 @@ import React from 'react';
 import Button from 'modules/Common/components/Button';
 import { useDebounce, useLocalStorage } from 'react-use';
 import { FiTrash2 as RemoveIcon, FiRepeat as SwitchIcon } from 'react-icons/fi';
+import s from './SelectorButton.module.css';
+import classNames from 'classnames';
 
 type SelectorButtonProps = {
   onChange: any;
@@ -38,7 +40,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   } catch (e) {
     selectorValue = value as string;
   }
-
+  const [loadingState, setLoadingState] = React.useState<'typing' | 'loading' | undefined>();
   const [selector, setSelector] = React.useState<InputValue>(selectorValue);
   const [debouncedSelector, setDebouncedSelector] = React.useState<string>();
   const isRangeObject = typeof selector === 'object';
@@ -56,6 +58,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   useDebounce(
     () => {
       if (debouncedSelector) {
+        setLoadingState('loading');
         onChange(debouncedSelector);
       }
     },
@@ -103,7 +106,10 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
         {!isRangeObject && (
           <input
             defaultValue={selector}
+            className={classNames(s.input, s[`input--${loadingState}`])}
             onInput={(e: any) => setDebouncedSelector(e.target.value)}
+            onChange={() => setLoadingState('typing')}
+            disabled={loadingState === 'loading'}
           />
         )}
         {isRangeObject && (
