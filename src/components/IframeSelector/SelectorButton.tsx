@@ -162,9 +162,11 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
             <SwitchIcon />
           </Button>
         )}
-        <Button onClick={onRemove} type="secondary" color="red" size="sm" onlyIcon={true}>
-          <RemoveIcon />
-        </Button>
+        {onRemove && (
+          <Button onClick={onRemove} type="secondary" color="red" size="sm" onlyIcon={true}>
+            <RemoveIcon />
+          </Button>
+        )}
       </div>
     </>
   );
