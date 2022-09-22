@@ -597,6 +597,7 @@ export const getStaticProps = withI18n()(async (props: any) =>
   JSON.parse(
     JSON.stringify({
       props: { ...props, documentTypes: await getDocumentTypes() },
+      revalidate: 60 * 5,
     })
   )
 );
