@@ -56,6 +56,10 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
         onChange(debouncedSelector);
         setDebouncedSelector(undefined);
       }
+      // In case a problem happens, always make the input
+      // available again as it is frustrating to have to reload the page
+      const timeout = setTimeout(() => setLoadingState(undefined), 3000);
+      return () => clearTimeout(timeout);
     },
     1500,
     [debouncedSelector]
