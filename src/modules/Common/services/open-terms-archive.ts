@@ -21,12 +21,14 @@ interface OTASnapshot {
   content: string;
   mimeType: string;
 }
-interface OTAPageDeclaration {
+
+export interface OTAPageDeclaration {
   fetch: string;
-  select?: OTASelector[];
-  remove?: OTASelector[];
+  select?: string | OTASelector[];
+  remove?: string | OTASelector[];
   executeClientScripts?: boolean;
   filter?: string[];
+  combine?: OTAPageDeclaration[];
 }
 
 type OTAVersion = string;
