@@ -30,6 +30,11 @@ module.exports = {
   },
   async redirects() {
     return [
+      {
+        source: '/contribute/service/:path*',
+        destination: '/service/:path*',
+        permanent: true,
+      },
     ];
   },
 };
