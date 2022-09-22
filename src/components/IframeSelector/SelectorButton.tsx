@@ -1,52 +1,46 @@
 import React from 'react';
 import Button from 'modules/Common/components/Button';
-import { useDebounce, useLocalStorage } from 'react-use';
+import type { OTASelector, OTARangeSelector } from 'modules/Common/services/open-terms-archive';
+import { useDebounce, useLocalStorage, usePrevious } from 'react-use';
 import { FiTrash2 as RemoveIcon, FiRepeat as SwitchIcon } from 'react-icons/fi';
 import s from './SelectorButton.module.css';
 import classNames from 'classnames';
 
 type SelectorButtonProps = {
-  onChange: any;
+  onInputChange: any;
   onRemove?: any;
-  value: string;
+  value: OTASelector;
   withSwitch?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-interface RangeSelector {
-  startBefore?: string;
-  endBefore?: string;
-  startAfter?: string;
-  endAfter?: string;
-}
-
-type InputValue = string | RangeSelector;
-
 const SelectorButton: React.FC<SelectorButtonProps> = ({
-  onChange,
+  onInputChange: onChange,
   onRemove,
   value,
   className,
   withSwitch = true,
   ...props
 }) => {
-  let selectorValue: InputValue;
+  const previousValue = usePrevious(value);
   const [alertViewed, setAlertViewed] = useLocalStorage<boolean>(
     'sc-startBefore-experiment-viewed',
     false
   );
 
-  try {
-    selectorValue = JSON.parse(value) as RangeSelector;
-  } catch (e) {
-    selectorValue = value as string;
-  }
   const [loadingState, setLoadingState] = React.useState<'typing' | 'loading' | undefined>();
-  const [selector, setSelector] = React.useState<InputValue>(selectorValue);
-  const [debouncedSelector, setDebouncedSelector] = React.useState<string>();
-  const isRangeObject = typeof selector === 'object';
+  const [selector, setSelector] = React.useState<OTASelector>(value);
+  const [debouncedSelector, setDebouncedSelector] = React.useState<string | undefined>();
+
+  const isRangeObject = selector && typeof selector === 'object';
+
+  React.useEffect(() => {
+    if (previousValue && previousValue !== value) {
+      setLoadingState(undefined);
+    }
+  }, [previousValue, value]);
 
   const updateSelector = React.useCallback(
-    (newSelector: InputValue) => {
+    (newSelector: OTASelector) => {
       setSelector(newSelector);
       setDebouncedSelector(
         typeof newSelector === 'object' ? JSON.stringify(newSelector) : newSelector
@@ -57,9 +51,10 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
 
   useDebounce(
     () => {
-      if (debouncedSelector) {
+      if (debouncedSelector !== undefined) {
         setLoadingState('loading');
         onChange(debouncedSelector);
+        setDebouncedSelector(undefined);
       }
     },
     1500,
@@ -78,9 +73,9 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
   };
 
   const onObjectChange = React.useCallback(
-    (key: keyof RangeSelector) => (e: any) => {
+    (key: keyof OTARangeSelector) => (e: any) => {
       const newSelector = e.target.value;
-      const newObject = { ...(selector as RangeSelector) };
+      const newObject = { ...(selector as OTARangeSelector) };
 
       if (newSelector) {
         newObject[key] = newSelector;
@@ -102,7 +97,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
           Click to dismiss.
         </button>
       )}
-      <div key={value} className={className} {...props}>
+      <div className={className} {...props}>
         {!isRangeObject && (
           <input
             defaultValue={selector}
@@ -119,8 +114,9 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
               <td>
                 <input
                   defaultValue={selector?.startBefore}
+                  className={classNames(s.input, s[`input--${loadingState}`])}
                   onInput={onObjectChange('startBefore')}
-                  disabled={!!selector?.startAfter}
+                  disabled={!!selector?.startAfter || loadingState === 'loading'}
                 />
               </td>
             </tr>
@@ -129,8 +125,9 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
               <td>
                 <input
                   defaultValue={selector?.startAfter}
+                  className={classNames(s.input, s[`input--${loadingState}`])}
                   onInput={onObjectChange('startAfter')}
-                  disabled={!!selector?.startBefore}
+                  disabled={!!selector?.startBefore || loadingState === 'loading'}
                 />
               </td>
             </tr>
@@ -139,8 +136,9 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
               <td>
                 <input
                   defaultValue={selector?.endBefore}
+                  className={classNames(s.input, s[`input--${loadingState}`])}
                   onInput={onObjectChange('endBefore')}
-                  disabled={!!selector?.endAfter}
+                  disabled={!!selector?.endAfter || loadingState === 'loading'}
                 />
               </td>
             </tr>
@@ -149,8 +147,9 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
               <td>
                 <input
                   defaultValue={selector?.endAfter}
+                  className={classNames(s.input, s[`input--${loadingState}`])}
                   onInput={onObjectChange('endAfter')}
-                  disabled={!!selector?.endBefore}
+                  disabled={!!selector?.endBefore || loadingState === 'loading'}
                 />
               </td>
             </tr>
