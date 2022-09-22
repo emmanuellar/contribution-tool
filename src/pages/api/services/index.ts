@@ -19,6 +19,16 @@ const get =
   (json: any, acceptLanguage: string = 'en') =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
     try {
+      if (json.combine) {
+        res.statusCode = HttpStatusCode.OK;
+        res.json({
+          status: 'ko',
+          url: '',
+          error: 'Sorry but multipage is not supported yet',
+        });
+        return res;
+      }
+
       const downloadResult = await downloadUrl(json, {
         folderDirPath: serverRuntimeConfig.scrapedFilesFolder,
         newUrlDirPath: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${
