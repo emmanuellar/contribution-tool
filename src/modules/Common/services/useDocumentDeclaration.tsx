@@ -1,5 +1,6 @@
 import type { OTAJson, OTAPageDeclaration } from 'modules/Common/services/open-terms-archive';
 import useUrl from 'hooks/useUrl';
+import React from 'react';
 
 type PageArrayField = 'select' | 'remove';
 type PageBooleanField = 'executeClientScripts';
@@ -73,7 +74,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
 };
 
 const useDocumentDeclaration = () => {
-  const { queryParams, pushQueryParam } = useUrl();
+  const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
   const declaration = createDeclarationFromQueryParams(queryParams);
 
   const [document] = Object.entries(declaration.documents) || [[]];
@@ -161,6 +162,20 @@ const useDocumentDeclaration = () => {
         pushQueryParam('json')(JSON.stringify(declaration));
       }
     };
+
+  React.useEffect(() => {
+    if (!queryParams.json && page?.fetch) {
+      pushQueryParams({
+        ...queryParams,
+        json: JSON.stringify(declaration),
+        selectedCss: undefined,
+        removedCss: undefined,
+        url: undefined,
+        name: undefined,
+        documentType: undefined,
+      });
+    }
+  }, [queryParams.json]);
 
   return {
     declaration,
