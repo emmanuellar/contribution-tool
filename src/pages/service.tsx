@@ -298,6 +298,43 @@ Thank you very much`;
                     onInputChange={onDocumentDeclarationUpdate('name')}
                     withSwitch={false}
                   />
+                  {expertMode && (
+                    <small className={s.expertButtons}>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-versions'
+                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
+                          documentType
+                        )}.md`}
+                      >
+                        Latest version
+                      </a>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-snapshots'
+                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
+                          documentType
+                        )}.html`}
+                      >
+                        Latest snapshot
+                      </a>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-versions'
+                        )}/commits/main/${encodeURIComponent(
+                          declaration.name
+                        )}/${encodeURIComponent(documentType)}.md`}
+                      >
+                        All versions
+                      </a>
+                    </small>
+                  )}
                 </div>
                 {!isPDF && (
                   <>
