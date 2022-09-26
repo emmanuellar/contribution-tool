@@ -121,23 +121,24 @@ export const createDocumentAddPullRequest = async ({
   body: string;
   repo: string;
 }) => {
-  const { sha: existingSha, content: existingContent } = await getFileContent({
   await createBranch({ targetBranch, newBranch, ...params });
 
+  const { sha: existingSha, content: existingContentString } = await getFileContent({
     filePath,
-    targetBranch,
-    newBranch,
+    branch: targetBranch,
     ...params,
   });
+
+  const existingContent = JSON.parse(existingContentString || '{}');
 
   await octokit.rest.repos.createOrUpdateFileContents({
     ...params,
     branch: newBranch,
     path: filePath,
     message: title,
-    content: Buffer.from(
-      `${JSON.stringify(merge(JSON.parse(existingContent || '{}'), content), null, 2)}\n`
-    ).toString('base64'),
+    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
+      'base64'
+    ),
     ...(existingSha ? { sha: existingSha } : {}),
   });
 
@@ -168,16 +169,13 @@ export const updateDocumentInBranch = async ({
   body: string;
   repo: string;
 }) => {
-  const { data: fileData } = await octokit.rest.repos.getContent({
+  const { sha: existingSha, content: existingContentString } = await getFileContent({
+    filePath,
+    branch,
     ...params,
-    path: filePath,
-    ref: `refs/heads/${branch}`,
   });
 
-  // @ts-ignore sha is detected as not existent even though is is
-  const existingSha = fileData.sha;
-  // @ts-ignore content is detected as not existent even though is is
-  const existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
+  const existingContent = JSON.parse(existingContentString || '{}');
 
   const newContent = merge(existingContent, content);
   // merge everything except the current submitted document
