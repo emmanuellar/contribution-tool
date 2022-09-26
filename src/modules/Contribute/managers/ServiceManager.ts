@@ -1,5 +1,5 @@
 import {
-  createDocumentPullRequest,
+  createDocumentAddPullRequest,
   updateDocumentInBranch,
 } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
@@ -108,7 +108,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
 
   try {
-    return await createDocumentPullRequest({
+    return await createDocumentAddPullRequest({
       ...commonParams,
       targetBranch: 'main',
       newBranch: branchName,

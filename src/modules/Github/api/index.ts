@@ -97,7 +97,7 @@ const getFileContent = async ({
   return { sha, content, branch };
 };
 
-export const createDocumentPullRequest = async ({
+export const createDocumentAddPullRequest = async ({
   filePath,
   targetBranch,
   newBranch,
