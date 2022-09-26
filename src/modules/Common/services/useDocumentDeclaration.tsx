@@ -1,23 +1,10 @@
-import type {
-  OTAJson,
-  OTAPageDeclaration,
-  OTASelector,
-} from 'modules/Common/services/open-terms-archive';
+import type { OTAJson, OTAPageDeclaration } from 'modules/Common/services/open-terms-archive';
 import useUrl from 'hooks/useUrl';
 
 type PageArrayField = 'select' | 'remove';
 type PageBooleanField = 'executeClientScripts';
-type StringField = 'name' | 'documentType' | 'fetch';
-
-const selectorsMapping = {
-  name: 'name',
-  documentType: 'documentType',
-  fetch: 'url',
-  select: 'selectedCss',
-  remove: 'removedCss',
-  filter: 'filter',
-  executeClientScripts: 'executeClientScripts',
-};
+type DocumentDeclarationStringField = 'name' | 'documentType';
+type PageStringField = 'fetch';
 
 const orderJSONFields = (json: OTAJson) => {
   const documentType = Object.keys(json.documents)[0];
@@ -49,18 +36,20 @@ const parseCssSelector = (cssSelector: string) => {
     return cssSelector;
   }
 };
-const buildCssSelector = (cssSelector: OTASelector) =>
-  typeof cssSelector === 'string' ? cssSelector : JSON.stringify(cssSelector);
 
 const createDeclarationFromQueryParams = (queryParams: any) => {
-  const { url, selectedCss, removedCss, executeClientScripts, documentType, name } = queryParams;
+  const { url, selectedCss, removedCss, executeClientScripts, documentType, name, json } =
+    queryParams;
 
   let declaration = {
     name: '?',
     documents: {},
   } as OTAJson;
 
-  if (url) {
+  if (json) {
+    declaration = JSON.parse(json);
+  } else if (url) {
+    // Support old URLs created by Open Terms Archive in GitHub issues
     declaration = {
       name,
       documents: {
@@ -84,26 +73,24 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
 };
 
 const useDocumentDeclaration = () => {
-  const { queryParams, pushQueryParam, removeQueryParam, removeQueryParams } = useUrl();
+  const { queryParams, pushQueryParam } = useUrl();
   const declaration = createDeclarationFromQueryParams(queryParams);
 
   const [document] = Object.entries(declaration.documents) || [[]];
   const [documentType, page] = document || [];
 
-  const updateString = (field: StringField) => (value?: string) => {
-    if (value) {
-      pushQueryParam(selectorsMapping[field])(value);
-    } else {
-      removeQueryParam(selectorsMapping[field]);
-    }
+  const updateString = (field: PageStringField) => (value: string) => {
+    declaration.documents[documentType][field] = value;
+    pushQueryParam('json')(JSON.stringify(declaration));
   };
 
   const updateBoolean = (field: PageBooleanField) => (value?: boolean) => {
     if (value) {
-      pushQueryParam(selectorsMapping[field])('true');
+      declaration.documents[documentType][field] = value;
     } else {
-      removeQueryParam(selectorsMapping[field]);
+      delete declaration.documents[documentType][field];
     }
+    pushQueryParam('json')(JSON.stringify(declaration));
   };
 
   const updateArray =
@@ -135,34 +122,43 @@ const useDocumentDeclaration = () => {
       }
 
       pageField = (pageField || []).filter(Boolean);
+      declaration.documents[documentType][field] = pageField;
 
-      if (pageField.length === 0) {
-        removeQueryParam(selectorsMapping[field]);
+      pushQueryParam('json')(JSON.stringify(declaration));
+    };
+
+  const onDocumentDeclarationUpdate =
+    (field: DocumentDeclarationStringField) => (value?: string) => {
+      if (!value) {
         return;
       }
-      pushQueryParam(selectorsMapping[field])(pageField.map(buildCssSelector));
+      if (field === 'documentType') {
+        declaration.documents = { [value]: page };
+      } else {
+        declaration[field] = value;
+      }
+      pushQueryParam('json')(JSON.stringify(declaration));
     };
 
   const onPageDeclarationUpdate =
     (type: 'add' | 'update' | 'delete') =>
     (field: keyof OTAPageDeclaration, index?: number) =>
     (value?: string | boolean) => {
-      if (Array.isArray(page[field]) && ['select', 'remove'].includes(field)) {
+      if (Array.isArray(page[field]) || ['select', 'remove'].includes(field)) {
         updateArray(type)(field as PageArrayField, index)(value as string);
       } else if (typeof value === 'boolean') {
         updateBoolean(field as PageBooleanField)(value as boolean);
       } else if (typeof value === 'string') {
-        updateString(field as StringField)(value as string);
+        updateString(field as PageStringField)(value as string);
       }
 
       // Reset page declaration when url is a PDF
       if (field === 'fetch' && typeof value === 'string' && value?.endsWith('.pdf')) {
-        removeQueryParams([
-          selectorsMapping.select,
-          selectorsMapping.remove,
-          selectorsMapping.filter,
-          selectorsMapping.executeClientScripts,
-        ]);
+        delete declaration.documents[documentType].select;
+        delete declaration.documents[documentType].remove;
+        delete declaration.documents[documentType].filter;
+        delete declaration.documents[documentType].executeClientScripts;
+        pushQueryParam('json')(JSON.stringify(declaration));
       }
     };
 
@@ -170,7 +166,7 @@ const useDocumentDeclaration = () => {
     declaration,
     page,
     documentType,
-    onDocumentDeclarationUpdate: updateString,
+    onDocumentDeclarationUpdate,
     onPageDeclarationUpdate,
   };
 };

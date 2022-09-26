@@ -406,7 +406,7 @@ Thank you very much`;
                       <div className={classNames('select')}>
                         <input
                           type="checkbox"
-                          defaultChecked={!!page.executeClientScripts}
+                          defaultChecked={!!page?.executeClientScripts}
                           onChange={(event) =>
                             onPageDeclarationUpdate('update')('executeClientScripts')(
                               event.target.checked
