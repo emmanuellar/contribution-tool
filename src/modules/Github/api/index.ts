@@ -210,6 +210,99 @@ export const updateDocumentInBranch = async ({
   return existingPrs[0];
 };
 
+export const createDocumentUpdatePullRequest = async ({
+  filePath,
+  historyFilePath,
+  targetBranch,
+  newBranch,
+  title,
+  documentType,
+  message,
+  body,
+  historyMessage,
+  lastFailingDate,
+  content,
+  ...params
+}: {
+  filePath: string;
+  historyFilePath: string;
+  targetBranch: string;
+  newBranch: string;
+  documentType: string;
+  title: string;
+  content: any;
+  owner: string;
+  message: string;
+  historyMessage: string;
+  lastFailingDate: string;
+  body: string;
+  repo: string;
+}) => {
+  await createBranch({
+    targetBranch,
+    newBranch,
+    ...params,
+  });
+
+  const file = await getFileContent({
+    filePath,
+    branch: targetBranch,
+    ...params,
+  });
+  const declaration = JSON.parse(file.content || '{}');
+  const newDeclaration = merge(declaration, content);
+  // merge everything except the current submitted document
+  newDeclaration.documents = {
+    ...declaration.documents,
+    ...content.documents,
+  };
+
+  const historyFile = await getFileContent({
+    filePath: historyFilePath,
+    branch: targetBranch,
+    ...params,
+  });
+  const historyDeclaration = JSON.parse(historyFile.content || '{}');
+  const newHistoryDeclaration = {
+    ...historyDeclaration,
+    [documentType]: [
+      ...(historyDeclaration[documentType] || []),
+      {
+        ...declaration.documents[documentType],
+        validUntil: lastFailingDate || new Date().toISOString(),
+      },
+    ],
+  };
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: filePath,
+    message,
+    content: Buffer.from(`${JSON.stringify(newDeclaration, null, 2)}\n`).toString('base64'),
+    sha: file.sha,
+  });
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: historyFilePath,
+    message: historyMessage,
+    content: Buffer.from(`${JSON.stringify(newHistoryDeclaration, null, 2)}\n`).toString('base64'),
+    sha: historyFile.sha,
+  });
+
+  const { data } = await octokit.rest.pulls.create({
+    ...params,
+    base: targetBranch,
+    head: newBranch,
+    title,
+    body,
+  });
+
+  return data;
+};
+
 export const searchIssues = async ({ title, ...searchParams }: any) => {
   try {
     const request = {

@@ -1,6 +1,8 @@
 import {
   createDocumentAddPullRequest,
   updateDocumentInBranch,
+  createDocumentUpdatePullRequest,
+  getLatestFailDate,
 } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
@@ -48,10 +50,33 @@ export const addOrUpdateService = async ({
   };
   const id = deriveIdFromName(name);
   const filePath = `declarations/${id}.json`;
+  const historyFilePath = `declarations/${id}.history.json`;
   const { origin } = new URL(url);
   const localUrl = url.replace(origin, 'http://localhost:3000');
 
-  return addService({ ...commonParams, filePath, name, documentType, json, url, id, localUrl });
+  let lastFailingDate;
+  try {
+    lastFailingDate = await getLatestFailDate({
+      ...commonParams,
+      serviceName: name,
+      documentType,
+    });
+    return updateService({
+      ...commonParams,
+      filePath,
+      historyFilePath,
+      id,
+      name,
+      documentType,
+      json,
+      url,
+      localUrl,
+      lastFailingDate,
+    });
+  } catch (e: any) {
+    console.log('Try adding service');
+    return addService({ ...commonParams, filePath, name, documentType, json, url, id, localUrl });
+  }
 };
 
 export const addService = async ({
@@ -144,6 +169,71 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         body: updateBody,
       });
     }
+    throw e;
+  }
+};
+
+export const updateService = async ({
+  name,
+  documentType,
+  filePath,
+  historyFilePath,
+  id,
+  json,
+  url,
+  localUrl,
+  lastFailingDate,
+  ...commonParams
+}: {
+  name: string;
+  documentType: string;
+  filePath: string;
+  historyFilePath: string;
+  id: string;
+  json: any;
+  url: string;
+  localUrl: string;
+  lastFailingDate: string;
+  owner: string;
+  repo: string;
+  accept: string;
+}) => {
+  const prTitle = `Update ${name} ${documentType}`;
+  const branchName = snakeCase(prTitle);
+  const hasSelector = !!json?.documents[documentType]?.select;
+  const checkBoxes = [...(hasSelector ? selectorsCheckboxes : []), ...versionCheckboxes];
+
+  const body = `### [🔎 Inspect this declaration update suggestion](${url})
+
+- - -
+
+Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
+
+${checkBoxes.join('\n')}
+
+Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
+
+- - -
+
+_This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
+You can load it [on your local instance](${localUrl}) if you have one set up._
+`;
+  try {
+    return await createDocumentUpdatePullRequest({
+      ...commonParams,
+      targetBranch: 'main',
+      newBranch: branchName,
+      title: prTitle,
+      documentType,
+      content: json,
+      filePath,
+      lastFailingDate,
+      historyFilePath,
+      historyMessage: 'Update history from contribution tool',
+      message: 'Update declaration from contribution tool',
+      body,
+    });
+  } catch (e) {
     throw e;
   }
 };
