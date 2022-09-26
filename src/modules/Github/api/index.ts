@@ -128,7 +128,7 @@ export const createDocumentPullRequest = async ({
     path: filePath,
     message: title,
     content: Buffer.from(
-      `${JSON.stringify(merge(JSON.parse(existingContent), content), null, 2)}\n`
+      `${JSON.stringify(merge(JSON.parse(existingContent || '{}'), content), null, 2)}\n`
     ).toString('base64'),
     ...(existingSha ? { sha: existingSha } : {}),
   });
