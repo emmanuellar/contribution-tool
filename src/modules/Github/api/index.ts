@@ -47,29 +47,15 @@ export const getDocumentTypes = async () => {
 };
 
 const getFileContent = async ({
-  targetBranch,
-  newBranch,
+  branch,
   filePath,
   ...params
 }: {
   filePath: string;
-  targetBranch: string;
-  newBranch: string;
+  branch: string;
   owner: string;
   repo: string;
 }) => {
-  const { data: refData } = await octokit.rest.git.getRef({
-    ...params,
-    ref: `heads/${targetBranch}`,
-  });
-  const commitSha = refData.object.sha;
-
-  await octokit.rest.git.createRef({
-    ...params,
-    ref: `refs/heads/${newBranch}`,
-    sha: commitSha,
-  });
-
   let sha;
   let content = '';
 
@@ -94,6 +80,29 @@ const getFileContent = async ({
   return { sha, content, branch };
 };
 
+const createBranch = async ({
+  targetBranch,
+  newBranch,
+  ...params
+}: {
+  targetBranch: string;
+  newBranch: string;
+  owner: string;
+  repo: string;
+}) => {
+  const { data: refData } = await octokit.rest.git.getRef({
+    ...params,
+    ref: `heads/${targetBranch}`,
+  });
+  const commitSha = refData.object.sha;
+
+  await octokit.rest.git.createRef({
+    ...params,
+    ref: `refs/heads/${newBranch}`,
+    sha: commitSha,
+  });
+};
+
 export const createDocumentAddPullRequest = async ({
   filePath,
   targetBranch,
@@ -113,6 +122,8 @@ export const createDocumentAddPullRequest = async ({
   repo: string;
 }) => {
   const { sha: existingSha, content: existingContent } = await getFileContent({
+  await createBranch({ targetBranch, newBranch, ...params });
+
     filePath,
     targetBranch,
     newBranch,
