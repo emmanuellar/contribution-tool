@@ -1,0 +1,13 @@
+.input {
+  transition: border-color 1s ease-in-out;
+}
+
+.input--loading {
+  border: 1px solid var(--colorPrimary);
+  outline: 1px solid var(--colorPrimary);
+}
+
+.input--typing {
+  border: 1px solid var(--colorSecondary);
+  outline: 1px solid var(--colorSecondary);
+}

@@ -14,9 +14,9 @@ import SelectorButton from 'components/IframeSelector/SelectorButton';
 import LinkIcon from 'modules/Common/components/LinkIcon';
 import Loading from 'components/Loading';
 import React from 'react';
+import pick from 'lodash/fp/pick';
 import api from 'utils/api';
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 import { getDocumentTypes, DocumentTypes } from 'modules/Github/api';
 import s from './service.module.css';
 import useNotifier from 'hooks/useNotifier';
@@ -24,111 +24,73 @@ import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { useToggle, useKeyPressEvent } from 'react-use';
 import { useTranslation } from 'next-i18next';
-import useUrl from 'hooks/useUrl';
 import { withI18n } from 'modules/I18n';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
 import Version from 'modules/Common/data-components/Version';
+import useDocumentDeclaration from 'modules/Common/services/useDocumentDeclaration';
+import useConfigDeclaration from 'modules/Common/hooks/useConfigDeclaration';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
-const significantCssClass = 'selectedCss';
-const insignificantCssClass = 'removedCss';
-const hiddenCssClass = 'hiddenCss';
-type CssRuleChange = 'selectedCss' | 'removedCss' | 'hiddenCss';
+type DocumentSelectableField = 'select' | 'remove';
+type ConfigSelectableField = 'hidden';
+type SelectableField = DocumentSelectableField | ConfigSelectableField;
 
 const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
-  let [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
+  const router = useRouter();
+  const { t } = useTranslation();
+  const { notify } = useNotifier();
+
+  // Version Modal
+  const [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
     'serviceHelpDialogViewed',
     false
   );
   const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
 
-  const router = useRouter();
-  const { t } = useTranslation();
-  const { notify } = useNotifier();
-  const {
-    queryParams: {
-      destination,
-      localPath,
-      url,
-      [significantCssClass]: initialSignificantCss,
-      [insignificantCssClass]: initialInsignificantCss,
-      [hiddenCssClass]: initialHiddenCss,
-      acceptLanguage,
-      executeClientScripts,
-      documentType: initialDocumentType,
-      name: initialName,
-      expertMode,
-    },
-    pushQueryParam,
-    removeQueryParams,
-    removeQueryParam,
-  } = useUrl();
+  // UI interaction
+  const [iframeSelectionField, toggleIframeSelectionField] = React.useState<SelectableField | ''>(
+    ''
+  );
 
-  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
-  useEvent('touchstart', () => {
-    router.push(`/sorry?${commonUrlParams}`);
-  });
-
-  useKeyPressEvent('Escape', () => toggleServiceVerifyDisplayed(false));
-
-  if (!destination && typeof window !== 'undefined') {
-    // This is here as previously created issues still point at a url that has no `destination` param
-    pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
-  }
-
-  const [selectable, toggleSelectable] = React.useState('');
   const [iframeReady, toggleIframeReady] = useToggle(false);
+  const selectInIframe = (field: SelectableField) => () => toggleIframeSelectionField(field);
   const [loading, toggleLoading] = useToggle(false);
 
-  const significantCss = !initialSignificantCss
-    ? []
-    : Array.isArray(initialSignificantCss)
-    ? initialSignificantCss
-    : [initialSignificantCss];
+  // Declaration
+  const { page, declaration, documentType, onPageDeclarationUpdate, onDocumentDeclarationUpdate } =
+    useDocumentDeclaration();
 
-  const insignificantCss = !initialInsignificantCss
-    ? []
-    : Array.isArray(initialInsignificantCss)
-    ? initialInsignificantCss
-    : [initialInsignificantCss];
+  const {
+    destination,
+    localPath,
+    hiddenCssSelectors,
+    onConfigInputChange,
+    onHiddenCssSelectorsUpdate,
+    expertMode,
+    acceptLanguage,
+  } = useConfigDeclaration();
 
-  const hiddenCss = !initialHiddenCss
-    ? []
-    : Array.isArray(initialHiddenCss)
-    ? initialHiddenCss
-    : [initialHiddenCss];
+  const { fetch: url, executeClientScripts } = page || {};
+  const selectCssSelectors = typeof page?.select === 'string' ? [page?.select] : page?.select || [];
+  const removeCssSelectors = typeof page?.remove === 'string' ? [page?.remove] : page?.remove || [];
 
-  const json = {
-    name: initialName || '???',
-    documents: {
-      [initialDocumentType || '???']: {
-        fetch: url,
-        select:
-          significantCss.length > 0
-            ? significantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
-            : undefined,
-        remove:
-          insignificantCss.length > 0
-            ? insignificantCss.map((css: any) => (css.startsWith('{') ? JSON.parse(css) : css))
-            : undefined,
-        ...(executeClientScripts ? { executeClientScripts: true } : {}),
-      },
-    },
-  };
-
-  const pageDeclaration = Object.values(json.documents)[0];
-  let apiUrlParams = `json=${encodeURIComponent(JSON.stringify(pageDeclaration))}`;
+  // URL
+  const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
+  let apiUrlParams = `json=${encodeURIComponent(
+    JSON.stringify(
+      executeClientScripts
+        ? pick(['executeClientScripts', 'fetch', 'select', 'combine'])(page)
+        : pick(['fetch', 'combine'])(page)
+    )
+  )}`;
 
   if (acceptLanguage) {
     apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
   }
 
-  const shouldNotFetchDocument = !pageDeclaration.fetch;
-  const apiUrl = `/api/services?${apiUrlParams}`;
-
   const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
-    shouldNotFetchDocument ? null : apiUrl,
+    `/api/services?${apiUrlParams}`,
     {
       revalidateOnMount: true,
       revalidateIfStale: false,
@@ -137,108 +99,53 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     }
   );
 
-  if (!url) {
-    return null;
-  }
+  // Events
+  useEvent('touchstart', () => router.push(`/sorry?${commonUrlParams}`));
+  useKeyPressEvent('Escape', () => {
+    toggleServiceVerifyDisplayed(false);
+    toggleIframeSelectionField('');
+  });
 
-  const isPDF = data?.isPDF;
-  const submitDisabled = (!initialSignificantCss && !isPDF) || (!iframeReady && !isPDF) || loading;
+  const isPDF = url?.endsWith('.pdf') || data?.isPDF;
+  const submitDisabled =
+    (selectCssSelectors?.length === 0 && !isPDF) || (!iframeReady && !isPDF) || loading;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
-  const documentTypeCommitment = documentTypes[initialDocumentType]?.commitment || {};
+  const documentTypeCommitment = documentTypes[documentType]?.commitment || {};
 
-  const selectInIframe = (queryparam: CssRuleChange) => () => {
-    toggleSelectable(queryparam);
-  };
-
-  const onSelect = React.useCallback(
-    (cssPath: string = 'Unknown Selector') => {
-      let cssRules = [];
-      switch (true) {
-        case selectable === significantCssClass:
-          cssRules = significantCss;
-          break;
-        case selectable === insignificantCssClass:
-          cssRules = insignificantCss;
-          break;
-        case selectable === hiddenCssClass:
-          cssRules = hiddenCss;
-          break;
-      }
-
-      if (!cssRules.includes(cssPath)) {
-        pushQueryParam(selectable)([...cssRules, cssPath]);
-      }
-      toggleSelectable('');
-    },
-    [url, hiddenCss, insignificantCss, significantCss, pushQueryParam, selectable, toggleSelectable]
+  const onSelectInIframe = React.useCallback(
+    (field: SelectableField) =>
+      (cssPath: string = 'Unknown Selector') => {
+        if (['select', 'remove'].includes(field)) {
+          onPageDeclarationUpdate('add')(field as DocumentSelectableField)(cssPath);
+        }
+        if (field === 'hidden') {
+          onHiddenCssSelectorsUpdate('add')()(cssPath);
+        }
+        toggleIframeSelectionField('');
+      },
+    [url, iframeSelectionField, toggleIframeSelectionField]
   );
 
-  const onChangeCssRule = (queryparam: CssRuleChange, index: number) => (valueOrEvent: any) => {
-    const value = valueOrEvent.target?.value || valueOrEvent;
-
-    if (!value) {
-      onRemoveCssRule(queryparam, index)();
-      return;
+  const onChangeCssRule = (field: SelectableField, i: number) => (newCssPath: string) => {
+    if (['select', 'remove'].includes(field)) {
+      onPageDeclarationUpdate('update')(field as DocumentSelectableField, i)(newCssPath);
     }
-
-    let cssRules = [];
-    switch (true) {
-      case queryparam === significantCssClass:
-        cssRules = significantCss;
-        break;
-      case queryparam === insignificantCssClass:
-        cssRules = insignificantCss;
-        break;
-      case queryparam === hiddenCssClass:
-        cssRules = hiddenCss;
-        break;
-    }
-
-    const newCss = [...cssRules];
-    newCss[index] = value;
-    pushQueryParam(queryparam)(newCss);
-  };
-
-  const onRemoveCssRule = (queryparam: CssRuleChange, index: number) => () => {
-    let cssRules = [];
-
-    switch (true) {
-      case queryparam === significantCssClass:
-        cssRules = significantCss;
-        break;
-      case queryparam === insignificantCssClass:
-        cssRules = insignificantCss;
-        break;
-      case queryparam === hiddenCssClass:
-        cssRules = hiddenCss;
-        break;
-    }
-    const newCss = [...cssRules];
-    delete newCss[index];
-    pushQueryParam(queryparam)(newCss);
-  };
-
-  const onInputChange = (fieldName: string) =>
-    debounce((event: any) => {
-      pushQueryParam(fieldName)(event.target.value);
-    }, 500);
-
-  const onCheckboxChange = (fieldName: string) => (event: any) => {
-    if (event.target.checked) {
-      pushQueryParam(fieldName)('true');
-    } else {
-      removeQueryParam(fieldName);
+    if (field === 'hidden') {
+      onHiddenCssSelectorsUpdate('update')(i)(newCssPath);
     }
   };
 
-  const toggleExpertMode = () => {
-    pushQueryParam('expertMode')(!!expertMode ? '' : 'true');
+  const onDeleteCssRule = (field: SelectableField, i: number) => () => {
+    if (['select', 'remove'].includes(field)) {
+      onPageDeclarationUpdate('delete')(field as DocumentSelectableField, i)();
+    }
+    if (field === 'hidden') {
+      onHiddenCssSelectorsUpdate('delete')(i)();
+    }
   };
 
-  const onVerify = async () => {
-    toggleServiceVerifyDisplayed(true);
-  };
+  const onVerify = async () => toggleServiceVerifyDisplayed(true);
 
   const onValidate = async () => {
     toggleLoading(true);
@@ -247,9 +154,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
         data: { url, message },
       } = await api.post<PostContributeServiceResponse>('/api/services', {
         destination,
-        json,
-        name: initialName,
-        documentType: initialDocumentType,
+        json: declaration,
+        name: declaration.name,
+        documentType: documentType,
         url: `${window.location.href}&expertMode=true`,
       });
 
@@ -257,7 +164,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
         const subject = 'Here is a new service to track in Open Terms Archive';
         const body = `Hi,
 
-  I need you to track "${initialDocumentType}" of "${initialName}" for me.
+  I need you to track "${documentType}" of "${declaration.name}" for me.
 
   Here is the url ${window.location.href}&expertMode=true
 
@@ -294,7 +201,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     const subject = 'I tried to add this service but it did not work';
     const body = `Hi,
 
-I need you to track "${initialDocumentType}" of "${initialName}" for me but I had a failure with.
+I need you to track "${documentType}" of "${declaration.name}" for me but I had a failure with.
 
 -----
 ${error}
@@ -314,21 +221,9 @@ Thank you very much`;
     await api.post('/api/services', {
       destination,
       path: localPath,
-      data: JSON.stringify(json),
+      data: JSON.stringify(declaration),
     });
   };
-
-  React.useEffect(() => {
-    if (!!isPDF) {
-      removeQueryParams([hiddenCssClass, insignificantCssClass, significantCssClass]);
-    }
-  }, [isPDF, removeQueryParams]);
-
-  React.useEffect(() => {
-    if (data?.url !== url) {
-      toggleIframeReady(false);
-    }
-  }, [url, data?.url]);
 
   return (
     <div className={s.wrapper}>
@@ -354,15 +249,22 @@ Thank you very much`;
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.url')}</label>
                   <div className={classNames('select')}>
-                    <input defaultValue={url} onChange={onInputChange('url')} />
+                    <SelectorButton
+                      key={'fetch'}
+                      value={url}
+                      onInputChange={onPageDeclarationUpdate('update')('fetch')}
+                      withSwitch={false}
+                    />
                   </div>
                 </div>
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.documentType')}</label>
                   <div className={classNames('select')}>
                     <select
-                      onChange={onInputChange('documentType')}
-                      defaultValue={initialDocumentType}
+                      onChange={(event) =>
+                        onDocumentDeclarationUpdate('documentType')(event.target.value)
+                      }
+                      defaultValue={documentType}
                     >
                       <option value="">{t('service:form.select')}</option>
                       {Object.keys(documentTypes)
@@ -374,7 +276,7 @@ Thank you very much`;
                         ))}
                     </select>
                     <FiChevronDown color="333333"></FiChevronDown>
-                    {initialDocumentType && (
+                    {documentType && (
                       <dl>
                         {Object.entries(documentTypeCommitment).map(
                           ([tryptichKey, tryptichValue]) => (
@@ -390,24 +292,29 @@ Thank you very much`;
                 </div>
                 <div className={classNames('formfield')}>
                   <label>{t('service:form.serviceName')}</label>
-                  <input defaultValue={initialName} onChange={onInputChange('name')} />
+                  <SelectorButton
+                    key={'name'}
+                    value={declaration.name}
+                    onInputChange={onDocumentDeclarationUpdate('name')}
+                    withSwitch={false}
+                  />
                 </div>
                 {!isPDF && (
                   <>
                     <div className={classNames('formfield')}>
                       <label>{t('service:form.significantPart')}</label>
-                      {significantCss.map((selected, i) => (
+                      {selectCssSelectors.map((selected, i) => (
                         <SelectorButton
                           className={s.selectionItem}
-                          key={selected}
+                          key={typeof selected === 'string' ? selected : JSON.stringify(selected)}
                           value={selected}
-                          onChange={onChangeCssRule(significantCssClass, i)}
-                          onRemove={onRemoveCssRule(significantCssClass, i)}
+                          onInputChange={onChangeCssRule('select', i)}
+                          onRemove={onDeleteCssRule('select', i)}
                         />
                       ))}
                       <Button
-                        onClick={selectInIframe(significantCssClass)}
-                        disabled={!!selectable || !iframeReady}
+                        onClick={selectInIframe('select')}
+                        disabled={!!iframeSelectionField || !iframeReady}
                         type="secondary"
                         size="sm"
                       >
@@ -415,22 +322,22 @@ Thank you very much`;
                       </Button>
                     </div>
 
-                    {(significantCss.length > 0 || insignificantCss.length > 0) && (
+                    {(selectCssSelectors?.length > 0 || removeCssSelectors?.length > 0) && (
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.insignificantPart')}</label>
 
-                        {insignificantCss.map((selected, i) => (
+                        {removeCssSelectors.map((removed, i) => (
                           <SelectorButton
                             className={s.selectionItem}
-                            key={selected}
-                            value={selected}
-                            onChange={onChangeCssRule(insignificantCssClass, i)}
-                            onRemove={onRemoveCssRule(insignificantCssClass, i)}
+                            key={typeof removed === 'string' ? removed : JSON.stringify(removed)}
+                            value={removed}
+                            onInputChange={onChangeCssRule('remove', i)}
+                            onRemove={onDeleteCssRule('remove', i)}
                           />
                         ))}
                         <Button
-                          onClick={selectInIframe(insignificantCssClass)}
-                          disabled={!!selectable || !iframeReady}
+                          onClick={selectInIframe('remove')}
+                          disabled={!!iframeSelectionField || !iframeReady}
                           type="secondary"
                           size="sm"
                         >
@@ -442,7 +349,9 @@ Thank you very much`;
                 )}
 
                 <div className={classNames('formfield', s.toggleExpertMode)}>
-                  <a onClick={toggleExpertMode}>{t('service:expertMode')}</a>
+                  <a onClick={() => onConfigInputChange('expertMode')(!expertMode)}>
+                    {t('service:expertMode')}
+                  </a>
 
                   {expertMode ? (
                     <FiChevronUp color="333333"></FiChevronUp>
@@ -460,8 +369,12 @@ Thank you very much`;
                       <div className={classNames('select')}>
                         <input
                           type="checkbox"
-                          defaultChecked={!!executeClientScripts}
-                          onChange={onCheckboxChange('executeClientScripts')}
+                          defaultChecked={!!page.executeClientScripts}
+                          onChange={(event) =>
+                            onPageDeclarationUpdate('update')('executeClientScripts')(
+                              event.target.checked
+                            )
+                          }
                           disabled={isPDF}
                         />
                       </div>
@@ -470,19 +383,19 @@ Thank you very much`;
                       <div className={classNames('formfield')}>
                         <label>{t('service:form.hiddenPart')}</label>
                         <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
-                        {hiddenCss.map((hidden, i) => (
+                        {hiddenCssSelectors.map((hidden, i) => (
                           <SelectorButton
                             className={s.selectionItem}
                             key={hidden}
                             value={hidden}
-                            onChange={onChangeCssRule(hiddenCssClass, i)}
-                            onRemove={onRemoveCssRule(hiddenCssClass, i)}
+                            onInputChange={onChangeCssRule('hidden', i)}
+                            onRemove={onDeleteCssRule('hidden', i)}
                             withSwitch={false}
                           />
                         ))}
                         <Button
-                          onClick={selectInIframe(hiddenCssClass)}
-                          disabled={!!selectable || !iframeReady}
+                          onClick={selectInIframe('hidden')}
+                          disabled={!!iframeSelectionField || !iframeReady}
                           type="secondary"
                           size="sm"
                         >
@@ -494,16 +407,19 @@ Thank you very much`;
                       <label>{t('service:form.acceptLanguage')}</label>
                       <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>
                       <div className={classNames('select')}>
-                        <input
-                          defaultValue={acceptLanguage}
-                          onChange={onInputChange('acceptLanguage')}
-                          minLength={2}
+                        <SelectorButton
+                          key={'acceptLanguage'}
+                          value={acceptLanguage}
+                          onInputChange={onConfigInputChange('acceptLanguage')}
+                          withSwitch={false}
                         />
                       </div>
                     </div>
                     <div className={classNames('formfield', s.expert)}>
                       <label>{t('service:form.label.json')}</label>
-                      <pre className={classNames(s.json)}>{JSON.stringify(json, null, 2)}</pre>
+                      <pre className={classNames(s.json)}>
+                        {JSON.stringify(declaration, null, 2)}
+                      </pre>
                       <div className={classNames(s.expertButtons)}>
                         {localPath && (
                           <Button
@@ -532,7 +448,7 @@ Thank you very much`;
                 <br />
                 <a
                   className={classNames('text__error')}
-                  onClick={() => pushQueryParam('executeClientScripts')('true')}
+                  onClick={() => onPageDeclarationUpdate('update')('executeClientScripts')(true)}
                 >
                   {t('service:pageNotAccurate.cta')}
                 </a>
@@ -568,7 +484,7 @@ Thank you very much`;
         )}
         {isServiceVerifyDisplayed && (
           <div className={classNames(s.fullPageAbove)}>
-            <Version json={json} />
+            <Version json={declaration} />
             <button onClick={toggleServiceVerifyDisplayed}>
               <IconClose />
             </button>
@@ -579,13 +495,13 @@ Thank you very much`;
         )}
         {!isLoadingIframe && !error && data?.url && !isPDF && (
           <IframeSelector
-            selectable={!!selectable}
+            selectable={!!iframeSelectionField}
             url={data?.url}
-            selected={significantCss}
-            removed={insignificantCss}
-            hidden={hiddenCss}
-            onSelect={onSelect}
-            onReady={toggleIframeReady}
+            selected={selectCssSelectors}
+            removed={removeCssSelectors}
+            hidden={hiddenCssSelectors}
+            onSelect={iframeSelectionField ? onSelectInIframe(iframeSelectionField) : () => {}}
+            onReady={() => toggleIframeReady(true)}
           />
         )}
       </div>

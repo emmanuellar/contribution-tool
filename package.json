@@ -3,7 +3,7 @@
   "version": "1.25.0",
   "prettier": "prettier-config-ambanum",
   "scripts": {
-    "dev": "NODE_OPTIONS=\"--insecure-http-parser --max-http-header-size=3276 \" ts-node src/server/index.mjs",
+    "dev": "NODE_OPTIONS=\"--insecure-http-parser --max-http-header-size=24576 \" ts-node src/server/index.mjs",
     "build": "next build",
     "start": "NODE_ENV=production node dist/src/server/index.mjs",
     "type-check": "tsc",

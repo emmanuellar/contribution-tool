@@ -1,11 +1,12 @@
 import React from 'react';
 import { useToggle } from 'react-use';
 // import fs from 'fs';
+import type { OTASelector } from 'modules/Common/services/open-terms-archive';
 
 interface IframeSelectorProps {
   url: string;
-  selected?: string[];
-  removed?: string[];
+  selected?: OTASelector[];
+  removed?: OTASelector[];
   hidden?: string[];
   selectable: boolean;
   onSelect: (cssPath: string) => any;
@@ -131,13 +132,13 @@ interface FormattedSelectors {
   endAfter: string[];
 }
 
-const getSelectorsAsArrays = (cssSelectors: string[]) => {
+const getSelectorsAsArrays = (cssSelectors: OTASelector[]) => {
   return cssSelectors
     .filter((selector) => !!selector)
     .reduce(
       (acc: FormattedSelectors, value) => {
-        try {
-          const { startBefore, endBefore, startAfter, endAfter } = JSON.parse(value);
+        if (typeof value === 'object') {
+          const { startBefore, endBefore, startAfter, endAfter } = value;
 
           return {
             ...acc,
@@ -146,7 +147,7 @@ const getSelectorsAsArrays = (cssSelectors: string[]) => {
             startAfter: [...acc.startAfter, ...(startAfter ? [startAfter] : [])],
             endAfter: [...acc.endAfter, ...(endAfter ? [endAfter] : [])],
           };
-        } catch (e) {
+        } else {
           // value is a plain selector and not an object with startBefore, endBefore, startAfter, endAfter
           return { ...acc, select: [...acc.select, value] };
         }
