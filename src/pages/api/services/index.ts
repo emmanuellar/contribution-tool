@@ -6,7 +6,7 @@ import {
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import { addService } from '../../../modules/Contribute/managers/ServiceManager';
+import { addOrUpdateService } from '../../../modules/Contribute/managers/ServiceManager';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
@@ -169,7 +169,7 @@ const addNewService =
     }
 
     try {
-      const service: any = await addService({
+      const service: any = await addOrUpdateService({
         destination: body?.destination,
         name: body?.name,
         documentType: body?.documentType,

@@ -1,4 +1,7 @@
-import { createDocumentPullRequest, updateDocumentInBranch } from 'modules/Github/api';
+import {
+  createDocumentPullRequest,
+  updateDocumentInBranch,
+} from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 
@@ -7,7 +10,7 @@ export const deriveIdFromName = (name: string) => {
     .replace(/(&|\\|\/|:)/gi, '-'); // remove characters that might be problematic on the file system
 };
 
-export const addService = async ({
+export const addOrUpdateService = async ({
   destination,
   name,
   documentType,
@@ -30,14 +33,37 @@ export const addService = async ({
     repo: githubRepository,
     accept: 'application/vnd.github.v3+json',
   };
-
-  const prTitle = `Add ${name} ${documentType}`;
-  const branchName = snakeCase(prTitle);
   const id = deriveIdFromName(name);
   const filePath = `declarations/${id}.json`;
   const { origin } = new URL(url);
-
   const localUrl = url.replace(origin, 'http://localhost:3000');
+
+  return addService({ ...commonParams, filePath, name, documentType, json, url, id, localUrl });
+};
+
+export const addService = async ({
+  name,
+  documentType,
+  json,
+  url,
+  id,
+  filePath,
+  localUrl,
+  ...commonParams
+}: {
+  name: string;
+  documentType: string;
+  filePath: string;
+  id: string;
+  json: any;
+  url: string;
+  localUrl: string;
+  owner: string;
+  repo: string;
+  accept: string;
+}) => {
+  const prTitle = `Add ${name} ${documentType}`;
+  const branchName = snakeCase(prTitle);
 
   const hasSelector = !!json?.documents[documentType]?.select;
   const selectorsCheckBoxes = hasSelector
