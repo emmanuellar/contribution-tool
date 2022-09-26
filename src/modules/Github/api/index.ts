@@ -71,22 +71,19 @@ const getFileContent = async ({
   });
 
   let sha;
-  let branch = targetBranch;
   let content = '';
 
   try {
     const { data: fileData } = await octokit.rest.repos.getContent({
       ...params,
       path: filePath,
-      ref: `refs/heads/${targetBranch}`,
+      ref: `refs/heads/${branch}`,
     });
 
     // @ts-ignore sha is detected as not existent even though is is
     sha = fileData.sha;
     // @ts-ignore content is detected as not existent even though is is
     content = Buffer.from(fileData.content, 'base64').toString();
-
-    branch = targetBranch;
   } catch (e: any) {
     if (e?.response?.data?.message !== 'Not Found') {
       throw e;
