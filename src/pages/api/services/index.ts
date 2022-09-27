@@ -1,12 +1,12 @@
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
-} from '../../../modules/Contribute/interfaces';
+} from 'modules/Contribute/interfaces';
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import { addOrUpdateService } from '../../../modules/Contribute/managers/ServiceManager';
+import ServiceManager from 'modules/Contribute/managers/ServiceManager';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
@@ -167,12 +167,14 @@ const addNewService =
       });
       return res;
     }
+    const serviceManager = new ServiceManager({
+      destination: body?.destination,
+      name: body?.name,
+      type: body?.documentType,
+    });
 
     try {
-      const service: any = await addOrUpdateService({
-        destination: body?.destination,
-        name: body?.name,
-        documentType: body?.documentType,
+      const service: any = await serviceManager.addOrUpdateService({
         json: body?.json,
         url: body?.url,
       });
