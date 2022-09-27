@@ -157,7 +157,7 @@ const saveOnLocal =
     return res;
   };
 
-const addNewService =
+const addOrUpdate =
   (body: any) => async (_: NextApiRequest, res: NextApiResponse<PostContributeServiceResponse>) => {
     try {
       const serviceManager = new ServiceManager({
@@ -204,7 +204,7 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (req.method === 'POST' && body?.json) {
-    return addNewService(body)(req, res);
+    return addOrUpdate(body)(req, res);
   }
 
   if (req.method === 'POST' && body?.data) {
