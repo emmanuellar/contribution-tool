@@ -12,11 +12,11 @@ const orderJSONFields = (json: OTAJson) => {
   const page = json.documents[documentType];
 
   return {
-    name: json.name,
+    name: json.name?.trim(),
     documents: documentType
       ? {
           [documentType]: {
-            fetch: page?.fetch,
+            fetch: page?.fetch?.trim(),
             ...(page?.select && page?.select.length ? { select: page.select } : {}),
             ...(page?.remove && page?.remove.length ? { remove: page.remove } : {}),
             ...(page?.filter && page?.filter.length ? { filter: page.filter } : {}),
@@ -81,7 +81,7 @@ const useDocumentDeclaration = () => {
   const [documentType, page] = document || [];
 
   const updateString = (field: PageStringField) => (value: string) => {
-    declaration.documents[documentType][field] = value;
+    declaration.documents[documentType][field] = value.trim();
     pushQueryParam('json')(JSON.stringify(declaration));
   };
 
