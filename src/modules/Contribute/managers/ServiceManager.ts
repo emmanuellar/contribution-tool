@@ -7,6 +7,8 @@ import {
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 
+const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
+
 const selectorsCheckboxes = [
   '- [ ] **Selectors are:**',
   '  - **stable**: as much as possible, the CSS selectors are meaningful and specific (e.g. `.tos-content` rather than `.ab23 .cK_drop > div`).',
@@ -41,6 +43,10 @@ export default class ServiceManager {
       throw new Error('Destination is mandatory');
     }
     const [githubOrganization, githubRepository] = (destination || '')?.split('/');
+
+    if (!authorizedOrganizations.includes(githubOrganization)) {
+      throw new Error('Destination should be OpenTermsArchive/something or ambanum/something');
+    }
 
     this.githubOrganization = githubOrganization;
     this.githubRepository = githubRepository;

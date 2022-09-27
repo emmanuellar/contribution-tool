@@ -159,21 +159,12 @@ const saveOnLocal =
 
 const addNewService =
   (body: any) => async (_: NextApiRequest, res: NextApiResponse<PostContributeServiceResponse>) => {
-    if (!['OpenTermsArchive', 'ambanum'].includes(body?.destination.split('/')[0])) {
-      res.json({
-        status: 'ko',
-        message: 'Destination should be OpenTermsArchive/something or ambanum/something',
-        error: 'Invalid destination',
-      });
-      return res;
-    }
-    const serviceManager = new ServiceManager({
-      destination: body?.destination,
-      name: body?.name,
-      type: body?.documentType,
-    });
-
     try {
+      const serviceManager = new ServiceManager({
+        destination: body?.destination,
+        name: body?.name,
+        type: body?.documentType,
+      });
       const service: any = await serviceManager.addOrUpdateService({
         json: body?.json,
         url: body?.url,
