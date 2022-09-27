@@ -3,9 +3,11 @@ import {
   updateDocumentInBranch,
   createDocumentUpdatePullRequest,
   getLatestFailDate,
+  getFileContent,
 } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
+import { OTAJson } from 'modules/Common/services/open-terms-archive';
 
 const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
 
@@ -210,4 +212,16 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       throw e;
     }
   }
+
+  getDeclarationFiles = async () => {
+    const { content: existingContentString } = await getFileContent({
+      ...this.commonParams,
+      filePath: this.declarationFilePath,
+      branch: 'main',
+    });
+
+    return {
+      declaration: JSON.parse(existingContentString) as OTAJson,
+    };
+  };
 }

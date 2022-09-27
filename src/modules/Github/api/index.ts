@@ -46,7 +46,7 @@ export const getDocumentTypes = async () => {
   }
 };
 
-const getFileContent = async ({
+export const getFileContent = async ({
   branch,
   filePath,
   ...params
