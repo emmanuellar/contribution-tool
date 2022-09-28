@@ -1,6 +1,8 @@
 import type { OTAJson, OTAPageDeclaration } from 'modules/Common/services/open-terms-archive';
 import useUrl from 'hooks/useUrl';
 import React from 'react';
+import useSwr from 'swr';
+import { useToggle } from 'react-use';
 
 type PageArrayField = 'select' | 'remove';
 type PageBooleanField = 'executeClientScripts';
@@ -73,8 +75,57 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
   return orderJSONFields(declaration);
 };
 
+/**
+ * As a bug was introduced in OTA core, GitHub issues are created with a
+ * `url=undefined` query param
+ * In this case this function will fetch the full data from GitHub
+ */
+const useLatestDeclarationFileIfNeeded = () => {
+  const { queryParams } = useUrl();
+  const { destination, url, name, documentType, json } = queryParams;
+  const [latestDeclaration, setLatestDeclaration] = React.useState();
+
+  const shouldFetchOriginalDeclaration = url === 'undefined';
+  const searchParams = new URLSearchParams(
+    shouldFetchOriginalDeclaration
+      ? {
+          destination,
+          name,
+          documentType,
+        }
+      : {}
+  );
+
+  const { data } = useSwr(
+    shouldFetchOriginalDeclaration ? `/api/services/files?${searchParams}` : null
+  );
+
+  React.useEffect(() => {
+    if (!data) {
+      return;
+    }
+    const declaration = {
+      ...data.declaration,
+      documents: {
+        [documentType]: data.declaration.documents[documentType],
+      },
+    };
+
+    setLatestDeclaration(declaration);
+  }, [data]);
+
+  return {
+    loading: !data && shouldFetchOriginalDeclaration && !json,
+    latestDeclaration,
+  };
+};
+
 const useDocumentDeclaration = () => {
   const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
+  const [loadedFromSource, toggleLoadedFromSource] = useToggle(false);
+
+  const { loading, latestDeclaration } = useLatestDeclarationFileIfNeeded();
+
   const declaration = createDeclarationFromQueryParams(queryParams);
 
   const [document] = Object.entries(declaration.documents || {}) || [[]];
@@ -164,7 +215,7 @@ const useDocumentDeclaration = () => {
     };
 
   React.useEffect(() => {
-    if (!queryParams.json && page?.fetch) {
+    if (!queryParams.json && page?.fetch && !latestDeclaration && !loading) {
       pushQueryParams({
         ...queryParams,
         json: JSON.stringify(declaration),
@@ -175,9 +226,26 @@ const useDocumentDeclaration = () => {
         documentType: undefined,
       });
     }
-  }, [queryParams.json]);
+  }, [queryParams.json, latestDeclaration, loading]);
+
+  React.useEffect(() => {
+    if (latestDeclaration) {
+      toggleLoadedFromSource(true);
+      pushQueryParams({
+        ...queryParams,
+        json: JSON.stringify(latestDeclaration),
+        selectedCss: undefined,
+        removedCss: undefined,
+        url: undefined,
+        name: undefined,
+        documentType: undefined,
+      });
+    }
+  }, [latestDeclaration]);
 
   return {
+    loading,
+    loadedFromSource,
     declaration,
     page,
     documentType,

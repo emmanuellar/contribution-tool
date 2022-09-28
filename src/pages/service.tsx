@@ -40,7 +40,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { notify } = useNotifier();
-
   // Version Modal
   const [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
     'serviceHelpDialogViewed',
@@ -58,8 +57,15 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const [loading, toggleLoading] = useToggle(false);
 
   // Declaration
-  const { page, declaration, documentType, onPageDeclarationUpdate, onDocumentDeclarationUpdate } =
-    useDocumentDeclaration();
+  const {
+    loading: loadingDocumentDeclaration,
+    loadedFromSource,
+    page,
+    declaration,
+    documentType,
+    onPageDeclarationUpdate,
+    onDocumentDeclarationUpdate,
+  } = useDocumentDeclaration();
 
   const {
     destination,
@@ -225,6 +231,10 @@ Thank you very much`;
     });
   };
 
+  if (loadingDocumentDeclaration) {
+    return 'Loading declaration from source...';
+  }
+
   return (
     <div className={s.wrapper}>
       {!isServiceHelpViewed && (
@@ -243,6 +253,7 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
+          {loadedFromSource && <div>Loaded from source</div>}
           <div className={s.formWrapper}>
             <form>
               <div>
