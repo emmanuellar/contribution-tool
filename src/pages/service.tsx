@@ -324,6 +324,14 @@ Thank you very much`;
                       </a>
                       <a
                         target="_blank"
+                        href={`https://github.com/${destination}/blob/main/declarations/${encodeURIComponent(
+                          declaration.name
+                        )}.json`}
+                      >
+                        Current JSON
+                      </a>
+                      <a
+                        target="_blank"
                         href={`https://github.com/${destination?.replace(
                           '-declarations',
                           '-snapshots'
