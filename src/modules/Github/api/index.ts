@@ -46,13 +46,45 @@ export const getDocumentTypes = async () => {
   }
 };
 
-const getFileContent = async ({
-  targetBranch,
-  newBranch,
+export const getFileContent = async ({
+  branch,
   filePath,
   ...params
 }: {
   filePath: string;
+  branch: string;
+  owner: string;
+  repo: string;
+}) => {
+  let sha;
+  let content = '';
+
+  try {
+    const { data: fileData } = await octokit.rest.repos.getContent({
+      ...params,
+      path: filePath,
+      ref: `refs/heads/${branch}`,
+    });
+
+    // @ts-ignore sha is detected as not existent even though is is
+    sha = fileData.sha;
+    // @ts-ignore content is detected as not existent even though is is
+    content = Buffer.from(fileData.content, 'base64').toString();
+  } catch (e: any) {
+    if (e?.response?.data?.message !== 'Not Found') {
+      throw e;
+    }
+    // file does not exist on main branch, continue
+  }
+
+  return { sha, content, branch };
+};
+
+const createBranch = async ({
+  targetBranch,
+  newBranch,
+  ...params
+}: {
   targetBranch: string;
   newBranch: string;
   owner: string;
@@ -69,35 +101,9 @@ const getFileContent = async ({
     ref: `refs/heads/${newBranch}`,
     sha: commitSha,
   });
-
-  let sha;
-  let branch = targetBranch;
-  let content = '';
-
-  try {
-    const { data: fileData } = await octokit.rest.repos.getContent({
-      ...params,
-      path: filePath,
-      ref: `refs/heads/${targetBranch}`,
-    });
-
-    // @ts-ignore sha is detected as not existent even though is is
-    sha = fileData.sha;
-    // @ts-ignore content is detected as not existent even though is is
-    content = Buffer.from(fileData.content, 'base64').toString();
-
-    branch = targetBranch;
-  } catch (e: any) {
-    if (e?.response?.data?.message !== 'Not Found') {
-      throw e;
-    }
-    // file does not exist on main branch, continue
-  }
-
-  return { sha, content, branch };
 };
 
-export const createDocumentPullRequest = async ({
+export const createDocumentAddPullRequest = async ({
   filePath,
   targetBranch,
   newBranch,
@@ -115,21 +121,24 @@ export const createDocumentPullRequest = async ({
   body: string;
   repo: string;
 }) => {
-  const { sha: existingSha, content: existingContent } = await getFileContent({
+  await createBranch({ targetBranch, newBranch, ...params });
+
+  const { sha: existingSha, content: existingContentString } = await getFileContent({
     filePath,
-    targetBranch,
-    newBranch,
+    branch: targetBranch,
     ...params,
   });
+
+  const existingContent = JSON.parse(existingContentString || '{}');
 
   await octokit.rest.repos.createOrUpdateFileContents({
     ...params,
     branch: newBranch,
     path: filePath,
     message: title,
-    content: Buffer.from(
-      `${JSON.stringify(merge(JSON.parse(existingContent || '{}'), content), null, 2)}\n`
-    ).toString('base64'),
+    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
+      'base64'
+    ),
     ...(existingSha ? { sha: existingSha } : {}),
   });
 
@@ -160,16 +169,13 @@ export const updateDocumentInBranch = async ({
   body: string;
   repo: string;
 }) => {
-  const { data: fileData } = await octokit.rest.repos.getContent({
+  const { sha: existingSha, content: existingContentString } = await getFileContent({
+    filePath,
+    branch,
     ...params,
-    path: filePath,
-    ref: `refs/heads/${branch}`,
   });
 
-  // @ts-ignore sha is detected as not existent even though is is
-  const existingSha = fileData.sha;
-  // @ts-ignore content is detected as not existent even though is is
-  const existingContent = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
+  const existingContent = JSON.parse(existingContentString || '{}');
 
   const newContent = merge(existingContent, content);
   // merge everything except the current submitted document
@@ -202,6 +208,99 @@ export const updateDocumentInBranch = async ({
   });
 
   return existingPrs[0];
+};
+
+export const createDocumentUpdatePullRequest = async ({
+  filePath,
+  historyFilePath,
+  targetBranch,
+  newBranch,
+  title,
+  documentType,
+  message,
+  body,
+  historyMessage,
+  lastFailingDate,
+  content,
+  ...params
+}: {
+  filePath: string;
+  historyFilePath: string;
+  targetBranch: string;
+  newBranch: string;
+  documentType: string;
+  title: string;
+  content: any;
+  owner: string;
+  message: string;
+  historyMessage: string;
+  lastFailingDate: string;
+  body: string;
+  repo: string;
+}) => {
+  await createBranch({
+    targetBranch,
+    newBranch,
+    ...params,
+  });
+
+  const file = await getFileContent({
+    filePath,
+    branch: targetBranch,
+    ...params,
+  });
+  const declaration = JSON.parse(file.content || '{}');
+  const newDeclaration = merge(declaration, content);
+  // merge everything except the current submitted document
+  newDeclaration.documents = {
+    ...declaration.documents,
+    ...content.documents,
+  };
+
+  const historyFile = await getFileContent({
+    filePath: historyFilePath,
+    branch: targetBranch,
+    ...params,
+  });
+  const historyDeclaration = JSON.parse(historyFile.content || '{}');
+  const newHistoryDeclaration = {
+    ...historyDeclaration,
+    [documentType]: [
+      ...(historyDeclaration[documentType] || []),
+      {
+        ...declaration.documents[documentType],
+        validUntil: lastFailingDate || new Date().toISOString(),
+      },
+    ],
+  };
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: filePath,
+    message,
+    content: Buffer.from(`${JSON.stringify(newDeclaration, null, 2)}\n`).toString('base64'),
+    sha: file.sha,
+  });
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: newBranch,
+    path: historyFilePath,
+    message: historyMessage,
+    content: Buffer.from(`${JSON.stringify(newHistoryDeclaration, null, 2)}\n`).toString('base64'),
+    sha: historyFile.sha,
+  });
+
+  const { data } = await octokit.rest.pulls.create({
+    ...params,
+    base: targetBranch,
+    head: newBranch,
+    title,
+    body,
+  });
+
+  return data;
 };
 
 export const searchIssues = async ({ title, ...searchParams }: any) => {

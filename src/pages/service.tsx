@@ -40,7 +40,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { notify } = useNotifier();
-
   // Version Modal
   const [isServiceHelpViewed, setServiceHelpViewed] = useLocalStorage(
     'serviceHelpDialogViewed',
@@ -58,8 +57,15 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const [loading, toggleLoading] = useToggle(false);
 
   // Declaration
-  const { page, declaration, documentType, onPageDeclarationUpdate, onDocumentDeclarationUpdate } =
-    useDocumentDeclaration();
+  const {
+    loading: loadingDocumentDeclaration,
+    loadedFromSource,
+    page,
+    declaration,
+    documentType,
+    onPageDeclarationUpdate,
+    onDocumentDeclarationUpdate,
+  } = useDocumentDeclaration();
 
   const {
     destination,
@@ -225,6 +231,10 @@ Thank you very much`;
     });
   };
 
+  if (loadingDocumentDeclaration) {
+    return 'Loading declaration from source...';
+  }
+
   return (
     <div className={s.wrapper}>
       {!isServiceHelpViewed && (
@@ -243,6 +253,7 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
+          {loadedFromSource && <div>Loaded from source</div>}
           <div className={s.formWrapper}>
             <form>
               <div>
@@ -298,6 +309,43 @@ Thank you very much`;
                     onInputChange={onDocumentDeclarationUpdate('name')}
                     withSwitch={false}
                   />
+                  {expertMode && (
+                    <small className={s.expertButtons}>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-versions'
+                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
+                          documentType
+                        )}.md`}
+                      >
+                        Latest version
+                      </a>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-snapshots'
+                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
+                          documentType
+                        )}.html`}
+                      >
+                        Latest snapshot
+                      </a>
+                      <a
+                        target="_blank"
+                        href={`https://github.com/${destination?.replace(
+                          '-declarations',
+                          '-versions'
+                        )}/commits/main/${encodeURIComponent(
+                          declaration.name
+                        )}/${encodeURIComponent(documentType)}.md`}
+                      >
+                        All versions
+                      </a>
+                    </small>
+                  )}
                 </div>
                 {!isPDF && (
                   <>
@@ -369,7 +417,7 @@ Thank you very much`;
                       <div className={classNames('select')}>
                         <input
                           type="checkbox"
-                          defaultChecked={!!page.executeClientScripts}
+                          defaultChecked={!!page?.executeClientScripts}
                           onChange={(event) =>
                             onPageDeclarationUpdate('update')('executeClientScripts')(
                               event.target.checked

@@ -1,4 +1,4 @@
-import { deriveIdFromName } from './ServiceManager';
+import ServiceManager from './ServiceManager';
 
 const nameToIds: [string, any][] = [
   ['RTÉ', 'RTE'],
@@ -19,6 +19,6 @@ const nameToIds: [string, any][] = [
 
 test('Derive id from name', async () => {
   nameToIds.forEach(([name, expectedId]) =>
-    expect(deriveIdFromName(name)).toStrictEqual(expectedId)
+    expect(ServiceManager.deriveIdFromName(name)).toStrictEqual(expectedId)
   );
 });

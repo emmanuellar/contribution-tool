@@ -1,12 +1,12 @@
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
-} from '../../../modules/Contribute/interfaces';
+} from 'modules/Contribute/interfaces';
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import { addService } from '../../../modules/Contribute/managers/ServiceManager';
+import ServiceManager from 'modules/Contribute/managers/ServiceManager';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';
@@ -157,22 +157,15 @@ const saveOnLocal =
     return res;
   };
 
-const addNewService =
+const addOrUpdate =
   (body: any) => async (_: NextApiRequest, res: NextApiResponse<PostContributeServiceResponse>) => {
-    if (!['OpenTermsArchive', 'ambanum'].includes(body?.destination.split('/')[0])) {
-      res.json({
-        status: 'ko',
-        message: 'Destination should be OpenTermsArchive/something or ambanum/something',
-        error: 'Invalid destination',
-      });
-      return res;
-    }
-
     try {
-      const service: any = await addService({
+      const serviceManager = new ServiceManager({
         destination: body?.destination,
         name: body?.name,
-        documentType: body?.documentType,
+        type: body?.documentType,
+      });
+      const service: any = await serviceManager.addOrUpdateService({
         json: body?.json,
         url: body?.url,
       });
@@ -211,7 +204,7 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (req.method === 'POST' && body?.json) {
-    return addNewService(body)(req, res);
+    return addOrUpdate(body)(req, res);
   }
 
   if (req.method === 'POST' && body?.data) {

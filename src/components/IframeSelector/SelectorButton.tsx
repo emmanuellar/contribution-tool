@@ -43,7 +43,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
     (newSelector: OTASelector) => {
       setSelector(newSelector);
       setDebouncedSelector(
-        typeof newSelector === 'object' ? JSON.stringify(newSelector) : newSelector
+        typeof newSelector === 'object' ? JSON.stringify(newSelector) : newSelector.trim()
       );
     },
     [isRangeObject]
@@ -82,7 +82,7 @@ const SelectorButton: React.FC<SelectorButtonProps> = ({
       const newObject = { ...(selector as OTARangeSelector) };
 
       if (newSelector) {
-        newObject[key] = newSelector;
+        newObject[key] = newSelector.trim();
       } else {
         delete newObject[key];
       }

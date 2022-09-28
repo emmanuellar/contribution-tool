@@ -1,4 +1,5 @@
 import { CommonResponse } from 'interfaces';
+import { OTAJson } from '../services/open-terms-archive';
 
 export interface GetServiceResponse {
   status: 'ok' | 'ko';
@@ -10,4 +11,8 @@ export interface GetServiceVerifyResponse extends CommonResponse {
   snapshot?: string;
   version?: string;
   mimeType?: string;
+}
+export interface GetServiceFilesResponse extends CommonResponse {
+  error?: string;
+  declaration?: OTAJson;
 }
