@@ -23,8 +23,7 @@ import useNotifier from 'hooks/useNotifier';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { useToggle, useKeyPressEvent } from 'react-use';
-import { useTranslation } from 'next-i18next';
-import { withI18n } from 'modules/I18n';
+import useTranslation from 'next-translate/useTranslation';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
 import Version from 'modules/Common/data-components/Version';
 import useDocumentDeclaration from 'modules/Common/services/useDocumentDeclaration';
@@ -565,13 +564,12 @@ Thank you very much`;
   );
 };
 
-export const getStaticProps = withI18n()(async (props: any) =>
+export const getStaticProps = async (props: any) =>
   JSON.parse(
     JSON.stringify({
       props: { ...props, documentTypes: await getDocumentTypes() },
       revalidate: 60 * 5,
     })
-  )
-);
+  );
 
 export default ServicePage;

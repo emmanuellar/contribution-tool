@@ -1,5 +1,5 @@
 import Search, { SearchProps } from 'components/Search/Search';
-import { WithI18nResult, withI18n } from 'modules/I18n';
+import withMdx, { WithMdxResult } from 'modules/I18n/hoc/withMdx';
 
 import Column from 'modules/Common/components/Column';
 import Container from 'modules/Common/containers/Container';
@@ -10,9 +10,9 @@ import { MDXRemote } from 'next-mdx-remote';
 import TextContent from 'modules/Common/components/TextContent';
 import { useEvent } from 'react-use';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import useTranslation from 'next-translate/useTranslation';
 
-const HomePage = ({ mdxContent }: WithI18nResult) => {
+const HomePage = ({ mdxContent }: WithMdxResult) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { localPath, destination } = router.query;
@@ -69,10 +69,6 @@ const HomePage = ({ mdxContent }: WithI18nResult) => {
   );
 };
 
-export const getStaticProps = withI18n({ load: 'mdx', filename: 'homepage' })(
-  async (props: any) => {
-    return JSON.parse(JSON.stringify({ props: { ...props }, revalidate: 10 }));
-  }
-);
+export const getStaticProps = withMdx({ load: 'mdx', filename: 'homepage', folder: 'static' })();
 
 export default HomePage;
