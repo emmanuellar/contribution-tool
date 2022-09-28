@@ -1,4 +1,4 @@
-import { WithI18nResult, withI18n } from 'modules/I18n';
+import withMdx, { WithMdxResult } from 'modules/I18n/hoc/withMdx';
 
 import Breadcrumb from 'components/BreadCrumb';
 import Button from 'modules/Common/components/Button';
@@ -9,10 +9,10 @@ import Link from 'next/link';
 import { MDXRemote } from 'next-mdx-remote';
 import React from 'react';
 import TextContent from 'modules/Common/components/TextContent';
-import { useTranslation } from 'react-i18next';
+import useTranslation from 'next-translate/useTranslation';
 import useUrl from 'hooks/useUrl';
 
-export default function ThanksPage({ mdxContent }: WithI18nResult) {
+export default function ThanksPage({ mdxContent }: WithMdxResult) {
   const { t } = useTranslation();
   const {
     queryParams: { url, destination, localPath },
@@ -38,9 +38,7 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
       </Container>
 
       <Container gridCols="9" gridGutters="8" paddingY={false}>
-        <TextContent>
-          <MDXRemote {...(mdxContent as any)} scope={{ url }} />
-        </TextContent>
+        <TextContent>{mdxContent && <MDXRemote {...mdxContent} scope={{ url }} />}</TextContent>
       </Container>
 
       <Container gridCols="9" gridGutters="8">
@@ -53,4 +51,4 @@ export default function ThanksPage({ mdxContent }: WithI18nResult) {
     </Layout>
   );
 }
-export const getStaticProps = withI18n({ load: 'mdx', filename: 'thanks' })();
+export const getStaticProps = withMdx({ load: 'mdx', filename: 'thanks', folder: 'static' })();

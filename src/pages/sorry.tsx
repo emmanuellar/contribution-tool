@@ -6,8 +6,7 @@ import Layout from 'modules/Common/containers/Layout';
 import React from 'react';
 import TextContent from 'modules/Common/components/TextContent';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { withI18n } from 'modules/I18n';
+import useTranslation from 'next-translate/useTranslation';
 const EMAIL_SUPPORT = 'contact@opentermsarchive.org';
 
 const SorryPage = () => {
@@ -49,9 +48,5 @@ const SorryPage = () => {
     </Layout>
   );
 };
-
-export const getStaticProps = withI18n()(async (props: any) => {
-  return JSON.parse(JSON.stringify({ props: { ...props }, revalidate: 10 }));
-});
 
 export default SorryPage;

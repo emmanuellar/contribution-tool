@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import sDialog from './Dialog.module.css';
 import { Dialog } from '@headlessui/react';
 import TextContent from 'modules/Common/components/TextContent';
-import { Trans } from 'react-i18next';
+import Trans from 'next-translate/Trans';
 import Button from 'modules/Common/components/Button';
-import { useTranslation } from 'next-i18next';
+import useTranslation from 'next-translate/useTranslation';
 
 type ServiceHelpDialogProps = {
   open: boolean;
@@ -23,17 +23,10 @@ const ServiceHelpDialog: React.FC<ServiceHelpDialogProps> = ({ onClose, open }) 
         <Dialog.Description>
           <TextContent>
             <p>
-              <Trans i18nKey="service:dialog.help.p1">
-                Most of the time, contractual documents contains a header, a footer, navigation
-                menus, possibly ads… We aim at tracking only{' '}
-                <strong>the significant parts of the document</strong>
-              </Trans>
+              <Trans i18nKey="service:dialog.help.p1" components={{ strong: <strong /> }} />
             </p>
             <p>
-              <Trans i18nKey="service:dialog.help.p2">
-                In order to achieve that, you will have to select those specific parts and remove
-                the insignificant ones.
-              </Trans>
+              <Trans i18nKey="service:dialog.help.p2" />
             </p>
           </TextContent>
         </Dialog.Description>
