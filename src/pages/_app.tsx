@@ -13,15 +13,16 @@ import { appWithTranslation } from 'next-i18next';
 import { fetcher } from 'utils/api';
 
 function App({ Component, pageProps }: AppProps) {
+  // https://stackoverflow.com/questions/71809903/next-js-component-cannot-be-used-as-a-jsx-component
+  const AnyComponent = Component as any;
   return (
     <SWRConfig
       value={{
         fetcher,
       }}
     >
-      {' '}
       <NotifierContainer />
-      <Component {...pageProps} />
+      <AnyComponent {...pageProps} />
     </SWRConfig>
   );
 }
