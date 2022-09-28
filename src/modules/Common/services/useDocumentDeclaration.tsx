@@ -3,6 +3,7 @@ import useUrl from 'hooks/useUrl';
 import React from 'react';
 import useSwr from 'swr';
 import { useToggle } from 'react-use';
+import { GetServiceFilesResponse } from 'modules/Common/interfaces';
 
 type PageArrayField = 'select' | 'remove';
 type PageBooleanField = 'executeClientScripts';
@@ -83,7 +84,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
 const useLatestDeclarationFileIfNeeded = () => {
   const { queryParams } = useUrl();
   const { destination, url, name, documentType, json } = queryParams;
-  const [latestDeclaration, setLatestDeclaration] = React.useState();
+  const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
 
   const shouldFetchOriginalDeclaration = url === 'undefined';
   const searchParams = new URLSearchParams(
@@ -96,15 +97,15 @@ const useLatestDeclarationFileIfNeeded = () => {
       : {}
   );
 
-  const { data } = useSwr(
+  const { data } = useSwr<GetServiceFilesResponse>(
     shouldFetchOriginalDeclaration ? `/api/services/files?${searchParams}` : null
   );
 
   React.useEffect(() => {
-    if (!data) {
+    if (!data || !data.declaration) {
       return;
     }
-    const declaration = {
+    const declaration: OTAJson = {
       ...data.declaration,
       documents: {
         [documentType]: data.declaration.documents[documentType],

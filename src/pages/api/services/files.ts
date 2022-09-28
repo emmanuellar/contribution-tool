@@ -1,12 +1,12 @@
-import { GetServiceVerifyResponse } from 'modules/Common/interfaces';
+import { GetServiceFilesResponse } from 'modules/Common/interfaces';
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
 import ServiceManager from 'modules/Contribute/managers/ServiceManager';
 const get =
-  ({ name, documentType, destination }) =>
-  async (_: NextApiRequest, res: NextApiResponse<GetServiceVerifyResponse>) => {
+  ({ name, documentType, destination }: any) =>
+  async (_: NextApiRequest, res: NextApiResponse<GetServiceFilesResponse>) => {
     try {
       const serviceManager = new ServiceManager({
         destination,
