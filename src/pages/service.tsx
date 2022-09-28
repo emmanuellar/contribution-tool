@@ -275,14 +275,14 @@ Thank you very much`;
                       onChange={(event) =>
                         onDocumentDeclarationUpdate('documentType')(event.target.value)
                       }
-                      defaultValue={documentType}
+                      value={documentType}
                     >
                       <option value="">{t('service:form.select')}</option>
                       {Object.keys(documentTypes)
                         .sort()
-                        .map((documentType) => (
-                          <option key={documentType} value={documentType}>
-                            {documentType}
+                        .map((documentTypeOption) => (
+                          <option key={documentTypeOption} value={documentTypeOption}>
+                            {documentTypeOption}
                           </option>
                         ))}
                     </select>
