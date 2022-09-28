@@ -77,7 +77,7 @@ const useDocumentDeclaration = () => {
   const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
   const declaration = createDeclarationFromQueryParams(queryParams);
 
-  const [document] = Object.entries(declaration.documents) || [[]];
+  const [document] = Object.entries(declaration.documents || {}) || [[]];
   const [documentType, page] = document || [];
 
   const updateString = (field: PageStringField) => (value: string) => {
