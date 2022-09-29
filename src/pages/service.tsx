@@ -117,6 +117,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
   const documentTypeCommitment = documentTypes[documentType]?.commitment || {};
+  const versionsRepository = `https://github.com/${destination?.replace(
+    '-declarations',
+    '-versions'
+  )}`;
+  const snapshotsRepository = `https://github.com/${destination?.replace(
+    '-declarations',
+    '-snapshots'
+  )}`;
 
   const onSelectInIframe = React.useCallback(
     (field: SelectableField) =>
@@ -252,75 +260,132 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
-          {loadedFromSource && <div>Loaded from source</div>}
+          {loadedFromSource && <div key="loaded-from-source">Loaded from source</div>}
           <div className={s.formWrapper}>
             <form>
-              <div>
-                <div className={classNames('formfield')}>
-                  <label>{t('service:form.url')}</label>
-                  <div className={classNames('select')}>
-                    <SelectorButton
-                      key={'fetch'}
-                      value={url}
-                      onInputChange={onPageDeclarationUpdate('update')('fetch')}
-                      withSwitch={false}
-                    />
-                  </div>
-                </div>
-                <div className={classNames('formfield')}>
-                  <label>{t('service:form.documentType')}</label>
-                  <div className={classNames('select')}>
-                    <select
-                      onChange={(event) =>
-                        onDocumentDeclarationUpdate('documentType')(event.target.value)
-                      }
-                      value={documentType}
-                    >
-                      <option value="">{t('service:form.select')}</option>
-                      {Object.keys(documentTypes)
-                        .sort()
-                        .map((documentTypeOption) => (
-                          <option key={documentTypeOption} value={documentTypeOption}>
-                            {documentTypeOption}
-                          </option>
-                        ))}
-                    </select>
-                    <FiChevronDown color="333333"></FiChevronDown>
-                    {documentType && (
-                      <dl>
-                        {Object.entries(documentTypeCommitment).map(
-                          ([tryptichKey, tryptichValue]) => (
-                            <>
-                              <dt>{tryptichKey}</dt>
-                              <dd>{tryptichValue}</dd>
-                            </>
-                          )
-                        )}
-                      </dl>
-                    )}
-                  </div>
-                </div>
-                <div className={classNames('formfield')}>
-                  <label>{t('service:form.serviceName')}</label>
+              <div className={classNames('formfield')}>
+                <label>{t('service:form.url')}</label>
+                <div className={classNames('select')}>
                   <SelectorButton
-                    key={'name'}
-                    value={declaration.name}
-                    onInputChange={onDocumentDeclarationUpdate('name')}
+                    key={'fetch'}
+                    value={url}
+                    onInputChange={onPageDeclarationUpdate('update')('fetch')}
                     withSwitch={false}
                   />
-                  {expertMode && (
-                    <small className={s.expertButtons}>
-                      <a
-                        target="_blank"
-                        href={`https://github.com/${destination?.replace(
-                          '-declarations',
-                          '-versions'
-                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
-                          documentType
-                        )}.md`}
+                </div>
+              </div>
+              <div className={classNames('formfield')}>
+                <label>{t('service:form.documentType')}</label>
+                <div className={classNames('select')}>
+                  <select
+                    onChange={(event) =>
+                      onDocumentDeclarationUpdate('documentType')(event.target.value)
+                    }
+                    value={documentType}
+                  >
+                    <option key="documentType_none" value="">
+                      {t('service:form.select')}
+                    </option>
+                    {Object.keys(documentTypes)
+                      .sort()
+                      .map((documentTypeOption) => (
+                        <option
+                          key={`documentType_${documentTypeOption}`}
+                          value={documentTypeOption}
+                        >
+                          {documentTypeOption}
+                        </option>
+                      ))}
+                  </select>
+                  <FiChevronDown color="333333"></FiChevronDown>
+                  {documentType && (
+                    <dl>
+                      {Object.entries(documentTypeCommitment).map(
+                        ([tryptichKey, tryptichValue]) => (
+                          <React.Fragment key={`tryptich_${tryptichKey}`}>
+                            <dt>{tryptichKey}</dt>
+                            <dd>{tryptichValue}</dd>
+                          </React.Fragment>
+                        )
+                      )}
+                    </dl>
+                  )}
+                </div>
+              </div>
+              <div className={classNames('formfield')}>
+                <label>{t('service:form.serviceName')}</label>
+                <SelectorButton
+                  key={'name'}
+                  value={declaration.name}
+                  onInputChange={onDocumentDeclarationUpdate('name')}
+                  withSwitch={false}
+                />
+              </div>
+              {!isPDF && (
+                <>
+                  <div key="significantPart" className={classNames('formfield')}>
+                    <label>{t('service:form.significantPart')}</label>
+                    {selectCssSelectors.map((selected, i) => (
+                      <SelectorButton
+                        className={s.selectionItem}
+                        key={typeof selected === 'string' ? selected : JSON.stringify(selected)}
+                        value={selected}
+                        onInputChange={onChangeCssRule('select', i)}
+                        onRemove={onDeleteCssRule('select', i)}
+                      />
+                    ))}
+                    <Button
+                      onClick={selectInIframe('select')}
+                      disabled={!!iframeSelectionField || !iframeReady}
+                      type="secondary"
+                      size="sm"
+                    >
+                      {t('service:form.significantPart.cta')}
+                    </Button>
+                  </div>
+
+                  {(selectCssSelectors?.length > 0 || removeCssSelectors?.length > 0) && (
+                    <div key="insignificantPart" className={classNames('formfield')}>
+                      <label>{t('service:form.insignificantPart')}</label>
+
+                      {removeCssSelectors.map((removed, i) => (
+                        <SelectorButton
+                          className={s.selectionItem}
+                          key={typeof removed === 'string' ? removed : JSON.stringify(removed)}
+                          value={removed}
+                          onInputChange={onChangeCssRule('remove', i)}
+                          onRemove={onDeleteCssRule('remove', i)}
+                        />
+                      ))}
+                      <Button
+                        onClick={selectInIframe('remove')}
+                        disabled={!!iframeSelectionField || !iframeReady}
+                        type="secondary"
+                        size="sm"
                       >
-                        Latest version
-                      </a>
+                        {t('service:form.insignificantPart.cta')}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              <nav key="expertMode" className={classNames('formfield', s.toggleExpertMode)}>
+                <a onClick={() => onConfigInputChange('expertMode')(!expertMode)}>
+                  {t('service:expertMode')}
+                </a>
+
+                {expertMode ? (
+                  <FiChevronUp color="333333"></FiChevronUp>
+                ) : (
+                  <FiChevronDown color="333333"></FiChevronDown>
+                )}
+              </nav>
+              {expertMode && (
+                <>
+                  <div className={classNames('formfield')}>
+                    <label>{t('service:form.links-snapshots-versions')}</label>
+                    <small className={s.expertButtons}>
                       <a
                         target="_blank"
                         href={`https://github.com/${destination}/blob/main/declarations/${encodeURIComponent(
@@ -329,168 +394,105 @@ Thank you very much`;
                       >
                         Current JSON
                       </a>
+
                       <a
                         target="_blank"
-                        href={`https://github.com/${destination?.replace(
-                          '-declarations',
-                          '-snapshots'
-                        )}/blob/main/${encodeURIComponent(declaration.name)}/${encodeURIComponent(
-                          documentType
-                        )}.html`}
+                        href={`${versionsRepository}/blob/main/${encodeURIComponent(
+                          declaration.name
+                        )}/${encodeURIComponent(documentType)}.md`}
                       >
-                        Latest snapshot
+                        Latest version
                       </a>
                       <a
                         target="_blank"
-                        href={`https://github.com/${destination?.replace(
-                          '-declarations',
-                          '-versions'
-                        )}/commits/main/${encodeURIComponent(
+                        href={`${versionsRepository}/commits/main/${encodeURIComponent(
                           declaration.name
                         )}/${encodeURIComponent(documentType)}.md`}
                       >
                         All versions
                       </a>
+                      <a
+                        target="_blank"
+                        href={`${snapshotsRepository}/blob/main/${encodeURIComponent(
+                          declaration.name
+                        )}/${encodeURIComponent(documentType)}.html`}
+                      >
+                        Latest snapshot
+                      </a>
                     </small>
-                  )}
-                </div>
-                {!isPDF && (
-                  <>
+                  </div>
+                  <div className={classNames('formfield')}>
+                    <label>{t('service:form.executeClientScripts')}</label>
+                    <small className={s.moreinfo}>
+                      {t('service:form.executeClientScripts.more')}
+                    </small>
+                    <div className={classNames('select')}>
+                      <input
+                        type="checkbox"
+                        defaultChecked={!!page?.executeClientScripts}
+                        onChange={(event) =>
+                          onPageDeclarationUpdate('update')('executeClientScripts')(
+                            event.target.checked
+                          )
+                        }
+                        disabled={isPDF}
+                      />
+                    </div>
+                  </div>
+                  {!isPDF && (
                     <div className={classNames('formfield')}>
-                      <label>{t('service:form.significantPart')}</label>
-                      {selectCssSelectors.map((selected, i) => (
+                      <label>{t('service:form.hiddenPart')}</label>
+                      <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
+                      {hiddenCssSelectors.map((hidden, i) => (
                         <SelectorButton
                           className={s.selectionItem}
-                          key={typeof selected === 'string' ? selected : JSON.stringify(selected)}
-                          value={selected}
-                          onInputChange={onChangeCssRule('select', i)}
-                          onRemove={onDeleteCssRule('select', i)}
+                          key={hidden}
+                          value={hidden}
+                          onInputChange={onChangeCssRule('hidden', i)}
+                          onRemove={onDeleteCssRule('hidden', i)}
+                          withSwitch={false}
                         />
                       ))}
                       <Button
-                        onClick={selectInIframe('select')}
+                        onClick={selectInIframe('hidden')}
                         disabled={!!iframeSelectionField || !iframeReady}
                         type="secondary"
                         size="sm"
                       >
-                        {t('service:form.significantPart.cta')}
+                        {t('service:form.hiddenPart.cta')}
                       </Button>
                     </div>
-
-                    {(selectCssSelectors?.length > 0 || removeCssSelectors?.length > 0) && (
-                      <div className={classNames('formfield')}>
-                        <label>{t('service:form.insignificantPart')}</label>
-
-                        {removeCssSelectors.map((removed, i) => (
-                          <SelectorButton
-                            className={s.selectionItem}
-                            key={typeof removed === 'string' ? removed : JSON.stringify(removed)}
-                            value={removed}
-                            onInputChange={onChangeCssRule('remove', i)}
-                            onRemove={onDeleteCssRule('remove', i)}
-                          />
-                        ))}
-                        <Button
-                          onClick={selectInIframe('remove')}
-                          disabled={!!iframeSelectionField || !iframeReady}
-                          type="secondary"
-                          size="sm"
-                        >
-                          {t('service:form.insignificantPart.cta')}
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                <div className={classNames('formfield', s.toggleExpertMode)}>
-                  <a onClick={() => onConfigInputChange('expertMode')(!expertMode)}>
-                    {t('service:expertMode')}
-                  </a>
-
-                  {expertMode ? (
-                    <FiChevronUp color="333333"></FiChevronUp>
-                  ) : (
-                    <FiChevronDown color="333333"></FiChevronDown>
                   )}
-                </div>
-                {expertMode && (
-                  <>
-                    <div className={classNames('formfield')}>
-                      <label>{t('service:form.executeClientScripts')}</label>
-                      <small className={s.moreinfo}>
-                        {t('service:form.executeClientScripts.more')}
-                      </small>
-                      <div className={classNames('select')}>
-                        <input
-                          type="checkbox"
-                          defaultChecked={!!page?.executeClientScripts}
-                          onChange={(event) =>
-                            onPageDeclarationUpdate('update')('executeClientScripts')(
-                              event.target.checked
-                            )
-                          }
-                          disabled={isPDF}
-                        />
-                      </div>
+                  <div className={classNames('formfield')}>
+                    <label>{t('service:form.acceptLanguage')}</label>
+                    <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>
+                    <div className={classNames('select')}>
+                      <SelectorButton
+                        key={'acceptLanguage'}
+                        value={acceptLanguage}
+                        onInputChange={onConfigInputChange('acceptLanguage')}
+                        withSwitch={false}
+                      />
                     </div>
-                    {!isPDF && (
-                      <div className={classNames('formfield')}>
-                        <label>{t('service:form.hiddenPart')}</label>
-                        <small className={s.moreinfo}>{t('service:form.hiddenPart.more')}</small>
-                        {hiddenCssSelectors.map((hidden, i) => (
-                          <SelectorButton
-                            className={s.selectionItem}
-                            key={hidden}
-                            value={hidden}
-                            onInputChange={onChangeCssRule('hidden', i)}
-                            onRemove={onDeleteCssRule('hidden', i)}
-                            withSwitch={false}
-                          />
-                        ))}
+                  </div>
+                  <div className={classNames('formfield', s.expert)}>
+                    <label>{t('service:form.label.json')}</label>
+                    <pre className={classNames(s.json)}>{JSON.stringify(declaration, null, 2)}</pre>
+                    <div className={classNames(s.expertButtons)}>
+                      {localPath && (
                         <Button
-                          onClick={selectInIframe('hidden')}
-                          disabled={!!iframeSelectionField || !iframeReady}
-                          type="secondary"
+                          onClick={saveOnLocal}
                           size="sm"
+                          type="secondary"
+                          title={`Save on ${localPath}`}
                         >
-                          {t('service:form.hiddenPart.cta')}
+                          {t('service:expertMode.button.label')}
                         </Button>
-                      </div>
-                    )}
-                    <div className={classNames('formfield')}>
-                      <label>{t('service:form.acceptLanguage')}</label>
-                      <small className={s.moreinfo}>{t('service:form.acceptLanguage.more')}</small>
-                      <div className={classNames('select')}>
-                        <SelectorButton
-                          key={'acceptLanguage'}
-                          value={acceptLanguage}
-                          onInputChange={onConfigInputChange('acceptLanguage')}
-                          withSwitch={false}
-                        />
-                      </div>
+                      )}
                     </div>
-                    <div className={classNames('formfield', s.expert)}>
-                      <label>{t('service:form.label.json')}</label>
-                      <pre className={classNames(s.json)}>
-                        {JSON.stringify(declaration, null, 2)}
-                      </pre>
-                      <div className={classNames(s.expertButtons)}>
-                        {localPath && (
-                          <Button
-                            onClick={saveOnLocal}
-                            size="sm"
-                            type="secondary"
-                            title={`Save on ${localPath}`}
-                          >
-                            {t('service:expertMode.button.label')}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </form>
           </div>
 

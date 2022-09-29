@@ -13,6 +13,7 @@
   "expertMode": "Options avancées",
   "expertMode.button.label": "Sauver en local",
   "form.documentType": "Type",
+  "form.links-snapshots-versions": "Existing versions and snapshots",
   "form.hiddenPart": "Élement(s) masqué(s)",
   "form.hiddenPart.cta": "Sélectionner",
   "form.hiddenPart.more": "Pour cacher les éléments qui vous gênent.",
