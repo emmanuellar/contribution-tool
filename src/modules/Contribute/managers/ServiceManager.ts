@@ -1,6 +1,6 @@
 import {
   createDocumentAddPullRequest,
-  updateDocumentInBranch,
+  updateDocumentsInBranch,
   createDocumentUpdatePullRequest,
   getLatestFailDate,
   getFileContent,
@@ -149,7 +149,7 @@ _This suggestion has been created through the [Contribution Tool](https://github
 You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
         // a branch already exists wit this name, add a commit to it
-        return await updateDocumentInBranch({
+        return await updateDocumentsInBranch({
           ...this.commonParams,
           branch: branchName,
           content: json,
@@ -209,6 +209,34 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         body,
       });
     } catch (e) {
+      const updateBody = `### [🔎 Inspect the updated declaration suggestion](${url})
+
+- - -
+
+A new suggestion has been made to update this declaration, voiding the previous ones.
+
+As a human reviewer, here are the things you should check:
+
+${checkBoxes.join('\n')}
+
+- - -
+
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
+You can load it [on your local instance](${localUrl}) if you have one set up._
+`;
+
+      // a branch already exists wit this name, add a commit to it
+      return await updateDocumentsInBranch({
+        ...this.commonParams,
+        documentType: this.type,
+        branch: branchName,
+        content: json,
+        filePath: this.declarationFilePath,
+        historyFilePath: this.historyFilePath,
+        historyMessage: 'Update history from contribution tool',
+        message: 'Update declaration from contribution tool',
+        body: updateBody,
+      });
       throw e;
     }
   }

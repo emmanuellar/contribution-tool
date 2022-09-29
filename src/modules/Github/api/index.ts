@@ -182,10 +182,14 @@ export const createDocumentAddPullRequest = async ({
   return data;
 };
 
-export const updateDocumentInBranch = async ({
+export const updateDocumentsInBranch = async ({
   filePath,
+  historyFilePath,
   branch,
+  documentType,
+  lastFailingDate,
   message,
+  historyMessage,
   body,
   content,
   ...params
@@ -195,10 +199,14 @@ export const updateDocumentInBranch = async ({
   content: any;
   owner: string;
   message: string;
+  historyMessage?: string;
+  historyFilePath?: string;
+  documentType?: string;
+  lastFailingDate?: string;
   body: string;
   repo: string;
 }) => {
-  await createOrUpdateJsonFile({
+  const declaration = await createOrUpdateJsonFile({
     ...params,
     filePath,
     fromBranch: branch,
@@ -215,6 +223,27 @@ export const updateDocumentInBranch = async ({
       return newContent;
     },
   });
+
+  if (historyFilePath && documentType && lastFailingDate && historyMessage) {
+    await createOrUpdateJsonFile({
+      ...params,
+      filePath: historyFilePath,
+      fromBranch: branch,
+      toBranch: branch,
+      content: declaration,
+      message: historyMessage,
+      merger: (existingContent, content) => ({
+        ...existingContent,
+        [documentType]: [
+          ...(existingContent[documentType] || []),
+          {
+            ...content.documents[documentType],
+            validUntil: lastFailingDate || new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+  }
 
   const { data: existingPrs } = await octokit.rest.pulls.list({
     ...params,
