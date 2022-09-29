@@ -260,7 +260,11 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
-          {loadedFromSource && <div key="loaded-from-source">Loaded from source</div>}
+          {loadedFromSource && (
+            <div key="loaded-from-source">
+              Declaration loaded from source, please refresh the page.
+            </div>
+          )}
           <div className={s.formWrapper}>
             <form>
               <div className={classNames('formfield')}>
