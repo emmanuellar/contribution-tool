@@ -156,29 +156,19 @@ export const createDocumentAddPullRequest = async ({
   newBranch: string;
   title: string;
   content: any;
-  owner: string;
   body: string;
+  owner: string;
   repo: string;
 }) => {
   await createBranch({ targetBranch, newBranch, ...params });
 
-  const { sha: existingSha, content: existingContentString } = await getFileContent({
+  await createOrUpdateJsonFile({
+    ...params,
     filePath,
-    branch: targetBranch,
-    ...params,
-  });
-
-  const existingContent = JSON.parse(existingContentString || '{}');
-
-  await octokit.rest.repos.createOrUpdateFileContents({
-    ...params,
-    branch: newBranch,
-    path: filePath,
+    fromBranch: targetBranch,
+    toBranch: newBranch,
+    content,
     message: title,
-    content: Buffer.from(`${JSON.stringify(merge(existingContent, content), null, 2)}\n`).toString(
-      'base64'
-    ),
-    ...(existingSha ? { sha: existingSha } : {}),
   });
 
   const { data } = await octokit.rest.pulls.create({
@@ -208,28 +198,22 @@ export const updateDocumentInBranch = async ({
   body: string;
   repo: string;
 }) => {
-  const { sha: existingSha, content: existingContentString } = await getFileContent({
+  await createOrUpdateJsonFile({
+    ...params,
     filePath,
-    branch,
-    ...params,
-  });
-
-  const existingContent = JSON.parse(existingContentString || '{}');
-
-  const newContent = merge(existingContent, content);
-  // merge everything except the current submitted document
-  newContent.documents = {
-    ...existingContent.documents,
-    ...content.documents,
-  };
-
-  await octokit.rest.repos.createOrUpdateFileContents({
-    ...params,
-    branch,
-    path: filePath,
+    fromBranch: branch,
+    toBranch: branch,
+    content,
     message,
-    content: Buffer.from(`${JSON.stringify(newContent, null, 2)}\n`).toString('base64'),
-    sha: existingSha,
+    merger: (existingContent, content) => {
+      const newContent = merge(existingContent, content);
+      // merge everything except the current submitted document
+      newContent.documents = {
+        ...existingContent.documents,
+        ...content.documents,
+      };
+      return newContent;
+    },
   });
 
   const { data: existingPrs } = await octokit.rest.pulls.list({
@@ -283,52 +267,41 @@ export const createDocumentUpdatePullRequest = async ({
     ...params,
   });
 
-  const file = await getFileContent({
+  await createOrUpdateJsonFile({
+    ...params,
     filePath,
-    branch: targetBranch,
-    ...params,
-  });
-  const declaration = JSON.parse(file.content || '{}');
-  const newDeclaration = merge(declaration, content);
-  // merge everything except the current submitted document
-  newDeclaration.documents = {
-    ...declaration.documents,
-    ...content.documents,
-  };
-
-  const historyFile = await getFileContent({
-    filePath: historyFilePath,
-    branch: targetBranch,
-    ...params,
-  });
-  const historyDeclaration = JSON.parse(historyFile.content || '{}');
-  const newHistoryDeclaration = {
-    ...historyDeclaration,
-    [documentType]: [
-      ...(historyDeclaration[documentType] || []),
-      {
-        ...declaration.documents[documentType],
-        validUntil: lastFailingDate || new Date().toISOString(),
-      },
-    ],
-  };
-
-  await octokit.rest.repos.createOrUpdateFileContents({
-    ...params,
-    branch: newBranch,
-    path: filePath,
+    fromBranch: targetBranch,
+    toBranch: newBranch,
+    content,
     message,
-    content: Buffer.from(`${JSON.stringify(newDeclaration, null, 2)}\n`).toString('base64'),
-    sha: file.sha,
+    merger: (existingContent, content) => {
+      const newContent = merge(existingContent, content);
+      // merge everything except the current submitted document
+      newContent.documents = {
+        ...existingContent.documents,
+        ...content.documents,
+      };
+      return newContent;
+    },
   });
 
-  await octokit.rest.repos.createOrUpdateFileContents({
+  await createOrUpdateJsonFile({
     ...params,
-    branch: newBranch,
-    path: historyFilePath,
-    message: historyMessage,
-    content: Buffer.from(`${JSON.stringify(newHistoryDeclaration, null, 2)}\n`).toString('base64'),
-    sha: historyFile.sha,
+    filePath: historyFilePath,
+    fromBranch: targetBranch,
+    toBranch: newBranch,
+    content,
+    message,
+    merger: (existingContent, content) => ({
+      ...existingContent,
+      [documentType]: [
+        ...(existingContent[documentType] || []),
+        {
+          ...content.documents[documentType],
+          validUntil: lastFailingDate || new Date().toISOString(),
+        },
+      ],
+    }),
   });
 
   const { data } = await octokit.rest.pulls.create({
