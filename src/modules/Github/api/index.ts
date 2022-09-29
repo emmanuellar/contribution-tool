@@ -103,6 +103,45 @@ const createBranch = async ({
   });
 };
 
+export const createOrUpdateJsonFile = async ({
+  filePath,
+  fromBranch,
+  toBranch,
+  message,
+  merger = merge,
+  content,
+  ...params
+}: {
+  filePath: string;
+  fromBranch: string;
+  toBranch: string;
+  message: string;
+  merger?: (existingContent: any, content: any) => any;
+  content: any;
+  owner: string;
+  repo: string;
+}) => {
+  const { sha: existingSha, content: existingContentString } = await getFileContent({
+    filePath,
+    branch: fromBranch,
+    ...params,
+  });
+
+  const existingContent = JSON.parse(existingContentString || '{}');
+  const newContent = merger(existingContent, content);
+
+  await octokit.rest.repos.createOrUpdateFileContents({
+    ...params,
+    branch: toBranch,
+    path: filePath,
+    message,
+    content: Buffer.from(`${JSON.stringify(newContent, null, 2)}\n`).toString('base64'),
+    ...(existingSha ? { sha: existingSha } : {}),
+  });
+
+  return newContent;
+};
+
 export const createDocumentAddPullRequest = async ({
   filePath,
   targetBranch,
