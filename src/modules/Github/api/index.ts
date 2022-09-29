@@ -127,8 +127,8 @@ export const createOrUpdateJsonFile = async ({
     ...params,
   });
 
-  const existingContent = JSON.parse(existingContentString || '{}');
-  const newContent = merger(existingContent, content);
+  const prevContent = JSON.parse(existingContentString || '{}');
+  const newContent = merger({ ...prevContent }, content);
 
   await octokit.rest.repos.createOrUpdateFileContents({
     ...params,
@@ -139,7 +139,7 @@ export const createOrUpdateJsonFile = async ({
     ...(existingSha ? { sha: existingSha } : {}),
   });
 
-  return newContent;
+  return { prevContent, newContent };
 };
 
 export const createDocumentAddPullRequest = async ({
@@ -206,7 +206,7 @@ export const updateDocumentsInBranch = async ({
   body: string;
   repo: string;
 }) => {
-  const declaration = await createOrUpdateJsonFile({
+  const { prevContent } = await createOrUpdateJsonFile({
     ...params,
     filePath,
     fromBranch: branch,
@@ -230,14 +230,14 @@ export const updateDocumentsInBranch = async ({
       filePath: historyFilePath,
       fromBranch: branch,
       toBranch: branch,
-      content: declaration,
+      content: prevContent.documents[documentType],
       message: historyMessage,
-      merger: (existingContent, content) => ({
+      merger: (existingContent, contentToInsert) => ({
         ...existingContent,
         [documentType]: [
           ...(existingContent[documentType] || []),
           {
-            ...content.documents[documentType],
+            ...contentToInsert,
             validUntil: lastFailingDate || new Date().toISOString(),
           },
         ],
@@ -296,7 +296,7 @@ export const createDocumentUpdatePullRequest = async ({
     ...params,
   });
 
-  await createOrUpdateJsonFile({
+  const { prevContent } = await createOrUpdateJsonFile({
     ...params,
     filePath,
     fromBranch: targetBranch,
@@ -319,14 +319,14 @@ export const createDocumentUpdatePullRequest = async ({
     filePath: historyFilePath,
     fromBranch: targetBranch,
     toBranch: newBranch,
-    content,
+    content: prevContent.documents[documentType],
     message,
-    merger: (existingContent, content) => ({
+    merger: (existingContent, contentToInsert) => ({
       ...existingContent,
       [documentType]: [
         ...(existingContent[documentType] || []),
         {
-          ...content.documents[documentType],
+          ...contentToInsert,
           validUntil: lastFailingDate || new Date().toISOString(),
         },
       ],
