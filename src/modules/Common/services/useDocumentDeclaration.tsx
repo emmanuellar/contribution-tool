@@ -2,7 +2,6 @@ import type { OTAJson, OTAPageDeclaration } from 'modules/Common/services/open-t
 import useUrl from 'hooks/useUrl';
 import React from 'react';
 import useSwr from 'swr';
-import { useToggle } from 'react-use';
 import { GetServiceFilesResponse } from 'modules/Common/interfaces';
 
 type PageArrayField = 'select' | 'remove';
@@ -125,7 +124,6 @@ const useDeclarationFromQueryParams = () => {
 
 const useDocumentDeclaration = () => {
   const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
-  const [loadedFromSource, toggleLoadedFromSource] = useToggle(false);
 
   const { loading, latestDeclaration, declaration } = useDeclarationFromQueryParams();
 
@@ -133,15 +131,15 @@ const useDocumentDeclaration = () => {
   const [documentType, page] = document || [];
 
   const updateString = (field: PageStringField) => (value: string) => {
-    declaration.documents[documentType][field] = value.trim();
+    (declaration as OTAJson).documents[documentType][field] = value.trim();
     pushQueryParam('json')(JSON.stringify(declaration));
   };
 
   const updateBoolean = (field: PageBooleanField) => (value?: boolean) => {
     if (value) {
-      declaration.documents[documentType][field] = value;
+      (declaration as OTAJson).documents[documentType][field] = value;
     } else {
-      delete declaration.documents[documentType][field];
+      delete (declaration as OTAJson).documents[documentType][field];
     }
     pushQueryParam('json')(JSON.stringify(declaration));
   };
@@ -175,7 +173,7 @@ const useDocumentDeclaration = () => {
       }
 
       pageField = (pageField || []).filter(Boolean);
-      declaration.documents[documentType][field] = pageField;
+      (declaration as OTAJson).documents[documentType][field] = pageField;
 
       pushQueryParam('json')(JSON.stringify(declaration));
     };
@@ -186,9 +184,9 @@ const useDocumentDeclaration = () => {
         return;
       }
       if (field === 'documentType') {
-        declaration.documents = { [value]: page };
+        (declaration as OTAJson).documents = { [value]: page };
       } else {
-        declaration[field] = value;
+        (declaration as OTAJson)[field] = value;
       }
       pushQueryParam('json')(JSON.stringify(declaration));
     };
@@ -207,10 +205,10 @@ const useDocumentDeclaration = () => {
 
       // Reset page declaration when url is a PDF
       if (field === 'fetch' && typeof value === 'string' && value?.endsWith('.pdf')) {
-        delete declaration.documents[documentType].select;
-        delete declaration.documents[documentType].remove;
-        delete declaration.documents[documentType].filter;
-        delete declaration.documents[documentType].executeClientScripts;
+        delete (declaration as OTAJson).documents[documentType].select;
+        delete (declaration as OTAJson).documents[documentType].remove;
+        delete (declaration as OTAJson).documents[documentType].filter;
+        delete (declaration as OTAJson).documents[documentType].executeClientScripts;
         pushQueryParam('json')(JSON.stringify(declaration));
       }
     };
@@ -232,7 +230,6 @@ const useDocumentDeclaration = () => {
 
   React.useEffect(() => {
     if (latestDeclaration) {
-      toggleLoadedFromSource(true);
       pushQueryParams({
         ...queryParams,
         json: JSON.stringify(latestDeclaration),
@@ -248,7 +245,6 @@ const useDocumentDeclaration = () => {
 
   return {
     loading,
-    loadedFromSource,
     declaration,
     page,
     documentType,
