@@ -81,7 +81,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  * `url=undefined` query param
  * In this case this function will fetch the full data from GitHub
  */
-const useLatestDeclarationFileIfNeeded = () => {
+const useDeclarationFromQueryParams = () => {
   const { queryParams } = useUrl();
   const { destination, url, name, documentType, json, commit } = queryParams;
   const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
@@ -94,7 +94,7 @@ const useLatestDeclarationFileIfNeeded = () => {
           destination,
           name,
           documentType,
-          commitURL: commit,
+          ...(commit ? { commitURL: commit } : {}),
         }
       : {}
   );
@@ -111,9 +111,15 @@ const useLatestDeclarationFileIfNeeded = () => {
     setLatestDeclaration(data.declaration);
   }, [data]);
 
+  const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
+  const declaration = !shouldFetchOriginalDeclaration
+    ? createDeclarationFromQueryParams(queryParams)
+    : latestDeclaration;
+
   return {
-    loading: !data && shouldFetchOriginalDeclaration && !json,
+    loading,
     latestDeclaration,
+    declaration,
   };
 };
 
@@ -121,11 +127,9 @@ const useDocumentDeclaration = () => {
   const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
   const [loadedFromSource, toggleLoadedFromSource] = useToggle(false);
 
-  const { loading, latestDeclaration } = useLatestDeclarationFileIfNeeded();
+  const { loading, latestDeclaration, declaration } = useDeclarationFromQueryParams();
 
-  const declaration = createDeclarationFromQueryParams(queryParams);
-
-  const [document] = Object.entries(declaration.documents || {}) || [[]];
+  const [document] = Object.entries(declaration?.documents || {}) || [[]];
   const [documentType, page] = document || [];
 
   const updateString = (field: PageStringField) => (value: string) => {

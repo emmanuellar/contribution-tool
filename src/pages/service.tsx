@@ -241,6 +241,9 @@ Thank you very much`;
   if (loadingDocumentDeclaration) {
     return 'Loading declaration from source...';
   }
+  if (!declaration) {
+    return 'Loading declaration...';
+  }
 
   return (
     <div className={s.wrapper}>
@@ -260,11 +263,6 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
-          {loadedFromSource && (
-            <div key="loaded-from-source">
-              Declaration loaded from source, please refresh the page.
-            </div>
-          )}
           <div className={s.formWrapper}>
             <form>
               <div className={classNames('formfield')}>
