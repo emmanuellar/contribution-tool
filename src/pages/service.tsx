@@ -58,7 +58,6 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   // Declaration
   const {
     loading: loadingDocumentDeclaration,
-    loadedFromSource,
     page,
     declaration,
     documentType,
@@ -168,7 +167,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
       } = await api.post<PostContributeServiceResponse>('/api/services', {
         destination,
         json: declaration,
-        name: declaration.name,
+        name: declaration?.name,
         documentType: documentType,
         url: `${window.location.href}&expertMode=true`,
       });
@@ -177,7 +176,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
         const subject = 'Here is a new service to track in Open Terms Archive';
         const body = `Hi,
 
-  I need you to track "${documentType}" of "${declaration.name}" for me.
+  I need you to track "${documentType}" of "${declaration?.name}" for me.
 
   Here is the url ${window.location.href}&expertMode=true
 
@@ -214,7 +213,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     const subject = 'I tried to add this service but it did not work';
     const body = `Hi,
 
-I need you to track "${documentType}" of "${declaration.name}" for me but I had a failure with.
+I need you to track "${documentType}" of "${declaration?.name}" for me but I had a failure with.
 
 -----
 ${error}
@@ -241,6 +240,9 @@ Thank you very much`;
   if (loadingDocumentDeclaration) {
     return 'Loading declaration from source...';
   }
+  if (!declaration) {
+    return 'Loading declaration...';
+  }
 
   return (
     <div className={s.wrapper}>
@@ -260,11 +262,6 @@ Thank you very much`;
               {t('service:back')}
             </LinkIcon>
           </nav>
-          {loadedFromSource && (
-            <div key="loaded-from-source">
-              Declaration loaded from source, please refresh the page.
-            </div>
-          )}
           <div className={s.formWrapper}>
             <form>
               <div className={classNames('formfield')}>

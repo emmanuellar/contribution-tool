@@ -4,6 +4,7 @@ import {
   createDocumentUpdatePullRequest,
   getLatestFailDate,
   getFileContent,
+  getDataFromCommit,
 } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
@@ -40,15 +41,24 @@ export default class ServiceManager {
       .replace(/(&|\\|\/|:)/gi, '-'); // remove characters that might be problematic on the file system
   };
 
-  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+  static getOrganizationAndRepository = (destination: string) => {
     if (!destination) {
       throw new Error('Destination is mandatory');
     }
     const [githubOrganization, githubRepository] = (destination || '')?.split('/');
 
     if (!authorizedOrganizations.includes(githubOrganization)) {
-      throw new Error('Destination should be OpenTermsArchive/something or ambanum/something');
+      throw new Error(
+        `Destination should be OpenTermsArchive/something or ambanum/something. Was ${destination}`
+      );
     }
+
+    return { githubOrganization, githubRepository };
+  };
+
+  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+    const { githubOrganization, githubRepository } =
+      ServiceManager.getOrganizationAndRepository(destination);
 
     this.githubOrganization = githubOrganization;
     this.githubRepository = githubRepository;
@@ -237,7 +247,6 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         message: 'Update declaration from contribution tool',
         body: updateBody,
       });
-      throw e;
     }
   }
 
@@ -248,8 +257,37 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       branch: 'main',
     });
 
+    const fullDeclaration = JSON.parse(existingContentString) as OTAJson;
+
     return {
-      declaration: JSON.parse(existingContentString) as OTAJson,
+      declaration: {
+        ...fullDeclaration,
+        documents: {
+          [this.type]: fullDeclaration.documents[this.type],
+        },
+      },
     };
+  };
+
+  static getDataFromCommit = async (commitURL: string) => {
+    const { pathname } = new URL(commitURL);
+
+    const [destination, commitId] = pathname.replace(/^\//g, '').split('/commit/');
+    const { githubOrganization, githubRepository } =
+      ServiceManager.getOrganizationAndRepository(destination);
+    const { commit, files } = await getDataFromCommit({
+      commitId,
+      owner: githubOrganization,
+      repo: githubRepository,
+    });
+
+    if (!files || files.length === 0) {
+      throw new Error(`Commit ${commitURL} could not be retrieved`);
+    }
+
+    const filename = files[0].filename.replace(/\.md$/, '');
+    const [service, documentType] = filename.split('/');
+
+    return { service, documentType, message: commit?.message, date: commit?.committer?.date };
   };
 }

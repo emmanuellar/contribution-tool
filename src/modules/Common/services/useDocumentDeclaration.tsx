@@ -2,7 +2,6 @@ import type { OTAJson, OTAPageDeclaration } from 'modules/Common/services/open-t
 import useUrl from 'hooks/useUrl';
 import React from 'react';
 import useSwr from 'swr';
-import { useToggle } from 'react-use';
 import { GetServiceFilesResponse } from 'modules/Common/interfaces';
 
 type PageArrayField = 'select' | 'remove';
@@ -81,18 +80,20 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  * `url=undefined` query param
  * In this case this function will fetch the full data from GitHub
  */
-const useLatestDeclarationFileIfNeeded = () => {
+const useDeclarationFromQueryParams = () => {
   const { queryParams } = useUrl();
-  const { destination, url, name, documentType, json } = queryParams;
+  const { destination, url, name, documentType, json, commit } = queryParams;
   const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
 
-  const shouldFetchOriginalDeclaration = url === 'undefined';
+  const shouldFetchOriginalDeclaration = url === 'undefined' || commit;
+
   const searchParams = new URLSearchParams(
     shouldFetchOriginalDeclaration
       ? {
           destination,
           name,
           documentType,
+          ...(commit ? { commitURL: commit } : {}),
         }
       : {}
   );
@@ -105,43 +106,40 @@ const useLatestDeclarationFileIfNeeded = () => {
     if (!data || !data.declaration) {
       return;
     }
-    const declaration: OTAJson = {
-      ...data.declaration,
-      documents: {
-        [documentType]: data.declaration.documents[documentType],
-      },
-    };
 
-    setLatestDeclaration(declaration);
+    setLatestDeclaration(data.declaration);
   }, [data]);
 
+  const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
+  const declaration = !shouldFetchOriginalDeclaration
+    ? createDeclarationFromQueryParams(queryParams)
+    : latestDeclaration;
+
   return {
-    loading: !data && shouldFetchOriginalDeclaration && !json,
+    loading,
     latestDeclaration,
+    declaration,
   };
 };
 
 const useDocumentDeclaration = () => {
   const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
-  const [loadedFromSource, toggleLoadedFromSource] = useToggle(false);
 
-  const { loading, latestDeclaration } = useLatestDeclarationFileIfNeeded();
+  const { loading, latestDeclaration, declaration } = useDeclarationFromQueryParams();
 
-  const declaration = createDeclarationFromQueryParams(queryParams);
-
-  const [document] = Object.entries(declaration.documents || {}) || [[]];
+  const [document] = Object.entries(declaration?.documents || {}) || [[]];
   const [documentType, page] = document || [];
 
   const updateString = (field: PageStringField) => (value: string) => {
-    declaration.documents[documentType][field] = value.trim();
+    (declaration as OTAJson).documents[documentType][field] = value.trim();
     pushQueryParam('json')(JSON.stringify(declaration));
   };
 
   const updateBoolean = (field: PageBooleanField) => (value?: boolean) => {
     if (value) {
-      declaration.documents[documentType][field] = value;
+      (declaration as OTAJson).documents[documentType][field] = value;
     } else {
-      delete declaration.documents[documentType][field];
+      delete (declaration as OTAJson).documents[documentType][field];
     }
     pushQueryParam('json')(JSON.stringify(declaration));
   };
@@ -175,7 +173,7 @@ const useDocumentDeclaration = () => {
       }
 
       pageField = (pageField || []).filter(Boolean);
-      declaration.documents[documentType][field] = pageField;
+      (declaration as OTAJson).documents[documentType][field] = pageField;
 
       pushQueryParam('json')(JSON.stringify(declaration));
     };
@@ -186,9 +184,9 @@ const useDocumentDeclaration = () => {
         return;
       }
       if (field === 'documentType') {
-        declaration.documents = { [value]: page };
+        (declaration as OTAJson).documents = { [value]: page };
       } else {
-        declaration[field] = value;
+        (declaration as OTAJson)[field] = value;
       }
       pushQueryParam('json')(JSON.stringify(declaration));
     };
@@ -207,10 +205,10 @@ const useDocumentDeclaration = () => {
 
       // Reset page declaration when url is a PDF
       if (field === 'fetch' && typeof value === 'string' && value?.endsWith('.pdf')) {
-        delete declaration.documents[documentType].select;
-        delete declaration.documents[documentType].remove;
-        delete declaration.documents[documentType].filter;
-        delete declaration.documents[documentType].executeClientScripts;
+        delete (declaration as OTAJson).documents[documentType].select;
+        delete (declaration as OTAJson).documents[documentType].remove;
+        delete (declaration as OTAJson).documents[documentType].filter;
+        delete (declaration as OTAJson).documents[documentType].executeClientScripts;
         pushQueryParam('json')(JSON.stringify(declaration));
       }
     };
@@ -225,13 +223,13 @@ const useDocumentDeclaration = () => {
         url: undefined,
         name: undefined,
         documentType: undefined,
+        commit: undefined,
       });
     }
   }, [queryParams.json, latestDeclaration, loading]);
 
   React.useEffect(() => {
     if (latestDeclaration) {
-      toggleLoadedFromSource(true);
       pushQueryParams({
         ...queryParams,
         json: JSON.stringify(latestDeclaration),
@@ -240,13 +238,13 @@ const useDocumentDeclaration = () => {
         url: undefined,
         name: undefined,
         documentType: undefined,
+        commit: undefined,
       });
     }
   }, [latestDeclaration]);
 
   return {
     loading,
-    loadedFromSource,
     declaration,
     page,
     documentType,

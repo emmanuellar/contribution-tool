@@ -5,14 +5,25 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import HttpStatusCode from 'http-status-codes';
 import ServiceManager from 'modules/Contribute/managers/ServiceManager';
 const get =
-  ({ name, documentType, destination }: any) =>
+  ({ name, documentType, destination, commitURL }: any) =>
   async (_: NextApiRequest, res: NextApiResponse<GetServiceFilesResponse>) => {
     try {
-      const serviceManager = new ServiceManager({
-        destination,
-        name,
-        type: documentType,
-      });
+      let serviceManager;
+
+      if (commitURL) {
+        const commit = await ServiceManager.getDataFromCommit(commitURL);
+        serviceManager = new ServiceManager({
+          destination,
+          name: commit.service,
+          type: commit.documentType,
+        });
+      } else {
+        serviceManager = new ServiceManager({
+          destination,
+          name,
+          type: documentType,
+        });
+      }
 
       const files = await serviceManager.getDeclarationFiles();
 
@@ -42,6 +53,7 @@ const files = async (req: NextApiRequest, res: NextApiResponse) => {
       destination: query?.destination,
       name: query?.name,
       documentType: query?.documentType,
+      commitURL: query?.commitURL,
     })(req, res);
   }
 
