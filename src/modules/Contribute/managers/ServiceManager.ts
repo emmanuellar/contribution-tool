@@ -246,7 +246,6 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         message: 'Update declaration from contribution tool',
         body: updateBody,
       });
-      throw e;
     }
   }
 
