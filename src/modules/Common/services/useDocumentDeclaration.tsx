@@ -105,14 +105,8 @@ const useLatestDeclarationFileIfNeeded = () => {
     if (!data || !data.declaration) {
       return;
     }
-    const declaration: OTAJson = {
-      ...data.declaration,
-      documents: {
-        [documentType]: data.declaration.documents[documentType],
-      },
-    };
 
-    setLatestDeclaration(declaration);
+    setLatestDeclaration(data.declaration);
   }, [data]);
 
   return {
