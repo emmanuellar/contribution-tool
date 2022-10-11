@@ -438,3 +438,24 @@ export const getIssueComments = async ({ issue_number, ...searchParams }: any) =
     throw e;
   }
 };
+
+export const getDataFromCommit = async ({
+  commitId,
+  ...params
+}: {
+  commitId: string;
+  owner: string;
+  repo: string;
+}) => {
+  try {
+    const { data } = await octokit.rest.repos.getCommit({
+      ...params,
+      ref: commitId,
+    });
+    return data;
+  } catch (e: any) {
+    console.error(`Could not get data from commit ${commitId}`);
+    console.error(e.toString());
+    throw e;
+  }
+};
