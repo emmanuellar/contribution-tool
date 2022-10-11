@@ -40,15 +40,24 @@ export default class ServiceManager {
       .replace(/(&|\\|\/|:)/gi, '-'); // remove characters that might be problematic on the file system
   };
 
-  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+  static getOrganizationAndRepository = (destination: string) => {
     if (!destination) {
       throw new Error('Destination is mandatory');
     }
     const [githubOrganization, githubRepository] = (destination || '')?.split('/');
 
     if (!authorizedOrganizations.includes(githubOrganization)) {
-      throw new Error('Destination should be OpenTermsArchive/something or ambanum/something');
+      throw new Error(
+        `Destination should be OpenTermsArchive/something or ambanum/something. Was ${destination}`
+      );
     }
+
+    return { githubOrganization, githubRepository };
+  };
+
+  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+    const { githubOrganization, githubRepository } =
+      ServiceManager.getOrganizationAndRepository(destination);
 
     this.githubOrganization = githubOrganization;
     this.githubRepository = githubRepository;
