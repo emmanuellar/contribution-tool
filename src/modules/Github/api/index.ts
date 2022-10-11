@@ -459,3 +459,19 @@ export const getDataFromCommit = async ({
     throw e;
   }
 };
+
+export const getReposFromOrg = async ({ org }: { org: string }) => {
+  try {
+    const repos = await octokit.paginate(
+      octokit.rest.repos.listForOrg,
+      { org },
+      (response) => response.data
+    );
+
+    return repos;
+  } catch (e: any) {
+    console.error(getReposFromOrg);
+    console.error(e.toString());
+    throw e;
+  }
+};
