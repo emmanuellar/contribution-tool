@@ -4,6 +4,7 @@ import {
   createDocumentUpdatePullRequest,
   getLatestFailDate,
   getFileContent,
+  getDataFromCommit,
 } from 'modules/Github/api';
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
@@ -266,5 +267,27 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         },
       },
     };
+  };
+
+  static getDataFromCommit = async (commitURL: string) => {
+    const { pathname } = new URL(commitURL);
+
+    const [destination, commitId] = pathname.replace(/^\//g, '').split('/commit/');
+    const { githubOrganization, githubRepository } =
+      ServiceManager.getOrganizationAndRepository(destination);
+    const { commit, files } = await getDataFromCommit({
+      commitId,
+      owner: githubOrganization,
+      repo: githubRepository,
+    });
+
+    if (!files || files.length === 0) {
+      throw new Error(`Commit ${commitURL} could not be retrieved`);
+    }
+
+    const filename = files[0].filename.replace(/\.md$/, '');
+    const [service, documentType] = filename.split('/');
+
+    return { service, documentType, message: commit?.message, date: commit?.committer?.date };
   };
 }

@@ -83,16 +83,18 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  */
 const useLatestDeclarationFileIfNeeded = () => {
   const { queryParams } = useUrl();
-  const { destination, url, name, documentType, json } = queryParams;
+  const { destination, url, name, documentType, json, commit } = queryParams;
   const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
 
-  const shouldFetchOriginalDeclaration = url === 'undefined';
+  const shouldFetchOriginalDeclaration = url === 'undefined' || commit;
+
   const searchParams = new URLSearchParams(
     shouldFetchOriginalDeclaration
       ? {
           destination,
           name,
           documentType,
+          commitURL: commit,
         }
       : {}
   );
@@ -219,6 +221,7 @@ const useDocumentDeclaration = () => {
         url: undefined,
         name: undefined,
         documentType: undefined,
+        commit: undefined,
       });
     }
   }, [queryParams.json, latestDeclaration, loading]);
@@ -234,6 +237,7 @@ const useDocumentDeclaration = () => {
         url: undefined,
         name: undefined,
         documentType: undefined,
+        commit: undefined,
       });
     }
   }, [latestDeclaration]);
