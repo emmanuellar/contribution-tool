@@ -3,7 +3,7 @@ import { GetServiceFilesResponse } from 'modules/Common/interfaces';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import ServiceManager from 'modules/Contribute/managers/ServiceManager';
+import ServiceManager from 'modules/Common/managers/ServiceManager';
 const get =
   ({ name, documentType, destination, commitURL }: any) =>
   async (_: NextApiRequest, res: NextApiResponse<GetServiceFilesResponse>) => {

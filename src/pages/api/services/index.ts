@@ -1,12 +1,12 @@
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
-} from 'modules/Contribute/interfaces';
+} from 'modules/Common/interfaces';
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import HttpStatusCode from 'http-status-codes';
-import ServiceManager from 'modules/Contribute/managers/ServiceManager';
+import ServiceManager from 'modules/Common/managers/ServiceManager';
 import dayjs from 'dayjs';
 import { downloadUrl } from 'modules/Scraper/utils/downloader';
 import fs from 'fs';

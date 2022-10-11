@@ -2,7 +2,7 @@ import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import {
   GetContributeServiceResponse,
   PostContributeServiceResponse,
-} from '../modules/Contribute/interfaces';
+} from 'modules/Common/interfaces';
 import { useEvent, useLocalStorage } from 'react-use';
 import { MdClose as IconClose } from 'react-icons/md';
 
