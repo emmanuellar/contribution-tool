@@ -10,7 +10,7 @@ import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 import { OTAJson } from 'modules/Common/services/open-terms-archive';
 
-const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
+export const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
 
 const selectorsCheckboxes = [
   '- [ ] **Selectors are:**',
