@@ -8,6 +8,7 @@ export interface SearchProps {
   className?: string;
   placeholder?: string;
   buttonLabel: string;
+  disabled?: boolean;
   onSearchSubmit: (searchString: string) => any;
 }
 
@@ -19,6 +20,7 @@ const Search = ({
   placeholder,
   buttonLabel,
   onSearchSubmit,
+  disabled,
   ...props
 }: SearchProps & React.HTMLAttributes<HTMLDivElement>) => {
   const [search, setSearch] = React.useState('');
@@ -42,10 +44,13 @@ const Search = ({
           name="search-input-input"
           onChange={handleChange}
           id="url"
+          disabled={disabled}
         />
       </div>
       <div className={classNames('formfield', 'formfield__alignRight')}>
-        <Button onClick={handleSubmit}>{buttonLabel}</Button>
+        <Button onClick={handleSubmit} disabled={disabled}>
+          {buttonLabel}
+        </Button>
       </div>
     </div>
   );
