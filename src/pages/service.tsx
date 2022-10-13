@@ -517,8 +517,8 @@ Thank you very much`;
               <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
                 {t('service:verify')}
               </Button>
-              <Button disabled={submitDisabled} onClick={onValidate}>
-                {loading ? '...' : t('service:submit')}
+              <Button disabled={submitDisabled || loading} onClick={onValidate}>
+                {t('service:submit')}
               </Button>
             </nav>
           </div>
