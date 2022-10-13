@@ -273,6 +273,10 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       branch: 'main',
     });
 
+    if (!existingContentString) {
+      return { declaration: null };
+    }
+
     const fullDeclaration = JSON.parse(existingContentString) as OTAJson;
 
     return {
