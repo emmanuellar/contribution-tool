@@ -2,6 +2,7 @@ a {
   color: var(--colorPrimary);
   text-decoration: none;
   transition: all 0.3s easeOutExpo;
+  cursor: pointer;
 
   &:hover {
     color: var(--colorSecondary);

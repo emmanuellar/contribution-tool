@@ -25,7 +25,7 @@ export interface MdxPageProps {
 export type WithMdxResult = GetStaticPropsContext & MdxPageProps;
 
 export const loadMdxFile = async (options: WithMdxOptions, locale?: string) => {
-  options.folder = path.join(process.cwd(), CONTENT_FOLDER, options.folder);
+  const folder = path.join(process.cwd(), CONTENT_FOLDER, options.folder);
 
   // This is here to force copying those files on vercel
   // extrapolation of `options.folder` does not seem to be working
@@ -35,30 +35,30 @@ export const loadMdxFile = async (options: WithMdxOptions, locale?: string) => {
 
   try {
     fileContent = fs
-      .readFileSync(`${options.folder}/${locale}/${options?.filename}.${options?.load}`)
+      .readFileSync(`${folder}/${locale}/${options?.filename}.${options?.load}`)
       .toString();
   } catch (e) {
     try {
       fileContent = fs
-        .readFileSync(`${options.folder}/${'en'}/${options?.filename}.${options?.load}`)
+        .readFileSync(`${folder}/${'en'}/${options?.filename}.${options?.load}`)
         .toString();
     } catch (e) {
       if (options?.filename.includes('home')) {
-        console.error(
-          `Could not find ${options.folder}/${'en'}/${options?.filename}.${options?.load}`
-        );
+        console.error(`Could not find ${folder}/${'en'}/${options?.filename}.${options?.load}`);
       }
       fileContent = '';
     }
   }
 
+  if (!fileContent) {
+    return {};
+  }
+
   return {
-    mdxContent: fileContent
-      ? await serialize(fileContent, {
-          // Indicates whether or not to parse the frontmatter from the mdx source
-          parseFrontmatter: true,
-        })
-      : undefined,
+    mdxContent: await serialize(fileContent, {
+      // Indicates whether or not to parse the frontmatter from the mdx source
+      parseFrontmatter: true,
+    }),
   };
 };
 
