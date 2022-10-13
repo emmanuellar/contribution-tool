@@ -242,7 +242,7 @@ export const updateDocumentsInBranch = async ({
           ...(existingContent[documentType] || []),
           {
             ...contentToInsert,
-            validUntil: lastFailingDate || new Date().toISOString(),
+            validUntil: lastFailingDate || 'to-be-determined',
           },
         ],
       }),
@@ -300,7 +300,7 @@ export const createDocumentUpdatePullRequest = async ({
   owner: string;
   message: string;
   historyMessage: string;
-  lastFailingDate: string;
+  lastFailingDate?: string;
   body: string;
   repo: string;
 }) => {
@@ -341,7 +341,7 @@ export const createDocumentUpdatePullRequest = async ({
         ...(existingContent[documentType] || []),
         {
           ...contentToInsert,
-          validUntil: lastFailingDate || new Date().toISOString(),
+          validUntil: lastFailingDate || 'to-be-determined',
         },
       ],
     }),
