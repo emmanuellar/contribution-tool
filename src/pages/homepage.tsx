@@ -11,11 +11,13 @@ import { useEvent } from 'react-use';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
+import { getInstances } from 'pages/api/instances';
 
-const HomePage = ({ mdxContent }: WithMdxResult) => {
+const HomePage = ({ mdxContent, instances }: WithMdxResult & { instances: string[] }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { localPath, destination } = router.query;
+
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
 
   useEvent('touchstart', () => {
@@ -30,6 +32,14 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
     }
   };
 
+  const resetInstance = () => {
+    router.push(`/`);
+  };
+
+  const onPickInstance = (event: any) => {
+    router.push(`/?destination=${event.target.value}`);
+  };
+
   const onUseCommit = (event: any) => {
     router.push(`/service?commit=${event.target.value}`);
   };
@@ -39,7 +49,16 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
       {/* Hero */}
       <Container layout="wide" paddingY={false} dark={true}>
         <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Hero title={t('homepage:title')}>{destination && <>{destination}</>}</Hero>
+          <Hero title={t('homepage:title')}>
+            {destination && (
+              <>
+                {destination}
+                <a className="ml__XS a__small" onClick={resetInstance}>
+                  change
+                </a>
+              </>
+            )}
+          </Hero>
         </Container>
       </Container>
 
@@ -63,6 +82,14 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
               onSearchSubmit={onSubmit}
               disabled={!destination}
             />
+            <div className={classNames('formfield')}>
+              <label htmlFor="instances">Choose an instance</label>
+              <select id="instances" onSelect={onPickInstance}>
+                {instances.map((instance) => (
+                  <option key={instance}>{instance}</option>
+                ))}
+              </select>
+            </div>
           </TextContent>
         </Container>
 
@@ -84,6 +111,11 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
   );
 };
 
-export const getStaticProps = withMdx({ load: 'mdx', filename: 'homepage', folder: 'static' })();
+export const getStaticProps = withMdx({ load: 'mdx', filename: 'homepage', folder: 'static' })(
+  async (props) => {
+    const instances = await getInstances();
+    return { props: { ...props, instances }, revalidate: 60 * 24 };
+  }
+);
 
 export default HomePage;
