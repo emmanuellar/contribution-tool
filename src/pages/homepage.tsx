@@ -35,7 +35,13 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
       {/* Hero */}
       <Container layout="wide" paddingY={false} dark={true}>
         <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Hero title={t('homepage:title')}></Hero>
+          <Hero title={t('homepage:title')}>
+            {destination && (
+              <>
+                {destination}
+              </>
+            )}
+          </Hero>
         </Container>
       </Container>
 
