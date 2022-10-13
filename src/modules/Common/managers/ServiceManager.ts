@@ -260,12 +260,14 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     const fullDeclaration = JSON.parse(existingContentString) as OTAJson;
 
     return {
-      declaration: {
-        ...fullDeclaration,
-        documents: {
-          [this.type]: fullDeclaration.documents[this.type],
-        },
-      },
+      declaration: fullDeclaration.documents[this.type]
+        ? {
+            ...fullDeclaration,
+            documents: {
+              [this.type]: fullDeclaration.documents[this.type],
+            },
+          }
+        : null,
     };
   };
 
