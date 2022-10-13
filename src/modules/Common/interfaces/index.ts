@@ -16,3 +16,13 @@ export interface GetServiceFilesResponse extends CommonResponse {
   error?: string;
   declaration?: OTAJson;
 }
+
+export interface GetContributeServiceResponse extends CommonResponse {
+  url: string;
+  error?: string;
+  isPDF?: boolean;
+}
+export interface PostContributeServiceResponse extends CommonResponse {
+  url?: string;
+  error?: string;
+}
