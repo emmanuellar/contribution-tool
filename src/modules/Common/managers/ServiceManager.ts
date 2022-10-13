@@ -79,13 +79,19 @@ export default class ServiceManager {
     const { origin } = new URL(url);
     const localUrl = url.replace(origin, 'http://localhost:3000');
     let lastFailingDate;
+
+    const { declaration } = await this.getDeclarationFiles();
+
+    if (!declaration) {
+      return this.addService({ json, url, localUrl });
+    }
+
     try {
       lastFailingDate = await getLatestFailDate({
         ...this.commonParams,
         serviceName: this.name,
         documentType: this.type,
       });
-
       return this.updateService({
         json,
         url,
@@ -93,8 +99,11 @@ export default class ServiceManager {
         lastFailingDate,
       });
     } catch (e: any) {
-      console.log('Try adding service');
-      return this.addService({ json, url, localUrl });
+      return this.updateService({
+        json,
+        url,
+        localUrl,
+      });
     }
   }
 
