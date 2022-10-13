@@ -35,41 +35,32 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
       {/* Hero */}
       <Container layout="wide" paddingY={false} dark={true}>
         <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-          <Hero title={t('homepage:title')}>
-            {destination && (
-              <>
-                {destination}
-              </>
-            )}
-          </Hero>
+          <Hero title={t('homepage:title')}>{destination && <>{destination}</>}</Hero>
         </Container>
       </Container>
 
       <Container paddingY={false}>
-        {!destination && (
-          <Container gridCols="12" gridGutters="11" flex={true} alignX="center" paddingX={false}>
-            <Column width={75} className="text__center">
+        <Container gridCols="10" gridGutters="9">
+          {mdxContent && <MDXRemote {...(mdxContent as any)} />}
+        </Container>
+        <Container gridCols="10" gridGutters="9" paddingTop={false}>
+          <TextContent>
+            <h2>Add a document</h2>
+            {!destination && (
               <TextContent className="text__error">
                 <IconAlert /> {t('homepage:no-destination')}
               </TextContent>
-            </Column>
-          </Container>
-        )}
-        {destination && (
-          <Container gridCols="12" gridGutters="11" flex={true} paddingX={false}>
-            <Column width={100}>
-              <TextContent>
-                <MDXRemote {...(mdxContent as any)} />
-              </TextContent>
-              <Search
-                label={t('homepage:search.label')}
-                buttonLabel={t('homepage:search.button')}
-                placeholder="https://www.amazon.com/gp/help/customer/display.html?nodeId=13819201"
-                onSearchSubmit={onSubmit}
-              />
-            </Column>
-          </Container>
-        )}
+            )}
+
+            <Search
+              label={t('homepage:search.label')}
+              buttonLabel={t('homepage:search.button')}
+              placeholder="https://www.amazon.com/gp/help/customer/display.html?nodeId=13819201"
+              onSearchSubmit={onSubmit}
+              disabled={!destination}
+            />
+          </TextContent>
+        </Container>
       </Container>
     </Layout>
   );
