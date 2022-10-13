@@ -1,7 +1,6 @@
 import Search, { SearchProps } from 'components/Search/Search';
 import withMdx, { WithMdxResult } from 'modules/I18n/hoc/withMdx';
 
-import Column from 'modules/Common/components/Column';
 import Container from 'modules/Common/containers/Container';
 import Hero from 'modules/Common/components/Hero';
 import { FiAlertTriangle as IconAlert } from 'react-icons/fi';
@@ -9,6 +8,7 @@ import Layout from 'modules/Common/containers/Layout';
 import { MDXRemote } from 'next-mdx-remote';
 import TextContent from 'modules/Common/components/TextContent';
 import { useEvent } from 'react-use';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 
@@ -28,6 +28,10 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const onUseCommit = (event: any) => {
+    router.push(`/service?commit=${event.target.value}`);
   };
 
   return (
@@ -59,6 +63,23 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
               onSearchSubmit={onSubmit}
               disabled={!destination}
             />
+          </TextContent>
+        </Container>
+
+        <Container gridCols="10" gridGutters="9" paddingTop={false}>
+          <TextContent>
+            <h2>Edit a document declaration</h2>
+            <div className={classNames('formfield')}>
+              <label htmlFor="github-commit">By filling a link to a GitHub commit</label>
+              <input
+                id="github-commit"
+                placeholder="https://github.com/OpenTermsArchive/contrib-versions/commit/76b17c1038ba610c010c7fb271ae04196de1e19a"
+                onInput={onUseCommit}
+              />
+            </div>
+            <div className={classNames('formfield', 'formfield__alignRight')}>
+              <Button onClick={onUseCommit}>Edit</Button>
+            </div>
           </TextContent>
         </Container>
       </Container>
