@@ -186,6 +186,8 @@ export const updateDocumentsInBranch = async ({
   filePath,
   historyFilePath,
   branch,
+  title,
+  targetBranch,
   documentType,
   lastFailingDate,
   message,
@@ -196,6 +198,8 @@ export const updateDocumentsInBranch = async ({
 }: {
   filePath: string;
   branch: string;
+  targetBranch: string;
+  title: string;
   content: any;
   owner: string;
   message: string;
@@ -253,13 +257,23 @@ export const updateDocumentsInBranch = async ({
 
   const existingPr = existingPrs[0];
 
-  await octokit.rest.issues.createComment({
-    ...params,
-    body,
-    issue_number: existingPr.number,
-  });
-
-  return existingPrs[0];
+  if (existingPr) {
+    await octokit.rest.issues.createComment({
+      ...params,
+      body,
+      issue_number: existingPr.number,
+    });
+    return existingPrs[0];
+  } else {
+    const { data } = await octokit.rest.pulls.create({
+      ...params,
+      base: targetBranch,
+      head: branch,
+      title,
+      body,
+    });
+    return data;
+  }
 };
 
 export const createDocumentUpdatePullRequest = async ({

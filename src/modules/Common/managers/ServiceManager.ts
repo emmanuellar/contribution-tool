@@ -171,9 +171,11 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         return await updateDocumentsInBranch({
           ...this.commonParams,
           branch: branchName,
+          targetBranch: 'main',
           content: json,
           filePath: this.declarationFilePath,
           message: 'Update declaration from contribution tool',
+          title: prTitle,
           body: updateBody,
         });
       }
@@ -248,12 +250,14 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       return await updateDocumentsInBranch({
         ...this.commonParams,
         documentType: this.type,
+        targetBranch: 'main',
         branch: branchName,
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
         historyMessage: 'Update history from contribution tool',
         message: 'Update declaration from contribution tool',
+        title: prTitle,
         body: updateBody,
       });
     }
