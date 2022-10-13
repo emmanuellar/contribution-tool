@@ -424,7 +424,10 @@ export const getLatestFailDate = async ({ serviceName, documentType, ...commonPa
     );
 
     const mostRecentFailingComment = failingComments[failingComments.length - 1];
-    return mostRecentFailingComment.createdAt;
+    return {
+      issueNumber: issue.number,
+      lastFailingDate: mostRecentFailingComment.createdAt,
+    };
   } catch (e: any) {
     console.error('Could not search issue');
     console.error(e.toString());

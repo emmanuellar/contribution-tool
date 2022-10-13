@@ -78,7 +78,6 @@ export default class ServiceManager {
   public async addOrUpdateService({ json, url }: { json: any; url: string }) {
     const { origin } = new URL(url);
     const localUrl = url.replace(origin, 'http://localhost:3000');
-    let lastFailingDate;
 
     const { declaration } = await this.getDeclarationFiles();
 
@@ -87,7 +86,7 @@ export default class ServiceManager {
     }
 
     try {
-      lastFailingDate = await getLatestFailDate({
+      const { lastFailingDate, issueNumber } = await getLatestFailDate({
         ...this.commonParams,
         serviceName: this.name,
         documentType: this.type,
@@ -97,6 +96,7 @@ export default class ServiceManager {
         url,
         localUrl,
         lastFailingDate,
+        issueNumber,
       });
     } catch (e: any) {
       return this.updateService({
@@ -188,10 +188,12 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     url,
     localUrl,
     lastFailingDate,
+    issueNumber,
   }: {
     json: any;
     url: string;
-    lastFailingDate: string;
+    lastFailingDate?: string;
+    issueNumber?: string;
     localUrl: string;
   }) {
     const prTitle = `Update ${this.name} ${this.type}`;
@@ -209,6 +211,7 @@ ${checkBoxes.join('\n')}
 
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
 
+${issueNumber ? `Fixes #${issueNumber}` : ''}
 - - -
 
 _This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
