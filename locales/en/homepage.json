@@ -4,5 +4,8 @@
   "search.label": "Fill the document URL to track",
   "seo.desc": "Thanks for helping",
   "seo.title": "Add a document to Open Terms Archive",
-  "title": "Add a document"
+  "title": "Contribution tool",
+  "add.title": "Add a document",
+  "edit.title": "Edit a document declaration",
+  "edit.subtitle": "By filling a link to a GitHub commit"
 }

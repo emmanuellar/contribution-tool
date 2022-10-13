@@ -49,7 +49,7 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
         </Container>
         <Container gridCols="10" gridGutters="9" paddingTop={false}>
           <TextContent>
-            <h2>Add a document</h2>
+            <h2>{t('homepage:add.title')}</h2>
             {!destination && (
               <TextContent className="text__error">
                 <IconAlert /> {t('homepage:no-destination')}
@@ -68,17 +68,14 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
 
         <Container gridCols="10" gridGutters="9" paddingTop={false}>
           <TextContent>
-            <h2>Edit a document declaration</h2>
+            <h2>{t('homepage:edit.title')}</h2>
             <div className={classNames('formfield')}>
-              <label htmlFor="github-commit">By filling a link to a GitHub commit</label>
+              <label htmlFor="github-commit">{t('homepage:edit.subtitle')}</label>
               <input
                 id="github-commit"
                 placeholder="https://github.com/OpenTermsArchive/contrib-versions/commit/76b17c1038ba610c010c7fb271ae04196de1e19a"
                 onInput={onUseCommit}
               />
-            </div>
-            <div className={classNames('formfield', 'formfield__alignRight')}>
-              <Button onClick={onUseCommit}>Edit</Button>
             </div>
           </TextContent>
         </Container>
