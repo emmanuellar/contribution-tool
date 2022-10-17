@@ -94,7 +94,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   }
 
   const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
-    `/api/services?${apiUrlParams}`,
+    declaration ? `/api/services?${apiUrlParams}` : null,
     {
       revalidateOnMount: true,
       revalidateIfStale: false,
@@ -517,8 +517,8 @@ Thank you very much`;
               <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
                 {t('service:verify')}
               </Button>
-              <Button disabled={submitDisabled} onClick={onValidate}>
-                {loading ? '...' : t('service:submit')}
+              <Button disabled={submitDisabled || loading} onClick={onValidate}>
+                {t('service:submit')}
               </Button>
             </nav>
           </div>

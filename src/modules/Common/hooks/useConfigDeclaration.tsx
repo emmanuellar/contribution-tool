@@ -2,12 +2,12 @@ import useUrl from 'hooks/useUrl';
 
 const useConfigDeclaration = () => {
   const {
-    queryParams: { destination, localPath, acceptLanguage, hiddenCss, expertMode },
+    queryParams: { destination, localPath, acceptLanguage, hiddenCss, expertMode, url },
     pushQueryParam,
     removeQueryParam,
   } = useUrl();
 
-  if (!destination && typeof window !== 'undefined') {
+  if (!destination && url && typeof window !== 'undefined') {
     // This is here as previously created issues still point at a url that has no `destination` param
     pushQueryParam('destination')('OpenTermsArchive/contrib-declarations');
   }

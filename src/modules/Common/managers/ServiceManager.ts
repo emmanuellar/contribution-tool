@@ -78,23 +78,32 @@ export default class ServiceManager {
   public async addOrUpdateService({ json, url }: { json: any; url: string }) {
     const { origin } = new URL(url);
     const localUrl = url.replace(origin, 'http://localhost:3000');
-    let lastFailingDate;
+
+    const { declaration } = await this.getDeclarationFiles();
+
+    if (!declaration) {
+      return this.addService({ json, url, localUrl });
+    }
+
     try {
-      lastFailingDate = await getLatestFailDate({
+      const { lastFailingDate, issueNumber } = await getLatestFailDate({
         ...this.commonParams,
         serviceName: this.name,
         documentType: this.type,
       });
-
       return this.updateService({
         json,
         url,
         localUrl,
         lastFailingDate,
+        issueNumber,
       });
     } catch (e: any) {
-      console.log('Try adding service');
-      return this.addService({ json, url, localUrl });
+      return this.updateService({
+        json,
+        url,
+        localUrl,
+      });
     }
   }
 
@@ -162,9 +171,11 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         return await updateDocumentsInBranch({
           ...this.commonParams,
           branch: branchName,
+          targetBranch: 'main',
           content: json,
           filePath: this.declarationFilePath,
           message: 'Update declaration from contribution tool',
+          title: prTitle,
           body: updateBody,
         });
       }
@@ -177,10 +188,12 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     url,
     localUrl,
     lastFailingDate,
+    issueNumber,
   }: {
     json: any;
     url: string;
-    lastFailingDate: string;
+    lastFailingDate?: string;
+    issueNumber?: number;
     localUrl: string;
   }) {
     const prTitle = `Update ${this.name} ${this.type}`;
@@ -198,6 +211,7 @@ ${checkBoxes.join('\n')}
 
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
 
+${issueNumber ? `Fixes #${issueNumber}` : ''}
 - - -
 
 _This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
@@ -239,12 +253,14 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       return await updateDocumentsInBranch({
         ...this.commonParams,
         documentType: this.type,
+        targetBranch: 'main',
         branch: branchName,
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
         historyMessage: 'Update history from contribution tool',
         message: 'Update declaration from contribution tool',
+        title: prTitle,
         body: updateBody,
       });
     }
@@ -257,24 +273,31 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       branch: 'main',
     });
 
+    if (!existingContentString) {
+      return { declaration: null };
+    }
+
     const fullDeclaration = JSON.parse(existingContentString) as OTAJson;
 
     return {
-      declaration: {
-        ...fullDeclaration,
-        documents: {
-          [this.type]: fullDeclaration.documents[this.type],
-        },
-      },
+      declaration: fullDeclaration.documents[this.type]
+        ? {
+            ...fullDeclaration,
+            documents: {
+              [this.type]: fullDeclaration.documents[this.type],
+            },
+          }
+        : null,
     };
   };
 
   static getDataFromCommit = async (commitURL: string) => {
     const { pathname } = new URL(commitURL);
 
-    const [destination, commitId] = pathname.replace(/^\//g, '').split('/commit/');
+    let [repo, commitId] = pathname.replace(/^\//g, '').split('/commit/');
     const { githubOrganization, githubRepository } =
-      ServiceManager.getOrganizationAndRepository(destination);
+      ServiceManager.getOrganizationAndRepository(repo);
+
     const { commit, files } = await getDataFromCommit({
       commitId,
       owner: githubOrganization,
@@ -288,6 +311,12 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     const filename = files[0].filename.replace(/\.md$/, '');
     const [service, documentType] = filename.split('/');
 
-    return { service, documentType, message: commit?.message, date: commit?.committer?.date };
+    return {
+      service,
+      documentType,
+      message: commit?.message,
+      date: commit?.committer?.date,
+      destination: repo.replace('-versions', '-declarations'),
+    };
   };
 }

@@ -15,6 +15,7 @@ export interface GetServiceVerifyResponse extends CommonResponse {
 export interface GetServiceFilesResponse extends CommonResponse {
   error?: string;
   declaration?: OTAJson;
+  destination?: string;
 }
 
 export interface GetContributeServiceResponse extends CommonResponse {

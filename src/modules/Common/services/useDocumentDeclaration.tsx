@@ -81,7 +81,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  * In this case this function will fetch the full data from GitHub
  */
 const useDeclarationFromQueryParams = () => {
-  const { queryParams } = useUrl();
+  const { queryParams, pushQueryParam } = useUrl();
   const { destination, url, name, documentType, json, commit } = queryParams;
   const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
 
@@ -108,6 +108,7 @@ const useDeclarationFromQueryParams = () => {
     }
 
     setLatestDeclaration(data.declaration);
+    if (data.destination) pushQueryParam('destination')(data.destination);
   }, [data]);
 
   const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
