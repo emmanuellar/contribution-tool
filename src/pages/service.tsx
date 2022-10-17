@@ -76,8 +76,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   } = useConfigDeclaration();
 
   const { fetch: url, executeClientScripts } = page || {};
-  const selectCssSelectors = typeof page?.select === 'string' ? [page?.select] : page?.select || [];
-  const removeCssSelectors = typeof page?.remove === 'string' ? [page?.remove] : page?.remove || [];
+  const selectCssSelectors =
+    page?.select && !Array.isArray(page?.select) ? [page?.select] : page?.select || [];
+  const removeCssSelectors =
+    page?.remove && !Array.isArray(page?.remove) ? [page?.remove] : page?.remove || [];
 
   // URL
   const commonUrlParams = `destination=${destination}${localPath ? `&localPath=${localPath}` : ''}`;
