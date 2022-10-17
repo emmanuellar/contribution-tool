@@ -228,8 +228,8 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         filePath: this.declarationFilePath,
         lastFailingDate,
         historyFilePath: this.historyFilePath,
-        historyMessage: 'Update history from contribution tool',
-        message: 'Update declaration from contribution tool',
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
         body,
       });
     } catch (e) {
@@ -258,8 +258,8 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
-        historyMessage: 'Update history from contribution tool',
-        message: 'Update declaration from contribution tool',
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
         title: prTitle,
         body: updateBody,
       });
