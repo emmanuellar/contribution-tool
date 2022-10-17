@@ -193,7 +193,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     json: any;
     url: string;
     lastFailingDate?: string;
-    issueNumber?: string;
+    issueNumber?: number;
     localUrl: string;
   }) {
     const prTitle = `Update ${this.name} ${this.type}`;
@@ -294,9 +294,10 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
   static getDataFromCommit = async (commitURL: string) => {
     const { pathname } = new URL(commitURL);
 
-    const [destination, commitId] = pathname.replace(/^\//g, '').split('/commit/');
+    let [repo, commitId] = pathname.replace(/^\//g, '').split('/commit/');
     const { githubOrganization, githubRepository } =
-      ServiceManager.getOrganizationAndRepository(destination);
+      ServiceManager.getOrganizationAndRepository(repo);
+
     const { commit, files } = await getDataFromCommit({
       commitId,
       owner: githubOrganization,
@@ -310,6 +311,12 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     const filename = files[0].filename.replace(/\.md$/, '');
     const [service, documentType] = filename.split('/');
 
-    return { service, documentType, message: commit?.message, date: commit?.committer?.date };
+    return {
+      service,
+      documentType,
+      message: commit?.message,
+      date: commit?.committer?.date,
+      destination: repo.replace('-versions', '-declarations'),
+    };
   };
 }

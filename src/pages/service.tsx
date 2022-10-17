@@ -94,7 +94,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   }
 
   const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
-    `/api/services?${apiUrlParams}`,
+    declaration ? `/api/services?${apiUrlParams}` : null,
     {
       revalidateOnMount: true,
       revalidateIfStale: false,

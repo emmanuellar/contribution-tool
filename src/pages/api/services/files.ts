@@ -5,13 +5,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import HttpStatusCode from 'http-status-codes';
 import ServiceManager from 'modules/Common/managers/ServiceManager';
 const get =
-  ({ name, documentType, destination, commitURL }: any) =>
+  ({ name, documentType, destination: queryDestination, commitURL }: any) =>
   async (_: NextApiRequest, res: NextApiResponse<GetServiceFilesResponse>) => {
     try {
       let serviceManager;
-
+      let destination = queryDestination;
       if (commitURL) {
         const commit = await ServiceManager.getDataFromCommit(commitURL);
+        destination = commit.destination;
         serviceManager = new ServiceManager({
           destination,
           name: commit.service,
@@ -30,7 +31,8 @@ const get =
       res.json({
         status: 'ok',
         message: 'OK',
-        ...files,
+        destination,
+        ...(files as any),
       });
       return res;
     } catch (e: any) {
