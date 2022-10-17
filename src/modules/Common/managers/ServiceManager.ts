@@ -199,7 +199,22 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     const prTitle = `Update ${this.name} ${this.type}`;
     const branchName = snakeCase(prTitle);
     const hasSelector = !!json?.documents[this.type]?.select;
-    const checkBoxes = [...(hasSelector ? selectorsCheckboxes : []), ...versionCheckboxes];
+
+    const validUntilCheckboxes = !lastFailingDate
+      ? [
+          '- [ ] **`validUntil` date is correctly input**:',
+          `  - Check the [latest versions](${this.getVersionsURL()})`,
+          '  - Find the **first occurence** of the problematic change',
+          '  - Find the **creation date** of this issue (inspect `x days ago` and copy `datetime`)',
+          `  - Edit the date in history file directly from GitHub or check out branch \`${branchName}\``,
+        ]
+      : [];
+
+    const checkBoxes = [
+      ...(hasSelector ? selectorsCheckboxes : []),
+      ...versionCheckboxes,
+      ...validUntilCheckboxes,
+    ];
 
     const body = `### [🔎 Inspect this declaration update suggestion](${url})
 
