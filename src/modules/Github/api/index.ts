@@ -334,7 +334,7 @@ export const createDocumentUpdatePullRequest = async ({
     fromBranch: targetBranch,
     toBranch: newBranch,
     content: prevContent.documents[documentType],
-    message,
+    message: historyMessage,
     merger: (existingContent, contentToInsert) => ({
       ...existingContent,
       [documentType]: [

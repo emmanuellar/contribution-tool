@@ -199,7 +199,22 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     const prTitle = `Update ${this.name} ${this.type}`;
     const branchName = snakeCase(prTitle);
     const hasSelector = !!json?.documents[this.type]?.select;
-    const checkBoxes = [...(hasSelector ? selectorsCheckboxes : []), ...versionCheckboxes];
+
+    const validUntilCheckboxes = !lastFailingDate
+      ? [
+          '- [ ] **`validUntil` date is correctly input**:',
+          `  - Check the [latest versions](${this.getVersionsURL()})`,
+          '  - Find the **first occurence** of the problematic change',
+          '  - Find the **creation date** of this issue (inspect `x days ago` and copy `datetime`)',
+          `  - Edit the date in history file directly from GitHub or check out branch \`${branchName}\``,
+        ]
+      : [];
+
+    const checkBoxes = [
+      ...(hasSelector ? selectorsCheckboxes : []),
+      ...versionCheckboxes,
+      ...validUntilCheckboxes,
+    ];
 
     const body = `### [🔎 Inspect this declaration update suggestion](${url})
 
@@ -228,8 +243,8 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         filePath: this.declarationFilePath,
         lastFailingDate,
         historyFilePath: this.historyFilePath,
-        historyMessage: 'Update history from contribution tool',
-        message: 'Update declaration from contribution tool',
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
         body,
       });
     } catch (e) {
@@ -258,12 +273,21 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
-        historyMessage: 'Update history from contribution tool',
-        message: 'Update declaration from contribution tool',
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
         title: prTitle,
         body: updateBody,
       });
     }
+  }
+
+  public getVersionsURL() {
+    return `https://github.com/${this.githubOrganization}/${this.githubRepository.replace(
+      '-declarations',
+      '-versions'
+    )}/commits/main/${encodeURIComponent(
+      ServiceManager.deriveIdFromName(this.name)
+    )}/${encodeURIComponent(this.type)}.md`;
   }
 
   getDeclarationFiles = async () => {
