@@ -266,6 +266,15 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     }
   }
 
+  public getVersionsURL() {
+    return `https://github.com/${this.githubOrganization}/${this.githubRepository.replace(
+      '-declarations',
+      '-versions'
+    )}/commits/main/${encodeURIComponent(
+      ServiceManager.deriveIdFromName(this.name)
+    )}/${encodeURIComponent(this.type)}.md`;
+  }
+
   getDeclarationFiles = async () => {
     const { content: existingContentString } = await getFileContent({
       ...this.commonParams,
