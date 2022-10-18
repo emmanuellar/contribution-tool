@@ -22,8 +22,8 @@ const formatJSONfields = (json: OTAJson) => {
       ? {
           [documentType]: {
             fetch: page?.fetch?.trim(),
-            ...(select ? { select } : {}),
-            ...(remove ? { remove } : {}),
+            ...(select && select.length > 0 ? { select } : {}),
+            ...(remove && remove.length > 0 ? { remove } : {}),
             ...(page?.filter && page?.filter.length ? { filter: page.filter } : {}),
             ...(page?.executeClientScripts
               ? { executeClientScripts: page.executeClientScripts }
@@ -113,6 +113,12 @@ const useDeclarationFromQueryParams = () => {
     setLatestDeclaration(data.declaration);
     if (data.destination) pushQueryParam('destination')(data.destination);
   }, [data]);
+
+  React.useEffect(() => {
+    if (data?.destination && !queryParams.destination) {
+      pushQueryParam('destination')(data.destination);
+    }
+  }, [data?.destination, queryParams.destination]);
 
   const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
   const declaration = !shouldFetchOriginalDeclaration
