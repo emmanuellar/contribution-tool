@@ -114,6 +114,12 @@ const useDeclarationFromQueryParams = () => {
     if (data.destination) pushQueryParam('destination')(data.destination);
   }, [data]);
 
+  React.useEffect(() => {
+    if (data?.destination && !queryParams.destination) {
+      pushQueryParam('destination')(data.destination);
+    }
+  }, [data?.destination, queryParams.destination]);
+
   const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
   const declaration = !shouldFetchOriginalDeclaration
     ? createDeclarationFromQueryParams(queryParams)
