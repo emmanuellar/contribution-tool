@@ -9,9 +9,12 @@ type PageBooleanField = 'executeClientScripts';
 type DocumentDeclarationStringField = 'name' | 'documentType';
 type PageStringField = 'fetch';
 
-const orderJSONFields = (json: OTAJson) => {
+const formatJSONfields = (json: OTAJson) => {
   const documentType = Object.keys(json.documents)[0];
   const page = json.documents[documentType];
+
+  const select = page?.select ? (Array.isArray(page.select) ? page.select : [page.select]) : null;
+  const remove = page?.remove ? (Array.isArray(page.remove) ? page.remove : [page.remove]) : null;
 
   return {
     name: json.name?.trim(),
@@ -19,8 +22,8 @@ const orderJSONFields = (json: OTAJson) => {
       ? {
           [documentType]: {
             fetch: page?.fetch?.trim(),
-            ...(page?.select && page?.select.length ? { select: page.select } : {}),
-            ...(page?.remove && page?.remove.length ? { remove: page.remove } : {}),
+            ...(select ? { select } : {}),
+            ...(remove ? { remove } : {}),
             ...(page?.filter && page?.filter.length ? { filter: page.filter } : {}),
             ...(page?.executeClientScripts
               ? { executeClientScripts: page.executeClientScripts }
@@ -72,7 +75,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
     };
   }
 
-  return orderJSONFields(declaration);
+  return formatJSONfields(declaration);
 };
 
 /**
