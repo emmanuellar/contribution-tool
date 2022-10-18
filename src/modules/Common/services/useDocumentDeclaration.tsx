@@ -251,7 +251,7 @@ const useDocumentDeclaration = () => {
         commit: undefined,
       });
     }
-  }, [latestDeclaration]);
+  }, [queryParams, latestDeclaration]);
 
   return {
     loading,
