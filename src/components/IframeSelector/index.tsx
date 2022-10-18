@@ -105,7 +105,7 @@ const generateBeforeAfterCSS = (
 
   return cssSelectors.length > 0
     ? `
-    ${selectors} { border: 2px solid ${color}; min-width: 150px; position:relative; }
+    ${selectors} { border: 2px solid ${color}; min-width: 150px; position:relative; display: inherit; }
     ${pseudoSelectors} { 
       content: "";
       position: absolute;
