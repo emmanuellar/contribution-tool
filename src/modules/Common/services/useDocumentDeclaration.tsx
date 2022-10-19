@@ -121,9 +121,12 @@ const useDeclarationFromQueryParams = () => {
   }, [data?.destination, queryParams.destination]);
 
   const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
+
   const declaration = !shouldFetchOriginalDeclaration
     ? createDeclarationFromQueryParams(queryParams)
-    : latestDeclaration;
+    : latestDeclaration
+    ? formatJSONfields(latestDeclaration)
+    : undefined;
 
   return {
     loading,
