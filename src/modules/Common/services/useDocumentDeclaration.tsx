@@ -239,7 +239,7 @@ const useDocumentDeclaration = () => {
         commit: undefined,
       });
     }
-  }, [queryParams.json, latestDeclaration, loading]);
+  }, [declaration, queryParams.json, latestDeclaration, loading]);
 
   React.useEffect(() => {
     if (latestDeclaration) {
