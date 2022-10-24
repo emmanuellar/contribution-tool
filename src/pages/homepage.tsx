@@ -31,7 +31,14 @@ const HomePage = ({ mdxContent }: WithMdxResult) => {
   };
 
   const onUseCommit = (event: any) => {
-    router.push(`/service?commit=${event.target.value}`);
+    const url = event.target.value;
+    if (url === '') {
+      return;
+    }
+    if (!url.startsWith('http')) {
+      return alert('This is not a valid URL');
+    }
+    router.push(`/service?commit=${url}`);
   };
 
   return (

@@ -84,9 +84,9 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  * In this case this function will fetch the full data from GitHub
  */
 const useDeclarationFromQueryParams = () => {
-  const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
+  const { queryParams, pushQueryParams } = useUrl();
   const { destination, url, name, documentType, json, commit } = queryParams;
-  const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
+  const [latestData, setLatestData] = React.useState<GetServiceFilesResponse>();
 
   const shouldFetchOriginalDeclaration = url === 'undefined' || commit;
 
@@ -110,20 +110,15 @@ const useDeclarationFromQueryParams = () => {
       return;
     }
 
-    setLatestDeclaration(data.declaration);
+    setLatestData(data);
   }, [data]);
 
   React.useEffect(() => {
-    if (data?.destination && !queryParams.destination) {
-      pushQueryParam('destination')(data.destination);
-    }
-  }, [data?.destination, queryParams.destination]);
-
-  React.useEffect(() => {
-    if (latestDeclaration) {
+    if (latestData) {
       pushQueryParams({
         ...queryParams,
-        json: JSON.stringify(latestDeclaration),
+        destination: latestData.destination,
+        json: JSON.stringify(latestData.declaration),
         selectedCss: undefined,
         removedCss: undefined,
         url: undefined,
@@ -131,21 +126,21 @@ const useDeclarationFromQueryParams = () => {
         documentType: undefined,
         commit: undefined,
       });
-      setLatestDeclaration(undefined);
+      setLatestData(undefined);
     }
-  }, [queryParams, latestDeclaration, setLatestDeclaration]);
+  }, [queryParams, latestData, setLatestData]);
 
-  const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
+  const loading = shouldFetchOriginalDeclaration && !data && !json && !latestData;
 
   const declaration = !shouldFetchOriginalDeclaration
     ? createDeclarationFromQueryParams(queryParams)
-    : latestDeclaration
-    ? formatJSONfields(latestDeclaration)
+    : latestData?.declaration
+    ? formatJSONfields(latestData?.declaration)
     : undefined;
 
   return {
     loading,
-    latestDeclaration,
+    latestDeclaration: latestData?.declaration,
     declaration,
   };
 };
