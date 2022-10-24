@@ -84,7 +84,7 @@ const createDeclarationFromQueryParams = (queryParams: any) => {
  * In this case this function will fetch the full data from GitHub
  */
 const useDeclarationFromQueryParams = () => {
-  const { queryParams, pushQueryParam } = useUrl();
+  const { queryParams, pushQueryParam, pushQueryParams } = useUrl();
   const { destination, url, name, documentType, json, commit } = queryParams;
   const [latestDeclaration, setLatestDeclaration] = React.useState<OTAJson>();
 
@@ -111,7 +111,6 @@ const useDeclarationFromQueryParams = () => {
     }
 
     setLatestDeclaration(data.declaration);
-    if (data.destination) pushQueryParam('destination')(data.destination);
   }, [data]);
 
   React.useEffect(() => {
@@ -119,6 +118,22 @@ const useDeclarationFromQueryParams = () => {
       pushQueryParam('destination')(data.destination);
     }
   }, [data?.destination, queryParams.destination]);
+
+  React.useEffect(() => {
+    if (latestDeclaration) {
+      pushQueryParams({
+        ...queryParams,
+        json: JSON.stringify(latestDeclaration),
+        selectedCss: undefined,
+        removedCss: undefined,
+        url: undefined,
+        name: undefined,
+        documentType: undefined,
+        commit: undefined,
+      });
+      setLatestDeclaration(undefined);
+    }
+  }, [queryParams, latestDeclaration, setLatestDeclaration]);
 
   const loading = shouldFetchOriginalDeclaration && !data && !json && !latestDeclaration;
 
@@ -240,21 +255,6 @@ const useDocumentDeclaration = () => {
       });
     }
   }, [declaration, queryParams.json, latestDeclaration, loading]);
-
-  React.useEffect(() => {
-    if (latestDeclaration) {
-      pushQueryParams({
-        ...queryParams,
-        json: JSON.stringify(latestDeclaration),
-        selectedCss: undefined,
-        removedCss: undefined,
-        url: undefined,
-        name: undefined,
-        documentType: undefined,
-        commit: undefined,
-      });
-    }
-  }, [queryParams, latestDeclaration]);
 
   return {
     loading,

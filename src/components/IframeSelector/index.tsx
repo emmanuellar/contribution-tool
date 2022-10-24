@@ -318,16 +318,14 @@ const IframeSelector = ({
   }, [iframeLoaded]);
 
   return (
-    <div>
-      <iframe
-        loading="lazy"
-        ref={iframeRef}
-        src={url}
-        width="100%"
-        style={{ height: '100vh', opacity: initDone ? 1 : 0.4 }}
-        onLoad={toggleIframeLoaded}
-      />
-    </div>
+    <iframe
+      loading="lazy"
+      ref={iframeRef}
+      src={url}
+      width="100%"
+      style={{ height: '100vh', opacity: initDone ? 1 : 0.4 }}
+      onLoad={toggleIframeLoaded}
+    />
   );
 };
 
