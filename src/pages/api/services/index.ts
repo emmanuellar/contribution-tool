@@ -41,7 +41,7 @@ const get =
         bypassCookies,
       });
 
-      const { url: newUrl, isPDF } = downloadResult;
+      const { url: newUrl, isPDF, snapshotUrl } = downloadResult;
 
       res.statusCode = HttpStatusCode.OK;
       res.json({
@@ -49,6 +49,7 @@ const get =
         message: 'OK',
         url: newUrl,
         isPDF,
+        snapshotUrl,
       });
       return res;
     } catch (e: any) {
