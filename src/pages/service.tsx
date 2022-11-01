@@ -161,7 +161,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     }
   };
 
-  const onVerify = async () => toggleServiceVerifyDisplayed(true);
+  const onVerifyVersion = async () => toggleServiceVerifyDisplayed(true);
 
   const onValidate = async () => {
     toggleLoading(true);
@@ -530,8 +530,8 @@ Thank you very much`;
             )}
 
             <nav className={s.formActions}>
-              <Button disabled={submitDisabled} type="secondary" onClick={onVerify}>
-                {t('service:verify')}
+              <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
+                {t('service:verify-version')}
               </Button>
               <Button disabled={submitDisabled || loading} onClick={onValidate}>
                 {t('service:submit')}
