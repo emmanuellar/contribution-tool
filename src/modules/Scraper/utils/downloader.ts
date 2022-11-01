@@ -171,7 +171,6 @@ export const downloadUrl = async (
   }
 
   fse.ensureFileSync(indexFilePath);
-  fse.writeFileSync(snapshotFilePath, snapshot.content);
   const browser: Browser = await launchBrowser();
 
   const page = await browser.newPage();
@@ -281,6 +280,7 @@ export const downloadUrl = async (
       html = snapshot.content.toString();
     }
 
+    fse.writeFileSync(snapshotFilePath, cleanHtml(snapshot.content, assets));
     fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
   } catch (e: any) {
     console.error(e.toString());
