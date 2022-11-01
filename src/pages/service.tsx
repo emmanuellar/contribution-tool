@@ -543,6 +543,13 @@ Thank you very much`;
         </>
       </Drawer>
       <div className={s.main}>
+        <div className={s.linkToSnapshot}>
+          {data?.snapshotUrl && (
+            <a href={data?.snapshotUrl} target="_blank">
+              {t('service:show-snapshot')}
+            </a>
+          )}
+        </div>
         {isLoadingIframe && (
           <div className={s.fullPage}>
             <h1>{t('service:loading.title')}</h1>

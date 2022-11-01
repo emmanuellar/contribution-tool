@@ -35,5 +35,6 @@
   "loading.title": "We're preparing the website",
   "send_email": "Send us an email",
   "verify-version": "Verify version",
+  "show-snapshot": "Show downloaded snapshot",
   "submit": "Send document"
 }
