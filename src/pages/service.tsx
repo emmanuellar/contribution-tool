@@ -72,6 +72,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     onConfigInputChange,
     onHiddenCssSelectorsUpdate,
     expertMode,
+    bypassCookies,
     acceptLanguage,
   } = useConfigDeclaration();
 
@@ -91,6 +92,9 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
 
   if (acceptLanguage) {
     apiUrlParams = `${apiUrlParams}&acceptLanguage=${encodeURIComponent(acceptLanguage)}`;
+  }
+  if (bypassCookies) {
+    apiUrlParams = `${apiUrlParams}&bypassCookies=true`;
   }
 
   const { data, error: apiError } = useSWR<GetContributeServiceResponse>(
@@ -436,6 +440,18 @@ Thank you very much`;
                             event.target.checked
                           )
                         }
+                        disabled={isPDF}
+                      />
+                    </div>
+                  </div>
+                  <div className={classNames('formfield')}>
+                    <label>{t('service:form.bypassCookies')}</label>
+                    <small className={s.moreinfo}>{t('service:form.bypassCookies.more')}</small>
+                    <div className={classNames('select')}>
+                      <input
+                        type="checkbox"
+                        defaultChecked={!!bypassCookies}
+                        onChange={() => onConfigInputChange('bypassCookies')(!bypassCookies)}
                         disabled={isPDF}
                       />
                     </div>

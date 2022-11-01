@@ -117,7 +117,13 @@ export const downloadUrl = async (
     folderDirPath,
     newUrlDirPath,
     acceptLanguage = 'en',
-  }: { folderDirPath: string; newUrlDirPath: string; acceptLanguage?: string }
+    bypassCookies = false,
+  }: {
+    folderDirPath: string;
+    newUrlDirPath: string;
+    acceptLanguage?: string;
+    bypassCookies?: boolean;
+  }
 ): Promise<DownloadResult> => {
   const folderName = generateFolderName(json, acceptLanguage);
   const folderPath = path.join(folderDirPath, folderName);
@@ -127,16 +133,19 @@ export const downloadUrl = async (
   const snapshotFilePath = `${folderPath}/snapshot.html`;
   const indexFilePath = `${folderPath}/index.html`;
   const newUrl = `${newUrlPath}/index.html`;
+  const newSnapshotUrl = `${newUrlPath}/snapshot.html`;
 
   const snapshotPDFFilePath = `${folderPath}/snapshot.pdf`;
   const newPDFUrl = `${newUrlPath}/snapshot.pdf`;
+
+  const iframeUrl = bypassCookies ? newSnapshotUrl : newUrl;
 
   if (fse.existsSync(folderPath)) {
     const existingFiles = fse.readdirSync(folderPath);
     if (existingFiles.includes('snapshot.pdf')) {
       return { url: newPDFUrl, isPDF: true };
     }
-    return { url: newUrl };
+    return { url: iframeUrl };
   }
 
   fse.ensureDirSync(folderPath);
@@ -293,5 +302,6 @@ export const downloadUrl = async (
   await stopBrowser();
 
   console.timeEnd(timerLabel);
-  return { url: newUrl };
+
+  return { url: iframeUrl };
 };
