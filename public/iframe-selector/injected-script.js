@@ -24,7 +24,6 @@ const pickEnabledCss = `
 const pickDisabledCss = `
 * {
   cursor: not-allowed;
-  pointer-events: none;
 }
 `;
 
