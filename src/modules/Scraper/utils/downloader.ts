@@ -108,6 +108,7 @@ const cleanHtml = (html: string, assets: { from: string; to: string }[]) => {
 
 type DownloadResult = {
   url: string;
+  snapshotUrl?: string;
   isPDF?: boolean;
 };
 
@@ -131,21 +132,23 @@ export const downloadUrl = async (
 
   const url = json.fetch;
   const snapshotFilePath = `${folderPath}/snapshot.html`;
+  const snapshotUrl = `${newUrlPath}/snapshot.html`;
+  const indexWithCookiesFilePath = `${folderPath}/index-with-cookies.html`;
   const indexFilePath = `${folderPath}/index.html`;
   const newUrl = `${newUrlPath}/index.html`;
-  const newSnapshotUrl = `${newUrlPath}/snapshot.html`;
+  const newUrlWithCookies = `${newUrlPath}/index-with-cookies.html`;
 
   const snapshotPDFFilePath = `${folderPath}/snapshot.pdf`;
   const newPDFUrl = `${newUrlPath}/snapshot.pdf`;
 
-  const iframeUrl = bypassCookies ? newSnapshotUrl : newUrl;
+  const iframeUrl = bypassCookies ? newUrl : newUrlWithCookies;
 
   if (fse.existsSync(folderPath)) {
     const existingFiles = fse.readdirSync(folderPath);
     if (existingFiles.includes('snapshot.pdf')) {
       return { url: newPDFUrl, isPDF: true };
     }
-    return { url: iframeUrl };
+    return { url: iframeUrl, snapshotUrl };
   }
 
   fse.ensureDirSync(folderPath);
@@ -179,6 +182,7 @@ export const downloadUrl = async (
     return { isPDF: true, url: newPDFUrl };
   }
 
+  fse.writeFileSync(snapshotFilePath, snapshot.content);
   fse.ensureFileSync(indexFilePath);
   const browser: Browser = await launchBrowser();
 
@@ -289,7 +293,7 @@ export const downloadUrl = async (
       html = snapshot.content.toString();
     }
 
-    fse.writeFileSync(snapshotFilePath, cleanHtml(snapshot.content, assets));
+    fse.writeFileSync(indexWithCookiesFilePath, cleanHtml(snapshot.content, assets));
     fse.writeFileSync(indexFilePath, cleanHtml(html, assets));
   } catch (e: any) {
     console.error(e.toString());
@@ -303,5 +307,5 @@ export const downloadUrl = async (
 
   console.timeEnd(timerLabel);
 
-  return { url: iframeUrl };
+  return { url: iframeUrl, snapshotUrl };
 };

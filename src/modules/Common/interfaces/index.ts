@@ -20,6 +20,7 @@ export interface GetServiceFilesResponse extends CommonResponse {
 
 export interface GetContributeServiceResponse extends CommonResponse {
   url: string;
+  snapshotUrl?: string;
   error?: string;
   isPDF?: boolean;
 }
