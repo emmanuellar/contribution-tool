@@ -29,6 +29,8 @@
   "form.url": "URL",
   "form.acceptLanguage": "Forcer la langue (fr, es, ...)",
   "form.acceptLanguage.more": "Si la langue du document n'est pas celle que vous attendiez.",
+  "form.bypassCookies": "Eviter les cookies",
+  "form.bypassCookies.more": "Régulièrement, des bannières de cookies ou des popup s'interposent. Cochez pour essayer de les contourner.",
   "loading.subtitle": "Cela prend généralement entre 5s et 30s",
   "loading.title": "Nous préparons le site Web",
   "send_email": "Envoyez-nous un email",

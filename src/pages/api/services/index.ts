@@ -16,7 +16,10 @@ import { getLatestFailDate } from 'modules/Github/api';
 const { serverRuntimeConfig } = getConfig();
 
 const get =
-  (json: any, acceptLanguage: string = 'en') =>
+  (
+    json: any,
+    { acceptLanguage = 'en', bypassCookies }: { acceptLanguage: string; bypassCookies: boolean }
+  ) =>
   async (_: NextApiRequest, res: NextApiResponse<GetContributeServiceResponse>) => {
     try {
       if (json.combine) {
@@ -35,6 +38,7 @@ const get =
           serverRuntimeConfig.scrapedIframeUrl
         }`,
         acceptLanguage,
+        bypassCookies,
       });
 
       const { url: newUrl, isPDF } = downloadResult;
@@ -193,7 +197,10 @@ const services = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET' && query?.json) {
     try {
       const json = JSON.parse(query.json as string);
-      return get(json, query.acceptLanguage as string)(req, res);
+      return get(json, {
+        acceptLanguage: query.acceptLanguage as string,
+        bypassCookies: (query.bypassCookies as string) === 'true' ? true : false,
+      })(req, res);
     } catch (e: any) {
       res.statusCode = HttpStatusCode.METHOD_FAILURE;
       res.json({ status: 'ko', message: 'Error occured', error: e.toString() });

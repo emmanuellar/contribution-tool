@@ -98,7 +98,7 @@
 }
 
 .moreinfo {
-  margin-top: calc(-1 * var(--mXS));
+  margin-top: calc(-0.5 * var(--mXS));
   font-style: italic;
   margin-bottom: var(--mXS);
   display: block;

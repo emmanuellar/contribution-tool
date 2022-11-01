@@ -2,7 +2,15 @@ import useUrl from 'hooks/useUrl';
 
 const useConfigDeclaration = () => {
   const {
-    queryParams: { destination, localPath, acceptLanguage, hiddenCss, expertMode, url },
+    queryParams: {
+      destination,
+      localPath,
+      acceptLanguage,
+      hiddenCss,
+      expertMode,
+      url,
+      bypassCookies,
+    },
     pushQueryParam,
     removeQueryParam,
   } = useUrl();
@@ -29,7 +37,7 @@ const useConfigDeclaration = () => {
     };
 
   const onConfigInputChange =
-    (field: 'acceptLanguage' | 'expertMode') => (value: boolean | string) => {
+    (field: 'acceptLanguage' | 'expertMode' | 'bypassCookies') => (value: boolean | string) => {
       if (value) {
         pushQueryParam(field)(typeof value === 'boolean' ? 'true' : value);
       } else {
@@ -45,6 +53,7 @@ const useConfigDeclaration = () => {
     hiddenCssSelectors,
     onConfigInputChange,
     expertMode,
+    bypassCookies,
   };
 };
 
