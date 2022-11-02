@@ -205,8 +205,10 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
           '- [ ] **`validUntil` date is correctly input**:',
           `  - Check the [latest versions](${this.getVersionsURL()})`,
           '  - Find the **first occurence** of the problematic change',
-          '  - Find the **creation date** of this issue (inspect `x days ago` and copy `datetime`)',
-          `  - Edit the date in history file directly from GitHub or check out branch \`${branchName}\``,
+          '  - Note the **creation date** of this issue (inspect `x days ago` with developer tools and copy `datetime`)',
+          `  - Find the **latest snapshot** from the [list of snapshots](${this.getSnapshotsURL()}) strictly anterior to this date`,
+          '  - Copy the **creation date** of this snapshot (inspect `x days ago` with developer tools and copy `datetime`)',
+          `  - Replace the \`to-be-determined\` date in history file directly from GitHub or check out branch \`${branchName}\` and do so on your local`,
         ]
       : [];
 
@@ -288,6 +290,15 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     )}/commits/main/${encodeURIComponent(
       ServiceManager.deriveIdFromName(this.name)
     )}/${encodeURIComponent(this.type)}.md`;
+  }
+
+  public getSnapshotsURL() {
+    return `https://github.com/${this.githubOrganization}/${this.githubRepository.replace(
+      '-declarations',
+      '-snapshots'
+    )}/commits/main/${encodeURIComponent(
+      ServiceManager.deriveIdFromName(this.name)
+    )}/${encodeURIComponent(this.type)}.html`;
   }
 
   getDeclarationFiles = async () => {
