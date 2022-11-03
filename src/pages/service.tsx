@@ -44,7 +44,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     'serviceHelpDialogViewed',
     false
   );
-  const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
+  const [modal, showModal] = React.useState<'version' | undefined>();
 
   // UI interaction
   const [iframeSelectionField, toggleIframeSelectionField] = React.useState<SelectableField | ''>(
@@ -110,7 +110,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   // Events
   useEvent('touchstart', () => router.push(`/sorry?${commonUrlParams}`));
   useKeyPressEvent('Escape', () => {
-    toggleServiceVerifyDisplayed(false);
+    showModal(undefined);
     toggleIframeSelectionField('');
   });
 
@@ -161,7 +161,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     }
   };
 
-  const onVerifyVersion = async () => toggleServiceVerifyDisplayed(true);
+  const onVerifyVersion = async () => showModal('version');
 
   const onValidate = async () => {
     toggleLoading(true);
@@ -531,7 +531,6 @@ Thank you very much`;
                 </a>
               </div>
             )}
-
             <nav className={s.formActions}>
               <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
                 {t('service:verify-version')}
@@ -566,10 +565,10 @@ Thank you very much`;
             <a onClick={() => window.location.reload()}>{t('service:error.cta.refresh')}</a>
           </div>
         )}
-        {isServiceVerifyDisplayed && (
+        {!!modal && (
           <div className={classNames(s.fullPageAbove)}>
-            <Version json={declaration} />
-            <button onClick={toggleServiceVerifyDisplayed}>
+            {modal === 'version' && <Version json={declaration} />}
+            <button onClick={() => showModal(undefined)}>
               <IconClose />
             </button>
           </div>
