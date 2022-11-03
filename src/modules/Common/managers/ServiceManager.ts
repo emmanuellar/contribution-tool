@@ -146,6 +146,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         targetBranch: 'main',
         newBranch: branchName,
         title: prTitle,
+        message: prTitle,
         content: json,
         filePath: this.declarationFilePath,
         body,

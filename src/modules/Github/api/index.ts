@@ -147,6 +147,7 @@ export const createDocumentAddPullRequest = async ({
   targetBranch,
   newBranch,
   title,
+  message,
   body,
   content,
   ...params
@@ -155,6 +156,7 @@ export const createDocumentAddPullRequest = async ({
   targetBranch: string;
   newBranch: string;
   title: string;
+  message: string;
   content: any;
   body: string;
   owner: string;
@@ -168,7 +170,7 @@ export const createDocumentAddPullRequest = async ({
     fromBranch: targetBranch,
     toBranch: newBranch,
     content,
-    message: title,
+    message,
   });
 
   const { data } = await octokit.rest.pulls.create({
