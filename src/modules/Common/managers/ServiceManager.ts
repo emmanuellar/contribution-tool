@@ -31,6 +31,7 @@ export default class ServiceManager {
   public name: string;
   public type: string;
   public id: string;
+  public authorEmail?: string;
   public declarationFilePath: string;
   public historyFilePath: string;
 
@@ -56,7 +57,28 @@ export default class ServiceManager {
     return { githubOrganization, githubRepository };
   };
 
-  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+  getCommitMessage(message: string) {
+    if (!this.authorEmail) {
+      return message;
+    }
+
+    return `${message}
+
+
+Co-authored-by: Contributor <${this.authorEmail}>`;
+  }
+
+  constructor({
+    destination,
+    name,
+    type,
+    authorEmail,
+  }: {
+    destination: string;
+    name: string;
+    type: string;
+    authorEmail?: string;
+  }) {
     const { githubOrganization, githubRepository } =
       ServiceManager.getOrganizationAndRepository(destination);
 
@@ -67,6 +89,7 @@ export default class ServiceManager {
     this.id = ServiceManager.deriveIdFromName(name);
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
+    this.authorEmail = authorEmail;
 
     this.commonParams = {
       owner: this.githubOrganization,
@@ -146,7 +169,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         targetBranch: 'main',
         newBranch: branchName,
         title: prTitle,
-        message: prTitle,
+        message: this.getCommitMessage(prTitle),
         content: json,
         filePath: this.declarationFilePath,
         body,
@@ -175,7 +198,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
           targetBranch: 'main',
           content: json,
           filePath: this.declarationFilePath,
-          message: 'Update declaration from contribution tool',
+          message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
           title: prTitle,
           body: updateBody,
         });
@@ -235,6 +258,7 @@ ${issueNumber ? `Fixes #${issueNumber}` : ''}
 _This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
 You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
+
     try {
       return await createDocumentUpdatePullRequest({
         ...this.commonParams,
@@ -246,8 +270,8 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         filePath: this.declarationFilePath,
         lastFailingDate,
         historyFilePath: this.historyFilePath,
-        historyMessage: `Update ${json.name} ${this.type} history`,
-        message: `Update ${json.name} ${this.type} declaration`,
+        historyMessage: this.getCommitMessage(`Update ${json.name} ${this.type} history`),
+        message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
         body,
       });
     } catch (e) {
@@ -276,8 +300,8 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
-        historyMessage: `Update ${json.name} ${this.type} history`,
-        message: `Update ${json.name} ${this.type} declaration`,
+        historyMessage: this.getCommitMessage(`Update ${json.name} ${this.type} history`),
+        message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
         title: prTitle,
         body: updateBody,
       });
