@@ -254,7 +254,7 @@ Thank you very much`;
         <ServiceHelpDialog open={!isServiceHelpViewed} onClose={() => setServiceHelpViewed(true)} />
       )}
       <Drawer className={s.drawer}>
-        <>
+        <div className={s.drawerWrapper}>
           <nav className={s.drawerNav}>
             <LinkIcon
               className={s.backButton}
@@ -531,16 +531,16 @@ Thank you very much`;
                 </a>
               </div>
             )}
-            <nav className={s.formActions}>
-              <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
-                {t('service:verify-version')}
-              </Button>
-              <Button disabled={submitDisabled || loading} onClick={onValidate}>
-                {t('service:submit')}
-              </Button>
-            </nav>
           </div>
-        </>
+          <nav className={s.formActions}>
+            <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
+              {t('service:verify-version')}
+            </Button>
+            <Button disabled={submitDisabled || loading} onClick={onValidate}>
+              {t('service:submit')}
+            </Button>
+          </nav>
+        </div>
       </Drawer>
       <div className={s.main}>
         <div className={s.linkToSnapshot}>
