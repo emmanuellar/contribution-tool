@@ -1,6 +1,9 @@
 {
   "back": "Go back",
   "could_not_create_issue": "We're truly sorry but the automatic creation of this new service failed, we will need you to send us an email",
+  "contributor.add": "Get credit!",
+  "contributor.change": "Change that!",
+  "contributor.info": "You're contributing as <strong>{{email}}</strong>.",
   "dialog.help.cta": "Let's begin!",
   "dialog.help.p1": "Most of the time, contractual documents contains a header, a footer, navigation menus, possibly ads… We aim at tracking only <strong>the significant parts of the document</strong>",
   "dialog.help.p2": "In order to achieve that, you will have to select those specific parts and remove the insignificant ones.",

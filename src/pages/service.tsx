@@ -26,8 +26,11 @@ import { useToggle, useKeyPressEvent } from 'react-use';
 import useTranslation from 'next-translate/useTranslation';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
 import Version from 'modules/Common/data-components/Version';
+import ContributorForm from 'modules/Common/data-components/ContributorForm';
 import useDocumentDeclaration from 'modules/Common/services/useDocumentDeclaration';
 import useConfigDeclaration from 'modules/Common/hooks/useConfigDeclaration';
+import { loadMdxFile, MdxPageProps } from 'modules/I18n/hoc/withMdx';
+import Trans from 'next-translate/Trans';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -35,7 +38,13 @@ type DocumentSelectableField = 'select' | 'remove';
 type ConfigSelectableField = 'hidden';
 type SelectableField = DocumentSelectableField | ConfigSelectableField;
 
-const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
+const ServicePage = ({
+  documentTypes,
+  contributorFormMdx,
+}: {
+  documentTypes: DocumentTypes;
+  contributorFormMdx: MdxPageProps;
+}) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { notify } = useNotifier();
@@ -44,7 +53,10 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     'serviceHelpDialogViewed',
     false
   );
-  const [modal, showModal] = React.useState<'version' | undefined>();
+  const [contributorEmail, setContributorEmail] = useLocalStorage<string | undefined>(
+    'ota-contributor-email'
+  );
+  const [modal, showModal] = React.useState<'version' | 'contributor' | undefined>();
 
   // UI interaction
   const [iframeSelectionField, toggleIframeSelectionField] = React.useState<SelectableField | ''>(
@@ -164,6 +176,11 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   const onVerifyVersion = async () => showModal('version');
 
   const onValidate = async () => {
+    if (contributorEmail === undefined) {
+      showModal('contributor');
+      return;
+    }
+
     toggleLoading(true);
     try {
       const {
@@ -173,6 +190,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
         json: declaration,
         name: declaration?.name,
         documentType: documentType,
+        contributorEmail,
         url: `${window.location.href}&expertMode=true`,
       });
 
@@ -540,6 +558,24 @@ Thank you very much`;
               {t('service:submit')}
             </Button>
           </nav>
+          {contributorEmail !== undefined && (
+            <div className={s.contribute}>
+              {contributorEmail && (
+                <Trans
+                  i18nKey="service:contributor.info"
+                  components={{ strong: <strong /> }}
+                  values={{ email: contributorEmail }}
+                />
+              )}
+              <div>
+                <a onClick={() => showModal('contributor')}>
+                  {!contributorEmail
+                    ? t('service:contributor.add')
+                    : t('service:contributor.change')}
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </Drawer>
       <div className={s.main}>
@@ -567,6 +603,15 @@ Thank you very much`;
         )}
         {!!modal && (
           <div className={classNames(s.fullPageAbove)}>
+            {modal === 'contributor' && (
+              <ContributorForm
+                onContributorChange={(contributorEmail) => {
+                  setContributorEmail(contributorEmail);
+                  showModal(undefined);
+                }}
+                mdxContent={contributorFormMdx}
+              />
+            )}
             {modal === 'version' && <Version json={declaration} />}
             <button onClick={() => showModal(undefined)}>
               <IconClose />
@@ -595,7 +640,18 @@ Thank you very much`;
 export const getStaticProps = async (props: any) =>
   JSON.parse(
     JSON.stringify({
-      props: { ...props, documentTypes: await getDocumentTypes() },
+      props: {
+        ...props,
+        documentTypes: await getDocumentTypes(),
+        contributorFormMdx: await loadMdxFile(
+          {
+            load: 'mdx',
+            folder: 'parts',
+            filename: 'contributor-form',
+          },
+          props.locale
+        ),
+      },
       revalidate: 60 * 5,
     })
   );

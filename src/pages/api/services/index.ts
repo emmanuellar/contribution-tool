@@ -167,6 +167,7 @@ const addOrUpdate =
         destination: body?.destination,
         name: body?.name,
         type: body?.documentType,
+        authorEmail: body?.contributorEmail,
       });
       const service: any = await serviceManager.addOrUpdateService({
         json: body?.json,
