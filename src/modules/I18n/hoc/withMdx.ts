@@ -19,7 +19,6 @@ const CONTENT_FOLDER = 'content';
 
 export interface MdxPageProps {
   mdxContent?: MDXRemoteSerializeResult;
-  frontMatter?: any;
 }
 
 export type WithMdxResult = GetStaticPropsContext & MdxPageProps;
@@ -51,15 +50,13 @@ export const loadMdxFile = async (options: WithMdxOptions, locale?: string) => {
   }
 
   if (!fileContent) {
-    return {};
+    return undefined;
   }
 
-  return {
-    mdxContent: await serialize(fileContent, {
-      // Indicates whether or not to parse the frontmatter from the mdx source
-      parseFrontmatter: true,
-    }),
-  };
+  return await serialize(fileContent, {
+    // Indicates whether or not to parse the frontmatter from the mdx source
+    parseFrontmatter: true,
+  });
 };
 
 const withMdx =
@@ -67,7 +64,7 @@ const withMdx =
     const getResponseWithMdxProps: HasCallback<typeof callback> = async (props) => {
       const computedProps: WithMdxResult = {
         ...props,
-        ...(options && options?.load === 'mdx' ? await loadMdxFile(options, props.locale) : {}),
+        mdxContent: options ? await loadMdxFile(options, props.locale) : undefined,
       };
 
       if (!callback) {
