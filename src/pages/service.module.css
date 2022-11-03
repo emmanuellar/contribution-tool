@@ -61,8 +61,19 @@
   }
 }
 
+.destination {
+  background: #ddd;
+  color: #333;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  padding: var(--p2XS);
+}
+
 .drawerNav {
   padding: var(--mM);
+  display: flex;
+  justify-content: space-between;
 }
 
 .formWrapper {

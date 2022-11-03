@@ -265,6 +265,7 @@ Thank you very much`;
             >
               {t('service:back')}
             </LinkIcon>
+            <span className={s.destination}>{destination}</span>
           </nav>
           <div className={s.formWrapper}>
             <form>
