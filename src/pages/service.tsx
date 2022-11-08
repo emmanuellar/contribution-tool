@@ -130,8 +130,9 @@ const ServicePage = ({
   });
 
   const isPDF = url?.endsWith('.pdf') || data?.isPDF;
-  const submitDisabled =
+  const versionDisabled =
     (selectCssSelectors?.length === 0 && !isPDF) || (!iframeReady && !isPDF) || loading;
+  const submitDisabled = versionDisabled || !declaration?.name;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
   const documentTypeCommitment = documentTypes[documentType]?.commitment || {};
@@ -555,7 +556,7 @@ Thank you very much`;
             )}
           </div>
           <nav className={s.formActions}>
-            <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
+            <Button disabled={versionDisabled} type="secondary" onClick={onVerifyVersion}>
               {t('service:verify-version')}
             </Button>
             <Button disabled={submitDisabled || loading} onClick={onValidate}>
