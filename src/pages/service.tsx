@@ -26,7 +26,7 @@ import { useToggle, useKeyPressEvent } from 'react-use';
 import useTranslation from 'next-translate/useTranslation';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
 import Version from 'modules/Common/data-components/Version';
-import ContributorForm from 'modules/Common/data-components/ContributorForm';
+import ContributorForm, { useContributor } from 'modules/Common/data-components/ContributorForm';
 import useDocumentDeclaration from 'modules/Common/services/useDocumentDeclaration';
 import useConfigDeclaration from 'modules/Common/hooks/useConfigDeclaration';
 import { loadMdxFile, MdxPageProps } from 'modules/I18n/hoc/withMdx';
@@ -53,9 +53,12 @@ const ServicePage = ({
     'serviceHelpDialogViewed',
     false
   );
-  const [contributorEmail, setContributorEmail] = useLocalStorage<string | undefined>(
-    'ota-contributor-email'
+  const [isContributorFormViewed, setContributorFormViewed] = useLocalStorage(
+    'ota-contributorFormViewed',
+    false
   );
+  const [contributorEmail, setContributorEmail] = useContributor();
+
   const [modal, showModal] = React.useState<'version' | 'contributor' | undefined>();
 
   // UI interaction
@@ -176,8 +179,9 @@ const ServicePage = ({
   const onVerifyVersion = async () => showModal('version');
 
   const onValidate = async () => {
-    if (contributorEmail === undefined) {
+    if (!isContributorFormViewed) {
       showModal('contributor');
+      setContributorFormViewed(true);
       return;
     }
 
@@ -558,7 +562,7 @@ Thank you very much`;
               {t('service:submit')}
             </Button>
           </nav>
-          {contributorEmail !== undefined && (
+          {isContributorFormViewed && (
             <div className={s.contribute}>
               {contributorEmail && (
                 <Trans

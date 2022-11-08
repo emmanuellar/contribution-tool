@@ -6,6 +6,8 @@ import classNames from 'classnames';
 import s from './Version.module.css';
 import sButton from 'modules/Common/components/Button.module.css';
 
+const DEFAULT_CONTRIBUTOR_EMAIL = 'anonymous@contribute.opentermsarchive.org';
+
 type ContributorFormProps = {
   onContributorChange: (newContributor: string) => any;
   mdxContent: any;
@@ -13,16 +15,17 @@ type ContributorFormProps = {
 
 type FormElements = HTMLFormControlsCollection & { email: HTMLInputElement };
 
+export const useContributor = () => {
+  return useLocalStorage<string>('ota-contributor-email', DEFAULT_CONTRIBUTOR_EMAIL);
+};
+
 const ContributorForm: React.FC<ContributorFormProps> = ({
   className,
   onContributorChange,
   mdxContent,
   ...props
 }) => {
-  const [contributorEmail, setContributorEmail] = useLocalStorage<string | undefined>(
-    'ota-contributor-email',
-    ''
-  );
+  const [contributorEmail, setContributorEmail] = useContributor();
 
   const onChangeContributor = (value: string) => {
     setContributorEmail(value);
@@ -46,12 +49,12 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
           <MDXRemote
             {...mdxContent}
             components={{
-              SignatureInput: () => (
+              SignatureEmailInput: () => (
                 <input
                   required
                   name="email"
                   type="email"
-                  placeholder="email@example.com"
+                  placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
                   defaultValue={contributorEmail}
                 />
               ),
