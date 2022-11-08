@@ -31,7 +31,7 @@ export default class ServiceManager {
   public name: string;
   public type: string;
   public id: string;
-  public authorEmail?: string;
+  public author: { email?: string; name?: string };
   public declarationFilePath: string;
   public historyFilePath: string;
 
@@ -58,26 +58,26 @@ export default class ServiceManager {
   };
 
   getCommitMessage(message: string) {
-    if (!this.authorEmail) {
+    if (!this.author?.email) {
       return message;
     }
 
     return `${message}
 
 
-Co-authored-by: Open Terms Archive <${this.authorEmail}>`;
+Co-authored-by: ${this.author?.name} <${this.author?.email}>`;
   }
 
   constructor({
     destination,
     name,
     type,
-    authorEmail,
+    author,
   }: {
     destination: string;
     name: string;
     type: string;
-    authorEmail?: string;
+    author?: { email?: string; name?: string };
   }) {
     const { githubOrganization, githubRepository } =
       ServiceManager.getOrganizationAndRepository(destination);
@@ -89,7 +89,10 @@ Co-authored-by: Open Terms Archive <${this.authorEmail}>`;
     this.id = ServiceManager.deriveIdFromName(name);
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
-    this.authorEmail = authorEmail;
+    this.author = {
+      name: author?.name,
+      email: author?.email,
+    };
 
     this.commonParams = {
       owner: this.githubOrganization,

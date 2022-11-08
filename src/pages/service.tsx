@@ -57,7 +57,12 @@ const ServicePage = ({
     'ota-contributorFormViewed',
     false
   );
-  const [contributorEmail, setContributorEmail] = useContributor();
+  const {
+    email: contributorEmail,
+    setEmail: setContributorEmail,
+    name: contributorName,
+    setName: setContributorName,
+  } = useContributor();
 
   const [modal, showModal] = React.useState<'version' | 'contributor' | undefined>();
 
@@ -195,6 +200,7 @@ const ServicePage = ({
         json: declaration,
         name: declaration?.name,
         documentType: documentType,
+        contributorName,
         contributorEmail,
         url: `${window.location.href}&expertMode=true`,
       });
@@ -610,8 +616,9 @@ Thank you very much`;
           <div className={classNames(s.fullPageAbove)}>
             {modal === 'contributor' && (
               <ContributorForm
-                onContributorChange={(contributorEmail) => {
-                  setContributorEmail(contributorEmail);
+                onContributorChange={({ name, email }) => {
+                  setContributorName(name);
+                  setContributorEmail(email);
                   showModal(undefined);
                 }}
                 mdxContent={contributorFormMdx}
