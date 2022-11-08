@@ -32,10 +32,6 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
     onContributorChange(value);
   };
 
-  const onOptOut = () => {
-    onChangeContributor('');
-  };
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -66,7 +62,6 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                   value={children}
                 />
               ),
-              OptOutButton: ({ children }: any) => <a onClick={onOptOut}>{children}</a>,
             }}
           />
         </form>
