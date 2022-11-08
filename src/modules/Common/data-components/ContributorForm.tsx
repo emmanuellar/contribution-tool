@@ -29,7 +29,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
     onContributorChange(value);
   };
 
-  const onIgnore = () => {
+  const onOptOut = () => {
     onChangeContributor('');
   };
 
@@ -46,8 +46,9 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
           <MDXRemote
             {...mdxContent}
             components={{
-              Input: () => (
+              SignatureInput: () => (
                 <input
+                  required
                   name="email"
                   type="email"
                   placeholder="email@example.com"
@@ -62,7 +63,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                   value={children}
                 />
               ),
-              IgnoreButton: ({ children }: any) => <a onClick={onIgnore}>{children}</a>,
+              OptOutButton: ({ children }: any) => <a onClick={onOptOut}>{children}</a>,
             }}
           />
         </form>

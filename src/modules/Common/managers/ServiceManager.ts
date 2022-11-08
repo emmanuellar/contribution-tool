@@ -65,7 +65,7 @@ export default class ServiceManager {
     return `${message}
 
 
-Co-authored-by: Contributor <${this.authorEmail}>`;
+Co-authored-by: Open Terms Archive <${this.authorEmail}>`;
   }
 
   constructor({
