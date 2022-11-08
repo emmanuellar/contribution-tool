@@ -31,7 +31,7 @@ export default class ServiceManager {
   public name: string;
   public type: string;
   public id: string;
-  public author: { email?: string; name?: string };
+  public author: { email: string; name: string };
   public declarationFilePath: string;
   public historyFilePath: string;
 
@@ -57,17 +57,6 @@ export default class ServiceManager {
     return { githubOrganization, githubRepository };
   };
 
-  getCommitMessage(message: string) {
-    if (!this.author?.email) {
-      return message;
-    }
-
-    return `${message}
-
-
-Co-authored-by: ${this.author?.name} <${this.author?.email}>`;
-  }
-
   constructor({
     destination,
     name,
@@ -90,8 +79,8 @@ Co-authored-by: ${this.author?.name} <${this.author?.email}>`;
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
     this.author = {
-      name: author?.name,
-      email: author?.email,
+      name: author?.name || 'Anonymous Contributor',
+      email: author?.email || 'anonymous@contribute.opentermsarchive.org',
     };
 
     this.commonParams = {
@@ -172,8 +161,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         targetBranch: 'main',
         newBranch: branchName,
         title: prTitle,
-        message: this.getCommitMessage(prTitle),
+        message: prTitle,
         content: json,
+        author: this.author,
         filePath: this.declarationFilePath,
         body,
       });
@@ -201,8 +191,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
           targetBranch: 'main',
           content: json,
           filePath: this.declarationFilePath,
-          message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
+          message: `Update ${json.name} ${this.type} declaration`,
           title: prTitle,
+          author: this.author,
           body: updateBody,
         });
       }
@@ -273,8 +264,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         filePath: this.declarationFilePath,
         lastFailingDate,
         historyFilePath: this.historyFilePath,
-        historyMessage: this.getCommitMessage(`Update ${json.name} ${this.type} history`),
-        message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
+        author: this.author,
         body,
       });
     } catch (e) {
@@ -303,8 +295,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         content: json,
         filePath: this.declarationFilePath,
         historyFilePath: this.historyFilePath,
-        historyMessage: this.getCommitMessage(`Update ${json.name} ${this.type} history`),
-        message: this.getCommitMessage(`Update ${json.name} ${this.type} declaration`),
+        historyMessage: `Update ${json.name} ${this.type} history`,
+        message: `Update ${json.name} ${this.type} declaration`,
+        author: this.author,
         title: prTitle,
         body: updateBody,
       });
