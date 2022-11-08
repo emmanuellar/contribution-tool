@@ -180,9 +180,10 @@ const addOrUpdate =
       });
     } catch (e: any) {
       let message = e.toString();
-
       if (e?.response?.data?.message === 'Reference already exists') {
         message = `A branch with this name already exists on ${body?.destination}`;
+      } else {
+        console.error(e);
       }
 
       res.json({
