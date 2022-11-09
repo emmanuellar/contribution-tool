@@ -1,10 +1,12 @@
+import Container from 'modules/Common/containers/Container';
+import { MDXRemote } from 'next-mdx-remote';
 import React from 'react';
 import TextContent from 'modules/Common/components/TextContent';
-import { useLocalStorage } from 'react-use';
-import { MDXRemote } from 'next-mdx-remote';
 import classNames from 'classnames';
 import s from './Version.module.css';
 import sButton from 'modules/Common/components/Button.module.css';
+import { useLocalStorage } from 'react-use';
+import useTranslation from 'next-translate/useTranslation';
 
 const DEFAULT_CONTRIBUTOR_NAME = 'Anonymous Contributor';
 const DEFAULT_CONTRIBUTOR_EMAIL = 'anonymous@contribute.opentermsarchive.org';
@@ -46,6 +48,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
   ...props
 }) => {
   const { email, setEmail, name, setName } = useContributor();
+  const { t } = useTranslation();
 
   const onChangeContributor = ({ name, email }: Contributor) => {
     setEmail(email);
@@ -62,45 +65,81 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
   };
 
   return (
-    <TextContent className={classNames(s.markdown, className)} {...props}>
-      {mdxContent && (
-        <form onSubmit={onSubmit}>
+    <Container gridCols="8" gridGutters="7">
+      <TextContent className={classNames(s.markdown, className)} {...props}>
+        {mdxContent && (
           <MDXRemote
             {...mdxContent}
             components={{
+              ContributorFormFields: () => (
+                <form onSubmit={onSubmit} className="mt__XL mb__XL">
+                  <div className="formfield">
+                    <label for="id">{t('contributor-form:field.name.label')}</label>
+                    <input
+                      required
+                      id="name"
+                      name="name"
+                      type="name"
+                      placeholder={DEFAULT_CONTRIBUTOR_NAME}
+                      defaultValue={name}
+                    />
+                  </div>
+                  <div className="formfield">
+                    <label for="email">{t('contributor-form:field.email.label')}</label>
+                    <input
+                      required
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
+                      defaultValue={email}
+                    />
+                  </div>
+                  <div className="formfield formfield__alignRight">
+                    <input
+                      type="submit"
+                      className={classNames(sButton.button)}
+                      value={t('contributor-form:submit')}
+                    />
+                  </div>
+                </form>
+              ),
               SignatureNameInput: () => (
-                <input
-                  required
-                  name="name"
-                  type="name"
-                  placeholder={DEFAULT_CONTRIBUTOR_NAME}
-                  defaultValue={name}
-                  style={{ margin: 'var(--mXS) 0' }}
-                />
+                <div className="formfield">
+                  <label for="id">Name</label>
+                  <input
+                    required
+                    id="name"
+                    name="name"
+                    type="name"
+                    placeholder={DEFAULT_CONTRIBUTOR_NAME}
+                    defaultValue={name}
+                  />
+                </div>
               ),
               SignatureEmailInput: () => (
-                <input
-                  required
-                  name="email"
-                  type="email"
-                  placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
-                  defaultValue={email}
-                  style={{ margin: 'var(--mXS) 0' }}
-                />
+                <div className="formfield">
+                  <label for="email">Email</label>
+                  <input
+                    required
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
+                    defaultValue={email}
+                  />
+                </div>
               ),
               UpdateButton: ({ children }: any) => (
-                <input
-                  type="submit"
-                  className={classNames(sButton.button, sButton.sm)}
-                  style={{ margin: 'var(--mXS) 0 var(--mXL)' }}
-                  value={children}
-                />
+                <div className="formfield">
+                  <input type="submit" className={classNames(sButton.button)} value={children} />
+                </div>
               ),
             }}
           />
-        </form>
-      )}
-    </TextContent>
+        )}
+      </TextContent>
+    </Container>
   );
 };
 

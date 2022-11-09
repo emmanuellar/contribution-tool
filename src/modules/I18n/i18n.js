@@ -6,7 +6,7 @@ module.exports = {
   pages: {
     '*': ['common', 'header', 'footer'],
     '/': ['homepage'],
-    '/service': ['service'],
+    '/service': ['service','contributor-form'],
     '/sorry': ['sorry'],
     '/thanks': ['homepage', 'thanks'],
   },
