@@ -104,32 +104,6 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                   </div>
                 </form>
               ),
-              SignatureNameInput: () => (
-                <div className="formfield">
-                  <label htmlFor="id">Name</label>
-                  <input
-                    required
-                    id="name"
-                    name="name"
-                    type="name"
-                    placeholder={DEFAULT_CONTRIBUTOR_NAME}
-                    defaultValue={name}
-                  />
-                </div>
-              ),
-              SignatureEmailInput: () => (
-                <div className="formfield">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    required
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
-                    defaultValue={email}
-                  />
-                </div>
-              ),
               UpdateButton: ({ children }: any) => (
                 <div className="formfield">
                   <input type="submit" className={classNames(sButton.button)} value={children} />
