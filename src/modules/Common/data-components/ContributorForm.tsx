@@ -7,9 +7,8 @@ import s from './Version.module.css';
 import sButton from 'modules/Common/components/Button.module.css';
 import { useLocalStorage } from 'react-use';
 import useTranslation from 'next-translate/useTranslation';
-
-const DEFAULT_CONTRIBUTOR_NAME = 'Anonymous Contributor';
-const DEFAULT_CONTRIBUTOR_EMAIL = 'anonymous@contribute.opentermsarchive.org';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 interface Contributor {
   name: string;
@@ -29,9 +28,12 @@ type FormElements = HTMLFormControlsCollection & {
 export const useContributor = () => {
   const [email, setEmail] = useLocalStorage<string>(
     'ota-contributor-email',
-    DEFAULT_CONTRIBUTOR_EMAIL
+    publicRuntimeConfig.gitDefaultAuthor.email
   );
-  const [name, setName] = useLocalStorage<string>('ota-contributor-name', DEFAULT_CONTRIBUTOR_NAME);
+  const [name, setName] = useLocalStorage<string>(
+    'ota-contributor-name',
+    publicRuntimeConfig.gitDefaultAuthor.name
+  );
 
   return {
     email,
@@ -80,7 +82,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                       id="name"
                       name="name"
                       type="name"
-                      placeholder={DEFAULT_CONTRIBUTOR_NAME}
+                      placeholder={publicRuntimeConfig.gitDefaultAuthor.name}
                       defaultValue={name}
                     />
                   </div>
@@ -91,7 +93,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                       id="email"
                       name="email"
                       type="email"
-                      placeholder={DEFAULT_CONTRIBUTOR_EMAIL}
+                      placeholder={publicRuntimeConfig.gitDefaultAuthor.email}
                       defaultValue={email}
                     />
                   </div>

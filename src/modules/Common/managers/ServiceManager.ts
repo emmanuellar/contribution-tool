@@ -9,6 +9,8 @@ import {
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 import { OTAJson } from 'modules/Common/services/open-terms-archive';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
 
@@ -79,8 +81,8 @@ export default class ServiceManager {
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
     this.author = {
-      name: author?.name || 'Anonymous Contributor',
-      email: author?.email || 'anonymous@contribute.opentermsarchive.org',
+      name: author?.name || publicRuntimeConfig.gitDefaultAuthor.name,
+      email: author?.email || publicRuntimeConfig.gitDefaultAuthor.email,
     };
 
     this.commonParams = {
