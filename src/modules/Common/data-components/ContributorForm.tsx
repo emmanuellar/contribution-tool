@@ -74,7 +74,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
               ContributorFormFields: () => (
                 <form onSubmit={onSubmit} className="mt__XL mb__XL">
                   <div className="formfield">
-                    <label for="id">{t('contributor-form:field.name.label')}</label>
+                    <label htmlFor="id">{t('contributor-form:field.name.label')}</label>
                     <input
                       required
                       id="name"
@@ -85,7 +85,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                     />
                   </div>
                   <div className="formfield">
-                    <label for="email">{t('contributor-form:field.email.label')}</label>
+                    <label htmlFor="email">{t('contributor-form:field.email.label')}</label>
                     <input
                       required
                       id="email"
@@ -106,7 +106,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
               ),
               SignatureNameInput: () => (
                 <div className="formfield">
-                  <label for="id">Name</label>
+                  <label htmlFor="id">Name</label>
                   <input
                     required
                     id="name"
@@ -119,7 +119,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
               ),
               SignatureEmailInput: () => (
                 <div className="formfield">
-                  <label for="email">Email</label>
+                  <label htmlFor="email">Email</label>
                   <input
                     required
                     id="email"
