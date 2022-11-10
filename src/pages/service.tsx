@@ -53,10 +53,6 @@ const ServicePage = ({
     'serviceHelpDialogViewed',
     false
   );
-  const [isContributorFormViewed, setContributorFormViewed] = useLocalStorage(
-    'ota-contributorFormViewed',
-    false
-  );
   const {
     email: contributorEmail,
     setEmail: setContributorEmail,
@@ -185,12 +181,6 @@ const ServicePage = ({
   const onVerifyVersion = async () => showModal('version');
 
   const onValidate = async () => {
-    if (!isContributorFormViewed) {
-      showModal('contributor');
-      setContributorFormViewed(true);
-      return;
-    }
-
     toggleLoading(true);
     try {
       const {
@@ -569,24 +559,18 @@ Thank you very much`;
               {t('service:submit')}
             </Button>
           </nav>
-          {isContributorFormViewed && (
-            <div className={s.contribute}>
-              {contributorEmail && (
-                <Trans
-                  i18nKey="service:contributor.info"
-                  components={{ strong: <strong /> }}
-                  values={{ email: contributorEmail }}
-                />
-              )}
-              <div>
-                <a onClick={() => showModal('contributor')}>
-                  {!contributorEmail
-                    ? t('service:contributor.add')
-                    : t('service:contributor.change')}
-                </a>
-              </div>
+          <div className={s.contribute}>
+            {contributorEmail && (
+              <Trans
+                i18nKey="service:contributor.info"
+                components={{ strong: <strong /> }}
+                values={{ email: contributorEmail }}
+              />
+            )}
+            <div>
+              <a onClick={() => showModal('contributor')}>{t('service:contributor.change')}</a>
             </div>
-          )}
+          </div>
         </div>
       </Drawer>
       <div className={s.main}>

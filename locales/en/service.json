@@ -1,7 +1,6 @@
 {
   "back": "Go back",
   "could_not_create_issue": "We're truly sorry but the automatic creation of this new service failed, we will need you to send us an email",
-  "contributor.add": "Set signature",
   "contributor.change": "Change signature",
   "contributor.info": "Signed by <strong>{{email}}</strong>",
   "dialog.help.cta": "Let's begin!",

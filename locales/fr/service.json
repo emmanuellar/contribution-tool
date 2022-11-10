@@ -1,7 +1,6 @@
 {
   "back": "Retour",
   "could_not_create_issue": "Nous sommes vraiment désolés mais la création automatique de ce nouveau service a échoué, nous aurions besoin que vous nous envoyiez un email.",
-  "contributor.add": "Définir la signature",
   "contributor.change": "Modifier la signature",
   "contributor.info": "Signé par <strong>{{email}}</strong>.",
   "dialog.help.cta": "Commencer",
