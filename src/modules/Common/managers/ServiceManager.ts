@@ -10,7 +10,7 @@ import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 import { OTAJson } from 'modules/Common/services/open-terms-archive';
 import getConfig from 'next/config';
-const { publicRuntimeConfig } = getConfig();
+const { publicRuntimeConfig } = getConfig() || {};
 
 const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
 
