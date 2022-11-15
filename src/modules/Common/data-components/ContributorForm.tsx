@@ -27,11 +27,11 @@ type FormElements = HTMLFormControlsCollection & {
 
 export const useContributor = () => {
   const [email, setEmail] = useLocalStorage<string>(
-    'ota-contributor-email',
+    'contributor-email',
     publicRuntimeConfig.gitDefaultAuthor.email
   );
   const [name, setName] = useLocalStorage<string>(
-    'ota-contributor-name',
+    'contributor-name',
     publicRuntimeConfig.gitDefaultAuthor.name
   );
 
