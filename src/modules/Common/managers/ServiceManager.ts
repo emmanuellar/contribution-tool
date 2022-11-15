@@ -81,8 +81,8 @@ export default class ServiceManager {
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
     this.author = {
-      name: author?.name || publicRuntimeConfig.gitDefaultAuthor.name,
-      email: author?.email || publicRuntimeConfig.gitDefaultAuthor.email,
+      name: author?.name || publicRuntimeConfig.author.name,
+      email: author?.email || publicRuntimeConfig.author.email,
     };
 
     this.commonParams = {

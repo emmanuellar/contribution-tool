@@ -9,7 +9,7 @@ module.exports = nextTranslate({
   },
   publicRuntimeConfig: {
     // Will be available on both server and client
-    gitDefaultAuthor: {
+    author: {
       name: 'Anonymous Contributor',
       email: 'anonymous@contribute.opentermsarchive.org',
     },

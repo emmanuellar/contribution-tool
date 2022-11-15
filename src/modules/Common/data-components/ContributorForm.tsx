@@ -28,11 +28,11 @@ type FormElements = HTMLFormControlsCollection & {
 export const useContributor = () => {
   const [email, setEmail] = useLocalStorage<string>(
     'contributor-email',
-    publicRuntimeConfig.gitDefaultAuthor.email
+    publicRuntimeConfig.author.email
   );
   const [name, setName] = useLocalStorage<string>(
     'contributor-name',
-    publicRuntimeConfig.gitDefaultAuthor.name
+    publicRuntimeConfig.author.name
   );
 
   return {
@@ -82,7 +82,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                       id="name"
                       name="name"
                       type="name"
-                      placeholder={publicRuntimeConfig.gitDefaultAuthor.name}
+                      placeholder={publicRuntimeConfig.author.name}
                       defaultValue={name}
                     />
                   </div>
@@ -93,7 +93,7 @@ const ContributorForm: React.FC<ContributorFormProps> = ({
                       id="email"
                       name="email"
                       type="email"
-                      placeholder={publicRuntimeConfig.gitDefaultAuthor.email}
+                      placeholder={publicRuntimeConfig.author.email}
                       defaultValue={email}
                     />
                   </div>
