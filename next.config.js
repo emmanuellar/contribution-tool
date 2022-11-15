@@ -7,6 +7,13 @@ module.exports = nextTranslate({
     scrapedFilesFolder: '.next/tmp/services', // where to store the files retrieved by puppeteer calls
     scrapedIframeUrl: '/iframe/services', // url on which the files in the above folder will be accessible
   },
+  publicRuntimeConfig: {
+    // Will be available on both server and client
+    author: {
+      name: 'Anonymous Contributor',
+      email: 'anonymous@contribute.opentermsarchive.org',
+    },
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,

@@ -52,6 +52,7 @@
   }
 }
 .Toastify__toast-body {
+  word-break: break-word;
 }
 
 /** Classes for the close button. Better use your own closeButton **/

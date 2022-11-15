@@ -24,6 +24,11 @@ export interface Commit {
   };
 }
 
+export interface Author {
+  email: string;
+  name: string;
+}
+
 export type Commits = Commit[];
 
 export interface DocumentTypes {
@@ -110,6 +115,7 @@ export const createOrUpdateJsonFile = async ({
   message,
   merger = merge,
   content,
+  author,
   ...params
 }: {
   filePath: string;
@@ -120,6 +126,7 @@ export const createOrUpdateJsonFile = async ({
   content: any;
   owner: string;
   repo: string;
+  author?: Author;
 }) => {
   const { sha: existingSha, content: existingContentString } = await getFileContent({
     filePath,
@@ -136,6 +143,7 @@ export const createOrUpdateJsonFile = async ({
     path: filePath,
     message,
     content: Buffer.from(`${JSON.stringify(newContent, null, 2)}\n`).toString('base64'),
+    author,
     ...(existingSha ? { sha: existingSha } : {}),
   });
 
@@ -147,16 +155,20 @@ export const createDocumentAddPullRequest = async ({
   targetBranch,
   newBranch,
   title,
+  message,
   body,
   content,
+  author,
   ...params
 }: {
   filePath: string;
   targetBranch: string;
   newBranch: string;
   title: string;
+  message: string;
   content: any;
   body: string;
+  author?: Author;
   owner: string;
   repo: string;
 }) => {
@@ -168,7 +180,8 @@ export const createDocumentAddPullRequest = async ({
     fromBranch: targetBranch,
     toBranch: newBranch,
     content,
-    message: title,
+    message,
+    author,
   });
 
   const { data } = await octokit.rest.pulls.create({
@@ -194,6 +207,7 @@ export const updateDocumentsInBranch = async ({
   historyMessage,
   body,
   content,
+  author,
   ...params
 }: {
   filePath: string;
@@ -209,6 +223,7 @@ export const updateDocumentsInBranch = async ({
   lastFailingDate?: string;
   body: string;
   repo: string;
+  author?: Author;
 }) => {
   const { prevContent } = await createOrUpdateJsonFile({
     ...params,
@@ -217,6 +232,7 @@ export const updateDocumentsInBranch = async ({
     toBranch: branch,
     content,
     message,
+    author,
     merger: (existingContent, content) => {
       const newContent = merge(existingContent, content);
       // merge everything except the current submitted document
@@ -236,6 +252,7 @@ export const updateDocumentsInBranch = async ({
       toBranch: branch,
       content: prevContent.documents[documentType],
       message: historyMessage,
+      author,
       merger: (existingContent, contentToInsert) => ({
         ...existingContent,
         [documentType]: [
@@ -288,6 +305,7 @@ export const createDocumentUpdatePullRequest = async ({
   historyMessage,
   lastFailingDate,
   content,
+  author,
   ...params
 }: {
   filePath: string;
@@ -303,6 +321,7 @@ export const createDocumentUpdatePullRequest = async ({
   lastFailingDate?: string;
   body: string;
   repo: string;
+  author?: Author;
 }) => {
   await createBranch({
     targetBranch,
@@ -317,6 +336,7 @@ export const createDocumentUpdatePullRequest = async ({
     toBranch: newBranch,
     content,
     message,
+    author,
     merger: (existingContent, content) => {
       const newContent = merge(existingContent, content);
       // merge everything except the current submitted document
@@ -335,6 +355,7 @@ export const createDocumentUpdatePullRequest = async ({
     toBranch: newBranch,
     content: prevContent.documents[documentType],
     message: historyMessage,
+    author,
     merger: (existingContent, contentToInsert) => ({
       ...existingContent,
       [documentType]: [

@@ -1,6 +1,8 @@
 {
   "back": "Retour",
   "could_not_create_issue": "Nous sommes vraiment désolés mais la création automatique de ce nouveau service a échoué, nous aurions besoin que vous nous envoyiez un email.",
+  "contributor.change": "Modifier la signature",
+  "contributor.info": "Signé par <strong>{{email}}</strong>.",
   "dialog.help.cta": "Commencer",
   "dialog.help.p1": "La plupart du temps, les documents contractuels contiennent un en-tête, un pied de page, des menus de navigation, éventuellement des publicités... Nous visons à suivre uniquement <strong>les parties significatives du document</strong>.",
   "dialog.help.p2": "Pour y parvenir, vous devrez sélectionner la partie document qui vous semble pertinente et supprimer les parties insignifiantes.",

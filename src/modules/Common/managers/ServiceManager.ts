@@ -9,6 +9,8 @@ import {
 import snakeCase from 'lodash/fp/snakeCase';
 import latinize from 'latinize';
 import { OTAJson } from 'modules/Common/services/open-terms-archive';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig() || {};
 
 const authorizedOrganizations = ['OpenTermsArchive', 'ambanum'];
 
@@ -31,6 +33,7 @@ export default class ServiceManager {
   public name: string;
   public type: string;
   public id: string;
+  public author: { email: string; name: string };
   public declarationFilePath: string;
   public historyFilePath: string;
 
@@ -56,7 +59,17 @@ export default class ServiceManager {
     return { githubOrganization, githubRepository };
   };
 
-  constructor({ destination, name, type }: { destination: string; name: string; type: string }) {
+  constructor({
+    destination,
+    name,
+    type,
+    author,
+  }: {
+    destination: string;
+    name: string;
+    type: string;
+    author?: { email?: string; name?: string };
+  }) {
     const { githubOrganization, githubRepository } =
       ServiceManager.getOrganizationAndRepository(destination);
 
@@ -67,6 +80,10 @@ export default class ServiceManager {
     this.id = ServiceManager.deriveIdFromName(name);
     this.declarationFilePath = `declarations/${this.id}.json`;
     this.historyFilePath = `declarations/${this.id}.history.json`;
+    this.author = {
+      name: author?.name || publicRuntimeConfig.author.name,
+      email: author?.email || publicRuntimeConfig.author.email,
+    };
 
     this.commonParams = {
       owner: this.githubOrganization,
@@ -146,7 +163,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         targetBranch: 'main',
         newBranch: branchName,
         title: prTitle,
+        message: prTitle,
         content: json,
+        author: this.author,
         filePath: this.declarationFilePath,
         body,
       });
@@ -174,8 +193,9 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
           targetBranch: 'main',
           content: json,
           filePath: this.declarationFilePath,
-          message: 'Update declaration from contribution tool',
+          message: `Update ${json.name} ${this.type} declaration`,
           title: prTitle,
+          author: this.author,
           body: updateBody,
         });
       }
@@ -234,6 +254,7 @@ ${issueNumber ? `Fixes #${issueNumber}` : ''}
 _This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
 You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
+
     try {
       return await createDocumentUpdatePullRequest({
         ...this.commonParams,
@@ -247,6 +268,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         historyFilePath: this.historyFilePath,
         historyMessage: `Update ${json.name} ${this.type} history`,
         message: `Update ${json.name} ${this.type} declaration`,
+        author: this.author,
         body,
       });
     } catch (e) {
@@ -277,6 +299,7 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
         historyFilePath: this.historyFilePath,
         historyMessage: `Update ${json.name} ${this.type} history`,
         message: `Update ${json.name} ${this.type} declaration`,
+        author: this.author,
         title: prTitle,
         body: updateBody,
       });

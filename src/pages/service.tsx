@@ -26,8 +26,11 @@ import { useToggle, useKeyPressEvent } from 'react-use';
 import useTranslation from 'next-translate/useTranslation';
 import ServiceHelpDialog from 'modules/Common/components/ServiceHelpDialog';
 import Version from 'modules/Common/data-components/Version';
+import ContributorForm, { useContributor } from 'modules/Common/data-components/ContributorForm';
 import useDocumentDeclaration from 'modules/Common/services/useDocumentDeclaration';
 import useConfigDeclaration from 'modules/Common/hooks/useConfigDeclaration';
+import { loadMdxFile, MdxPageProps } from 'modules/I18n/hoc/withMdx';
+import Trans from 'next-translate/Trans';
 
 const EMAIL_SUPPORT = 'contribute@opentermsarchive.org';
 
@@ -35,7 +38,13 @@ type DocumentSelectableField = 'select' | 'remove';
 type ConfigSelectableField = 'hidden';
 type SelectableField = DocumentSelectableField | ConfigSelectableField;
 
-const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
+const ServicePage = ({
+  documentTypes,
+  contributorFormMdx,
+}: {
+  documentTypes: DocumentTypes;
+  contributorFormMdx: MdxPageProps;
+}) => {
   const router = useRouter();
   const { t } = useTranslation();
   const { notify } = useNotifier();
@@ -44,7 +53,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     'serviceHelpDialogViewed',
     false
   );
-  const [isServiceVerifyDisplayed, toggleServiceVerifyDisplayed] = useToggle(false);
+  const {
+    email: contributorEmail,
+    setEmail: setContributorEmail,
+    name: contributorName,
+    setName: setContributorName,
+  } = useContributor();
+
+  const [modal, showModal] = React.useState<'version' | 'contributor' | undefined>();
 
   // UI interaction
   const [iframeSelectionField, toggleIframeSelectionField] = React.useState<SelectableField | ''>(
@@ -110,13 +126,14 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
   // Events
   useEvent('touchstart', () => router.push(`/sorry?${commonUrlParams}`));
   useKeyPressEvent('Escape', () => {
-    toggleServiceVerifyDisplayed(false);
+    showModal(undefined);
     toggleIframeSelectionField('');
   });
 
   const isPDF = url?.endsWith('.pdf') || data?.isPDF;
-  const submitDisabled =
+  const versionDisabled =
     (selectCssSelectors?.length === 0 && !isPDF) || (!iframeReady && !isPDF) || loading;
+  const submitDisabled = versionDisabled || !declaration?.name;
   const isLoadingIframe = !data && !apiError;
   const error = data?.error || apiError?.toString();
   const documentTypeCommitment = documentTypes[documentType]?.commitment || {};
@@ -161,7 +178,7 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
     }
   };
 
-  const onVerifyVersion = async () => toggleServiceVerifyDisplayed(true);
+  const onVerifyVersion = async () => showModal('version');
 
   const onValidate = async () => {
     toggleLoading(true);
@@ -173,6 +190,8 @@ const ServicePage = ({ documentTypes }: { documentTypes: DocumentTypes }) => {
         json: declaration,
         name: declaration?.name,
         documentType: documentType,
+        contributorName,
+        contributorEmail,
         url: `${window.location.href}&expertMode=true`,
       });
 
@@ -254,7 +273,7 @@ Thank you very much`;
         <ServiceHelpDialog open={!isServiceHelpViewed} onClose={() => setServiceHelpViewed(true)} />
       )}
       <Drawer className={s.drawer}>
-        <>
+        <div className={s.drawerWrapper}>
           <nav className={s.drawerNav}>
             <LinkIcon
               className={s.backButton}
@@ -265,6 +284,7 @@ Thank you very much`;
             >
               {t('service:back')}
             </LinkIcon>
+            <span className={s.destination}>{destination}</span>
           </nav>
           <div className={s.formWrapper}>
             <form>
@@ -530,17 +550,28 @@ Thank you very much`;
                 </a>
               </div>
             )}
-
-            <nav className={s.formActions}>
-              <Button disabled={submitDisabled} type="secondary" onClick={onVerifyVersion}>
-                {t('service:verify-version')}
-              </Button>
-              <Button disabled={submitDisabled || loading} onClick={onValidate}>
-                {t('service:submit')}
-              </Button>
-            </nav>
           </div>
-        </>
+          <nav className={s.formActions}>
+            <Button disabled={versionDisabled} type="secondary" onClick={onVerifyVersion}>
+              {t('service:verify-version')}
+            </Button>
+            <Button disabled={submitDisabled || loading} onClick={onValidate}>
+              {t('service:submit')}
+            </Button>
+          </nav>
+          <div className={s.contribute}>
+            {contributorEmail && (
+              <Trans
+                i18nKey="service:contributor.info"
+                components={{ strong: <strong /> }}
+                values={{ email: contributorEmail }}
+              />
+            )}
+            <div>
+              <a onClick={() => showModal('contributor')}>{t('service:contributor.change')}</a>
+            </div>
+          </div>
+        </div>
       </Drawer>
       <div className={s.main}>
         <div className={s.linkToSnapshot}>
@@ -565,10 +596,20 @@ Thank you very much`;
             <a onClick={() => window.location.reload()}>{t('service:error.cta.refresh')}</a>
           </div>
         )}
-        {isServiceVerifyDisplayed && (
+        {!!modal && (
           <div className={classNames(s.fullPageAbove)}>
-            <Version json={declaration} />
-            <button onClick={toggleServiceVerifyDisplayed}>
+            {modal === 'contributor' && (
+              <ContributorForm
+                onContributorChange={({ name, email }) => {
+                  setContributorName(name);
+                  setContributorEmail(email);
+                  showModal(undefined);
+                }}
+                mdxContent={contributorFormMdx}
+              />
+            )}
+            {modal === 'version' && <Version json={declaration} />}
+            <button onClick={() => showModal(undefined)}>
               <IconClose />
             </button>
           </div>
@@ -595,7 +636,18 @@ Thank you very much`;
 export const getStaticProps = async (props: any) =>
   JSON.parse(
     JSON.stringify({
-      props: { ...props, documentTypes: await getDocumentTypes() },
+      props: {
+        ...props,
+        documentTypes: await getDocumentTypes(),
+        contributorFormMdx: await loadMdxFile(
+          {
+            load: 'mdx',
+            folder: 'parts',
+            filename: 'contributor-form',
+          },
+          props.locale
+        ),
+      },
       revalidate: 60 * 5,
     })
   );
