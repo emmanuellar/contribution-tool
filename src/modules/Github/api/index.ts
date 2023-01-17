@@ -1,5 +1,5 @@
 const DOCUMENT_TYPES_URL =
-  'https://raw.githubusercontent.com/ambanum/OpenTermsArchive/main/src/archivist/services/documentTypes.json';
+  'https://raw.githubusercontent.com/OpenTermsArchive/terms-types/main/termsTypes.json';
 
 import { Octokit } from 'octokit';
 import axios from 'axios';
