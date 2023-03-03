@@ -1,6 +1,6 @@
 # OpenTermsArchive Contribution Tool
 
-This is the repository for `contribute.opentermsarchive.org`, a website that helps user create service declarations for the [Open Terms Archive](https://github.com/ambanum/OpenTermsArchive) project.
+This is the repository for `contribute.opentermsarchive.org`, a website that helps user create service declarations for the [Open Terms Archive](https://github.com/OpenTermsArchive/engine) project.
 
 ## Introduction
 
