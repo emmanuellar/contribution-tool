@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.5.0",
+    "@opentermsarchive/engine": "^0.26.0",
     "@socialgouv/matomo-next": "^1.2.1",
     "@svgr/webpack": "^5.5.0",
     "accept-language": "^3.0.18",
@@ -37,7 +38,6 @@
     "next-translate": "^1.6.0",
     "nprogress": "^0.2.0",
     "octokit": "^1.7.1",
-    "open-terms-archive": "github:ambanum/OpenTermsArchive",
     "postcss": "^8.4.8",
     "postcss-animation": "^0.0.12",
     "postcss-calc": "^8.2.4",
