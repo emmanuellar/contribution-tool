@@ -1,6 +1,6 @@
-import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from 'open-terms-archive/fetch';
-import filter from 'open-terms-archive/filter';
-import PageDeclaration from 'open-terms-archive/page-declaration';
+import fetch, { launchHeadlessBrowser, stopHeadlessBrowser } from '@opentermsarchive/engine/fetch';
+import filter from '@opentermsarchive/engine/filter';
+import PageDeclaration from '@opentermsarchive/engine/page-declaration';
 import { cleanStringForFileSystem } from 'utils/filesystem';
 
 export interface OTARangeSelector {
