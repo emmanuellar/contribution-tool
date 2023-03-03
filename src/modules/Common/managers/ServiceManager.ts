@@ -134,7 +134,7 @@ export default class ServiceManager {
       '- [ ] The suggested document **matches the scope of this instance**: it targets a service in the language, jurisdiction, and industry that are part of those [described](../#scope) for this instance.',
       `- [ ] **The service name \`${this.name}\` matches what you see on the web page**, and it complies with the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-name).`,
       `- [ ] **The service ID \`${this.id}\` (i.e. the name of the file) is derived from the service name** according to the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-id).`,
-      `- [ ] The document type \`${this.type}\` is appropriate for this document: if you read out loud the [document type tryptich](https://github.com/ambanum/OpenTermsArchive/blob/main/src/archivist/services/documentTypes.json), you can say that **“this document describes how the \`writer\` commits to handle the \`object\` for its \`audience\`”**.`,
+      `- [ ] The document type \`${this.type}\` is appropriate for this document: if you read out loud the [document type tryptich](https://github.com/OpenTermsArchive/engine/blob/main/src/archivist/services/documentTypes.json), you can say that **“this document describes how the \`writer\` commits to handle the \`object\` for its \`audience\`”**.`,
       ...(hasSelector ? selectorsCheckboxes : []),
       ...versionCheckboxes,
     ];
@@ -147,7 +147,7 @@ Bots should take care of checking the formatting and the validity of the declara
 
 ${checkBoxes.join('\n')}
 
-If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/ambanum/OpenTermsArchive/discussions) about such a type and reference your case there, or open a new discussion if not.
+If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/OpenTermsArchive/engine/discussions) about such a type and reference your case there, or open a new discussion if not.
 
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
 
