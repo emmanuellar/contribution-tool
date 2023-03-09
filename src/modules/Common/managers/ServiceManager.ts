@@ -132,9 +132,9 @@ export default class ServiceManager {
 
     const checkBoxes = [
       '- [ ] The suggested document **matches the scope of this instance**: it targets a service in the language, jurisdiction, and industry that are part of those [described](../#scope) for this instance.',
-      `- [ ] **The service name \`${this.name}\` matches what you see on the web page**, and it complies with the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-name).`,
-      `- [ ] **The service ID \`${this.id}\` (i.e. the name of the file) is derived from the service name** according to the [guidelines](https://github.com/OpenTermsArchive/contrib-declarations/blob/main/CONTRIBUTING.md#service-id).`,
-      `- [ ] The document type \`${this.type}\` is appropriate for this document: if you read out loud the [document type tryptich](https://github.com/OpenTermsArchive/engine/blob/main/src/archivist/services/documentTypes.json), you can say that **“this document describes how the \`writer\` commits to handle the \`object\` for its \`audience\`”**.`,
+      `- [ ] **The service name \`${this.name}\` matches what you see on the web page**, and it complies with the [guidelines](https://docs.opentermsarchive.org/guidelines/declaring/#service-name).`,
+      `- [ ] **The service ID \`${this.id}\` (i.e. the name of the file) is derived from the service name** according to the [guidelines](https://docs.opentermsarchive.org/guidelines/declaring/#service-id).`,
+      `- [ ] The term type \`${this.type}\` is appropriate for this document: if you read out loud the [term type tryptich](https://github.com/OpenTermsArchive/terms-types/blob/main/termsTypes.json), you can say that **“this document describes how the \`writer\` commits to handle the \`object\` for its \`audience\`”**.`,
       ...(hasSelector ? selectorsCheckboxes : []),
       ...versionCheckboxes,
     ];
