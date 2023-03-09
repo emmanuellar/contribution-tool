@@ -140,12 +140,12 @@ export default class ServiceManager {
     ];
 
     const body = `### [🔎 Inspect this declaration suggestion](${url})
-  
-- - -
 
 Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
 
 ${checkBoxes.join('\n')}
+
+- - -
 
 If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/OpenTermsArchive/engine/discussions) about such a type and reference your case there, or open a new discussion if not.
 
@@ -153,9 +153,8 @@ Thanks to your work and attention, Open Terms Archive will ensure that high qual
 
 - - -
 
-_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
-You can load it [on your local instance](${localUrl}) if you have one set up._
-  `;
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can load it [on your local instance](${localUrl}) if you have one set up._
+`;
 
     try {
       return await createDocumentAddPullRequest({
@@ -173,18 +172,13 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
       if (e?.response?.data?.message === 'Reference already exists') {
         const updateBody = `### [🔎 Inspect the updated declaration suggestion](${url})
 
-- - -
-
-A new suggestion has been made, voiding the previous ones.
-
-As a human reviewer, here are the things you should check:
+A new suggestion has been made, voiding the previous ones. As a human reviewer, here are the things you should check:
 
 ${checkBoxes.join('\n')}
 
 - - -
 
-_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
-You can load it [on your local instance](${localUrl}) if you have one set up._
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
         // a branch already exists wit this name, add a commit to it
         return await updateDocumentsInBranch({
@@ -240,19 +234,18 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
 
     const body = `### [🔎 Inspect this declaration update suggestion](${url})
 
-- - -
-
 Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
 
 ${checkBoxes.join('\n')}
+
+- - -
 
 Thanks to your work and attention, Open Terms Archive will ensure that high quality data is available for all reusers, enabling them to do their part in shifting the balance of power towards end users and regulators instead of spending time collecting and cleaning documents 💪
 
 ${issueNumber ? `Fixes #${issueNumber}` : ''}
 - - -
 
-_This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
-You can load it [on your local instance](${localUrl}) if you have one set up._
+_This update suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
 
     try {
@@ -274,18 +267,13 @@ You can load it [on your local instance](${localUrl}) if you have one set up._
     } catch (e) {
       const updateBody = `### [🔎 Inspect the updated declaration suggestion](${url})
 
-- - -
-
-A new suggestion has been made to update this declaration, voiding the previous ones.
-
-As a human reviewer, here are the things you should check:
+A new suggestion has been made to update this declaration, voiding the previous ones. As a human reviewer, here are the things you should check:
 
 ${checkBoxes.join('\n')}
 
 - - -
 
-_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents.
-You can load it [on your local instance](${localUrl}) if you have one set up._
+_This suggestion has been created through the [Contribution Tool](https://github.com/OpenTermsArchive/contribution-tool/), which enables graphical declaration of documents. You can load it [on your local instance](${localUrl}) if you have one set up._
 `;
 
       // a branch already exists wit this name, add a commit to it
