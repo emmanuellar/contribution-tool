@@ -139,13 +139,11 @@ export default class ServiceManager {
       ...versionCheckboxes,
     ];
 
-    const body = `### [🔎 Inspect this declaration suggestion](${url})
-
-Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
+    const body = `Bots should take care of checking the formatting and the validity of the declaration. As a human reviewer, you should check:
 
 ${checkBoxes.join('\n')}
 
-- - -
+### [🔎 Inspect this declaration suggestion](${url})
 
 If no document type seems appropriate for this document yet it is relevant to track in this instance, please check if there is already an [open discussion](https://github.com/OpenTermsArchive/engine/discussions) about such a type and reference your case there, or open a new discussion if not.
 
